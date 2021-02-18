@@ -22,6 +22,9 @@ class m210217_114047_create_settings_table extends Migration
             'is_system' => $this->smallInteger()->defaultValue(0)->comment('Системная настройка')
         ]);
 
+        $this->addCommentOnTable('{{%settings}}', 'Настройки');
+
+
         $this->addForeignKey(
             'fk-settings-user_id',
             '{{%settings}}',

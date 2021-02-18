@@ -19,9 +19,9 @@ class UserProfileOwnerRule extends Rule
      */
     public function execute($user, $item, $params)
     {
-        Yii::warning($user, 'test');
-        Yii::warning($item, 'test');
-        Yii::warning($params, 'test');
+//        Yii::warning($user, 'test');
+//        Yii::warning($item, 'test');
+//        Yii::warning($params, 'test');
 
         if (Yii::$app->user->identity->role == 'admin') {
             return true;

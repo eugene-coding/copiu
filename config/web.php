@@ -23,11 +23,11 @@ $config = [
     'components' => [
         'authManager' => [
             'class' => 'yii\rbac\PhpManager',
-            'defaultRoles' => ['admin', 'user', 'specialist'], // Здесь нет роли "guest", т.к. эта роль виртуальная и не присутствует в модели UserExt
+            'defaultRoles' => ['admin', 'buyer', 'supplier'], // Здесь нет роли "guest", т.к. эта роль виртуальная и не присутствует в модели UserExt
         ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'lksajdhfafhjglskdfhjgslkfdhglksdfghslfgk',
+            'cookieValidationKey' => 'lksajdhfafhjgsdfsfgglskdfhjgslkfdhglksdfghslfgk',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',

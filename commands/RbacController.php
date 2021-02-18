@@ -22,10 +22,10 @@ class RbacController extends Controller
 
         $guest = $authManager->createRole('guest');
         $guest->description = 'Гость';
-        $user = $authManager->createRole('user');
-        $user->description = 'Пользователь';
-        $specialist = $authManager->createRole('specialist');
-        $specialist->description = 'Специалист';
+        $buyer = $authManager->createRole('buyer');
+        $buyer->description = 'Покупатель';
+        $supplier = $authManager->createRole('supplier');
+        $supplier->description = 'Поставщик';
         $admin = $authManager->createRole('admin');
         $admin->description = 'Администратор';
 
@@ -40,6 +40,7 @@ class RbacController extends Controller
         $update = $authManager->createPermission('update');
         $delete = $authManager->createPermission('delete');
         $profile = $authManager->createPermission('profile');
+        $test = $authManager->createPermission('test');
 
 
         //Добавляем разрешения в AuthManager
@@ -54,6 +55,7 @@ class RbacController extends Controller
         $authManager->add($update);
         $authManager->add($delete);
         $authManager->add($profile);
+        $authManager->add($test);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -61,14 +63,14 @@ class RbacController extends Controller
 
         //Добавляем правила UserGroupRule в роли
         $guest->ruleName = $userGroupRule->name;
-        $user->ruleName = $userGroupRule->name;
-        $specialist->ruleName = $userGroupRule->name;
+        $buyer->ruleName = $userGroupRule->name;
+        $supplier->ruleName = $userGroupRule->name;
         $admin->ruleName = $userGroupRule->name;
 
         //Добавляем роли в Yii::$app->authManager
         $authManager->add($guest);
-        $authManager->add($user);
-        $authManager->add($specialist);
+        $authManager->add($buyer);
+        $authManager->add($supplier);
         $authManager->add($admin);
 
         //Добавляем разрешения для роли в Yii::$app->authManager
@@ -80,24 +82,26 @@ class RbacController extends Controller
         $authManager->addChild($guest, $index);
         $authManager->addChild($guest, $view);
 
-        //User
-        $authManager->addChild($user, $update);
-        $authManager->addChild($user, $create);
-        $authManager->addChild($user, $logout);
-        $authManager->addChild($user, $profile);
-        $authManager->addChild($user, $guest);
+        //Покупатель
+        $authManager->addChild($buyer, $update);
+        $authManager->addChild($buyer, $create);
+        $authManager->addChild($buyer, $logout);
+        $authManager->addChild($buyer, $profile);
+        $authManager->addChild($buyer, $guest);
 
-        //Specialist
-        $authManager->addChild($specialist, $update);
-        $authManager->addChild($specialist, $create);
-        $authManager->addChild($specialist, $logout);
-        $authManager->addChild($specialist, $profile);
-        $authManager->addChild($specialist, $guest);
+        //Поставщик
+        $authManager->addChild($supplier, $update);
+        $authManager->addChild($supplier, $create);
+        $authManager->addChild($supplier, $logout);
+        $authManager->addChild($supplier, $profile);
+        $authManager->addChild($supplier, $guest);
 
         //Admin
         $authManager->addChild($admin, $delete);
-        $authManager->addChild($admin, $user);
-        $authManager->addChild($admin, $specialist);
+        $authManager->addChild($admin, $test);
+
+        $authManager->addChild($admin, $buyer);
+        $authManager->addChild($admin, $supplier);
 
         //Добавляем правило, запрещающее редактировать чужой профиль
         $userProfileOwnerRule = new UserProfileOwnerRule();
@@ -107,8 +111,8 @@ class RbacController extends Controller
         $updateOwnProfile->ruleName = $userProfileOwnerRule->name;
         $authManager->add($updateOwnProfile);
 
-        $authManager->addChild($user, $updateOwnProfile);
-        $authManager->addChild($specialist, $updateOwnProfile);
+        $authManager->addChild($buyer, $updateOwnProfile);
+        $authManager->addChild($supplier, $updateOwnProfile);
 
 
     }

@@ -39,6 +39,7 @@ use dmstr\widgets\Menu;
                     'items' => [
                         ['label' => 'Menu Yii2', 'options' => ['class' => 'header']],
                         ['label' => 'Users',  'icon' => 'users', 'url' => ['/users'], 'visible' => Users::isAdmin()],
+                        ['label' => 'Настройки',  'icon' => 'wrench', 'url' => ['/settings'], 'visible' => Users::isAdmin()],
                         [
                             'label' => 'Some tools',
                             'icon' => 'share',

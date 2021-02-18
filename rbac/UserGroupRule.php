@@ -19,10 +19,10 @@ class UserGroupRule extends Rule
             $group = $identity->role;
             if ($item->name === 'admin') {
                 return $group == 'admin';
-            } elseif ($item->name === 'user') {
-                return $group == 'admin' || $group == 'user';
-            } elseif ($item->name === 'specialist') {
-                return $group == 'admin' || $group == 'specialist';
+            } elseif ($item->name === 'buyer') {
+                return $group == 'admin' || $group == 'buyer';
+            } elseif ($item->name === 'supplier') {
+                return $group == 'admin' || $group == 'supplier';
             }
         }
         return true;

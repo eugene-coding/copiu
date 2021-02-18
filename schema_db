@@ -69,7 +69,7 @@
     </key>
     <comment>Пользователи</comment>
 </table>
-    <table x="956" y="471" name="price_category">
+    <table x="912" y="357" name="price_category">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -81,13 +81,13 @@
         </key>
         <comment>Ценовая категория</comment>
     </table>
-    <table x="881" y="288" name="order">
+    <table x="906" y="242" name="order">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
         <row name="client_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default><relation table="client" row="id" />
+            <default>NULL</default><relation table="buyer" row="id" />
         </row>
         <row name="supplier_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
@@ -145,7 +145,7 @@
         </key>
         <comment>Номенклатура товаров</comment>
     </table>
-    <table x="626" y="256" name="client">
+    <table x="607" y="266" name="buyer">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -163,6 +163,7 @@
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
+        <comment>Покупатели</comment>
     </table>
     <table x="904" y="64" name="order_to_prouct">
         <row name="id" null="1" autoincrement="1">
@@ -218,7 +219,7 @@
         </key>
         <comment>Поставщики</comment>
     </table>
-    <table x="216" y="143" name="supplier_to_client">
+    <table x="216" y="143" name="supplier_to_buyer">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -226,14 +227,14 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="supplier" row="id" />
         </row>
-        <row name="client_id" null="1" autoincrement="0">
+        <row name="buyer_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default><relation table="client" row="id" />
+            <default>NULL</default><relation table="buyer" row="id" />
         </row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
-        <comment>Связь поставщиков с клиентами</comment>
+        <comment>Связь поставщиков с покупателями</comment>
     </table>
     <table x="1199" y="365" name="settings">
         <row name="id" null="1" autoincrement="1">
