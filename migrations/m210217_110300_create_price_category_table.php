@@ -14,7 +14,7 @@ class m210217_110300_create_price_category_table extends Migration
     {
         $this->createTable('{{%price_category}}', [
             'id' => $this->primaryKey(),
-            'name' => $this->string(),
+            'code' => $this->string(),
         ]);
         $this->addCommentOnTable('{{%price_category}}', 'Ценовая категория');
     }
