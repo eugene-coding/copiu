@@ -376,10 +376,75 @@
                         'responsibleUsers' => [],
                         'responsibleRoles' => [],
                     ]
+                ],
+                //PriceCategory
+                [
+                    'id' => 'e1e3825f-fe70-4340-a113-8adc4c059b01',
+                    'type' => 'ClientPriceCategory',
+                    'deleted' => 'false',
+                    'xml' => [
+                        '@attributes' => [
+                            'null' => '1'
+                        ]
+                    ],
+                    'r' => [
+                        '@attributes' => [
+                            'cls' => 'ClientPriceCategory',
+                            'eid' => 'e1e3825f-fe70-4340-a113-8adc4c059b01',
+                        ],
+                        'revision' => '259047',
+                        'lastModifyNode' => 'f5460b95-c588-b515-0164-21bb61820004',
+                        'deleted' => 'false',
+                        'modified' => '2019-03-14T18:43:25.602+03:00',
+                        'created' => '2018-11-30T18:00:12.869+03:00',
+                        'deletedDate' => '1900-01-01T00:00:00.000+03:00',
+                        'userCreatedId' => [
+                            '@attributes' => [
+                                'null' => '1'
+                            ]
+                        ],
+                        'userModifiedId' => [
+                            '@attributes' => [
+                                'null' => '1'
+                            ]
+                        ],
+                        'localId' => '2',
+                        'name' => [
+                            'defaultResourceId' => [
+                                '@attributes' => [
+                                    'null' => '1'
+                                ]
+                            ],
+                            'currentResourceId' => [
+                                '@attributes' => [
+                                    'null' => '1'
+                                ]
+                            ],
+                            'customValue' => 'Завод',
+                        ],
+                        'code' => '1',
+                        'assignableManually' => 'true',
+                        'defaultPricingStrategy' => [
+                            '@attributes' => [
+                                'cls' => 'PercentPricingStrategy'
+                            ],
+                            'percent' => '0E-9',
+                        ],
+                        'franchiseUniqueId' => [
+                            '@attributes' => [
+                                'null' => '1'
+                            ]
+                        ],
+                        'franchiseMasterId' => [
+                            '@attributes' => [
+                                'null' => '1'
+                            ]
+                        ]
+                    ],
+                    'licenseInfo' => [],
+                    'watchDogCheckResults' => [],
                 ]
             ]
-        ],
-        'licenseInfo' => [],
-        'watchDogCheckResults' => [],
+        ]
     ]
 ];
