@@ -3,17 +3,19 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveRecord;
+use yii\db\Exception;
 
 /**
  * This is the model class for table "price_category".
  *
  * @property int $id
- * @property string|null $code
+ * @property string|null $outer_id
  * @property string|null $name
  *
  * @property Buyer[] $buyers
  */
-class PriceCategory extends \yii\db\ActiveRecord
+class PriceCategory extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -30,7 +32,7 @@ class PriceCategory extends \yii\db\ActiveRecord
     {
         return [
             [['name'], 'string'],
-            [['code'], 'string', 'max' => 255],
+            [['outer_id'], 'string', 'max' => 255],
         ];
     }
 
@@ -41,7 +43,7 @@ class PriceCategory extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'code' => 'Код',
+            'outer_id' => 'Внешний идентификатор',
             'name' => 'Наименование',
         ];
     }
@@ -53,6 +55,34 @@ class PriceCategory extends \yii\db\ActiveRecord
      */
     public function getBuyers()
     {
-        return $this->hasMany(Buyer::className(), ['pc_id' => 'id']);
+        return $this->hasMany(Buyer::class, ['pc_id' => 'id']);
+    }
+
+    public function sync($data)
+    {
+        $rows = [];
+        $exist_category = PriceCategory::find()->select(['outer_id'])->column();
+//        Yii::info($exist_category, 'test');
+
+        foreach ($data as $pc){
+            $outer_id = $pc['id'];
+            if (!in_array($outer_id, $exist_category)){
+                $name = $pc['r']['name']['customValue'];
+                $rows[] = [$name, $outer_id];
+            }
+        }
+
+        try {
+            Yii::$app->db->createCommand()->batchInsert(PriceCategory::tableName(), ['name', 'outer_id'],
+                $rows)->execute();
+        } catch (Exception $e) {
+            Yii::error($e->getMessage(), '_error');
+        }
+
+
+        return [
+            'success' => true,
+            'data' => 'Синхронизация ценовых категорий прошла успешно',
+        ];
     }
 }

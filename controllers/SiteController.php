@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\components\PostmanApiHelper;
+use app\models\Buyer;
+use app\models\PriceCategory;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -66,8 +68,8 @@ class SiteController extends Controller
      */
     public function beforeAction($action)
     {
-        if (parent::beforeAction($action)){
-            if (!Yii::$app->user->can($action->id)){
+        if (parent::beforeAction($action)) {
+            if (!Yii::$app->user->can($action->id)) {
                 throw new ForbiddenHttpException('Доступ запрещен!');
             }
             return true;
@@ -154,6 +156,97 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
+    /**
+     * Отображет форму с кнопками синхронизации
+     * @return array
+     */
+    public function actionSyncing()
+    {
+        $request = Yii::$app->request;
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $syncing_methods = [
+            'Синхронизация покупателей и ценовых категорий' => '/site/sync-all',
+//            'Синхронизация покупателей' => '/site/sync-buyer',
+//            'Синхронизация ценовых категорий' => '/site/sync-price-category',
+        ];
+
+        if ($request->isGet) {
+            return [
+                'title' => 'Синхронизация данных',
+                'content' => $this->renderAjax('sync', [
+                    'syncing_methods' => $syncing_methods
+                ]),
+            ];
+        }
+
+    }
+
+    /**
+     * Синхронизация покупателей
+     */
+    public function actionSyncBuyer()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $helper = new PostmanApiHelper();
+        $buyer_model = new Buyer();
+        return $buyer_model->sync($helper->getBuyers());
+
+//        return [
+//            'success' => false,
+//            'data' => 'Синхронизация покупателей прошла успешно',
+//            'error' => 'Ошбика Синхронизации покупателей категорий',
+//        ];
+    }
+
+    /**
+     * Синхронизация ценовых категорий
+     */
+    public function actionSyncPriceCategory()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'success' => false,
+            'data' => 'Синхронизация ценовых категорий прошла успешно',
+            'error' => 'Ошбика Синхронизации ценовых категорий',
+        ];
+    }
+
+    /**
+     * Синхронизация ценовых категорий ипокупателей
+     */
+    public function actionSyncAll()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $helper = new PostmanApiHelper();
+        $buyer_model = new Buyer();
+        $pc_model = new PriceCategory();
+
+        $data = $helper->getAll();
+
+        $sync_pc_result = $pc_model->sync($data['price_category']);
+        if (!$sync_pc_result['success']) {
+            return [
+                'success' => false,
+                'error' => 'Ошбика синхронизации ценовых категорий',
+            ];
+        }
+        $sync_buyer_result = $buyer_model->sync($data['buyer']);
+        if (!$sync_buyer_result['success']) {
+            return [
+                'success' => false,
+                'error' => 'Ошбика синхронизации покупателей',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'data' => 'Синхронизация покупателей и ценовых категорий прошла успешно',
+        ];
+    }
+
     public function actionTest()
     {
         $helper = new PostmanApiHelper();
@@ -162,4 +255,6 @@ class SiteController extends Controller
 
         VarDumper::dump($result, 10, true);
     }
+
+
 }

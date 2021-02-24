@@ -41,6 +41,10 @@ class RbacController extends Controller
         $delete = $authManager->createPermission('delete');
         $profile = $authManager->createPermission('profile');
         $test = $authManager->createPermission('test');
+        $syncing = $authManager->createPermission('syncing');
+        $syncBuyer = $authManager->createPermission('sync-buyer');
+        $syncPriceCategory = $authManager->createPermission('sync-price-category');
+        $syncAll = $authManager->createPermission('sync-all');
 
 
         //Добавляем разрешения в AuthManager
@@ -56,6 +60,10 @@ class RbacController extends Controller
         $authManager->add($delete);
         $authManager->add($profile);
         $authManager->add($test);
+        $authManager->add($syncing);
+        $authManager->add($syncBuyer);
+        $authManager->add($syncPriceCategory);
+        $authManager->add($syncAll);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -89,19 +97,15 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $profile);
         $authManager->addChild($buyer, $guest);
 
-        //Поставщик
-        $authManager->addChild($supplier, $update);
-        $authManager->addChild($supplier, $create);
-        $authManager->addChild($supplier, $logout);
-        $authManager->addChild($supplier, $profile);
-        $authManager->addChild($supplier, $guest);
-
         //Admin
         $authManager->addChild($admin, $delete);
         $authManager->addChild($admin, $test);
+        $authManager->addChild($admin, $syncing);
+        $authManager->addChild($admin, $syncBuyer);
+        $authManager->addChild($admin, $syncPriceCategory);
+        $authManager->addChild($admin, $syncAll);
 
         $authManager->addChild($admin, $buyer);
-        $authManager->addChild($admin, $supplier);
 
         //Добавляем правило, запрещающее редактировать чужой профиль
         $userProfileOwnerRule = new UserProfileOwnerRule();

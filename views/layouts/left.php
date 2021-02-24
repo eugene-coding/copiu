@@ -38,8 +38,20 @@ use dmstr\widgets\Menu;
                     'options' => ['class' => 'sidebar-menu tree', 'data-widget' => 'tree'],
                     'items' => [
                         ['label' => 'Menu Yii2', 'options' => ['class' => 'header']],
-                        ['label' => 'Users',  'icon' => 'users', 'url' => ['/users'], 'visible' => Users::isAdmin()],
-                        ['label' => 'Настройки',  'icon' => 'wrench', 'url' => ['/settings'], 'visible' => Users::isAdmin()],
+                        ['label' => 'Users', 'icon' => 'users', 'url' => ['/users'], 'visible' => Users::isAdmin()],
+                        [
+                            'label' => 'Настройки',
+                            'icon' => 'wrench',
+                            'url' => ['/settings'],
+                            'visible' => Users::isAdmin()
+                        ],
+                        [
+                            'label' => 'Синхронизация',
+                            'icon' => 'exchange',
+                            'url' => ['/site/syncing'],
+                            'template' => '<a href="{url}" role="modal-remote"><i class="fa fa-exchange"></i> {label}</a>',
+                            'visible' => Users::isAdmin()
+                        ],
                         [
                             'label' => 'Some tools',
                             'icon' => 'share',

@@ -21,8 +21,6 @@ class UserGroupRule extends Rule
                 return $group == 'admin';
             } elseif ($item->name === 'buyer') {
                 return $group == 'admin' || $group == 'buyer';
-            } elseif ($item->name === 'supplier') {
-                return $group == 'admin' || $group == 'supplier';
             }
         }
         return true;

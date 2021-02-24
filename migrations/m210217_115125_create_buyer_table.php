@@ -16,7 +16,8 @@ class m210217_115125_create_buyer_table extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string(),
             'pc_id' => $this->integer()->comment('Ценовая категория'),
-            'user_id' => $this->integer()->comment('Пользователь системы')
+            'user_id' => $this->integer()->comment('Пользователь системы'),
+            'outer_id' => $this->string()->comment('Внешний идентификатор')
         ]);
         $this->addCommentOnTable('{{%buyer}}', 'Покупатели');
 

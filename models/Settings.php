@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "settings".
@@ -17,7 +18,7 @@ use Yii;
  *
  * @property Users $user
  */
-class Settings extends \yii\db\ActiveRecord
+class Settings extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -64,5 +65,17 @@ class Settings extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(Users::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * Получает значение настройки по ключу
+     * @param $key
+     * @return null|string
+     */
+    public static function getValueByKey($key)
+    {
+        /** @var Settings $setting */
+        $setting = Settings::find()->andWhere(['key' => $key])->one();
+        return $setting->value;
     }
 }
