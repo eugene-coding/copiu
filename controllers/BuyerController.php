@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Users;
 use Yii;
 use app\models\Buyer;
 use app\models\search\BuyerSearch;
@@ -56,7 +57,7 @@ class BuyerController extends Controller
      * @return mixed
      */
     public function actionIndex()
-    {    
+    {
         $searchModel = new BuyerSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -66,7 +67,6 @@ class BuyerController extends Controller
         ]);
     }
 
-
     /**
      * Displays a single Buyer model.
      * @param integer $id
@@ -74,19 +74,19 @@ class BuyerController extends Controller
      * @throws NotFoundHttpException
      */
     public function actionView($id)
-    {   
+    {
         $request = Yii::$app->request;
-        if($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                    'title'=> "Buyer #".$id,
-                    'content'=>$this->renderAjax('view', [
-                        'model' => $this->findModel($id),
-                    ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Edit',['update','id'=>$id],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                ];    
-        }else{
+                'title' => "Buyer #" . $id,
+                'content' => $this->renderAjax('view', [
+                    'model' => $this->findModel($id),
+                ]),
+                'footer' => Html::button('Close', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    Html::a('Edit', ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+            ];
+        } else {
             return $this->render('view', [
                 'model' => $this->findModel($id),
             ]);
@@ -102,44 +102,49 @@ class BuyerController extends Controller
     public function actionCreate()
     {
         $request = Yii::$app->request;
-        $model = new Buyer();  
+        $model = new Buyer();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "Create new Buyer",
-                    'content'=>$this->renderAjax('create', [
+                    'title' => "Create new Buyer",
+                    'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
-        
-                ];         
-            }else if($model->load($request->post()) && $model->save()){
-                return [
-                    'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> "Create new Buyer",
-                    'content'=>'<span class="text-success">Create Buyer success</span>',
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Create More',['create'],['class'=>'btn btn-primary','role'=>'modal-remote'])
-        
-                ];         
-            }else{           
-                return [
-                    'title'=> "Create new Buyer",
-                    'content'=>$this->renderAjax('create', [
-                        'model' => $model,
-                    ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
-        
-                ];         
+                    'footer' => Html::button('Close',
+                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+
+                ];
+            } else {
+                if ($model->load($request->post()) && $model->save()) {
+                    return [
+                        'forceReload' => '#crud-datatable-pjax',
+                        'title' => "Create new Buyer",
+                        'content' => '<span class="text-success">Create Buyer success</span>',
+                        'footer' => Html::button('Close',
+                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                            Html::a('Create More', ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+
+                    ];
+                } else {
+                    return [
+                        'title' => "Create new Buyer",
+                        'content' => $this->renderAjax('create', [
+                            'model' => $model,
+                        ]),
+                        'footer' => Html::button('Close',
+                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+
+                    ];
+                }
             }
-        }else{
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -151,7 +156,7 @@ class BuyerController extends Controller
                 ]);
             }
         }
-       
+
     }
 
     /**
@@ -165,43 +170,99 @@ class BuyerController extends Controller
     public function actionUpdate($id)
     {
         $request = Yii::$app->request;
-        $model = $this->findModel($id);       
+        $model = $this->findModel($id);
+        $user_model = $model->user;
 
-        if($request->isAjax){
+        if (!$user_model) {
+            $user_model = new Users();
+        }
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet){
+            if ($request->isGet) {
                 return [
-                    'title'=> "Update Buyer #".$id,
-                    'content'=>$this->renderAjax('update', [
+                    'title' => $model->name,
+                    'content' => $this->renderAjax('update', [
                         'model' => $model,
+                        'user_model' => $user_model,
                     ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
-                ];         
-            }else if($model->load($request->post()) && $model->save()){
-                return [
-                    'forceReload'=>'#crud-datatable-pjax',
-                    'title'=> "Buyer #".$id,
-                    'content'=>$this->renderAjax('view', [
-                        'model' => $model,
-                    ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                            Html::a('Edit',['update','id'=>$id],['class'=>'btn btn-primary','role'=>'modal-remote'])
-                ];    
-            }else{
-                 return [
-                    'title'=> "Update Buyer #".$id,
-                    'content'=>$this->renderAjax('update', [
-                        'model' => $model,
-                    ]),
-                    'footer'=> Html::button('Close',['class'=>'btn btn-default pull-left','data-dismiss'=>"modal"]).
-                                Html::button('Save',['class'=>'btn btn-primary','type'=>"submit"])
-                ];        
+                    'footer' => Html::button('Close',
+                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                ];
+            } else {
+                if ($model->load($request->post())) {
+                    if (!$model->user_id) {
+                        $user_model->load($request->post());
+                        //Проверяем указан ли логин
+                        if ($user_model->login) {
+                            //Проверяем указан ли пароль
+                            if ($user_model->open_pass) {
+                                $user_model->fio = $model->name;
+                                $user_model->role = $user_model::ROLE_BUYER;
+                                $user_model->password = $user_model->open_pass;
+                                if (!$user_model->save()) {
+                                    Yii::error($user_model->errors, '_error');
+                                    return [
+                                        'title' => $model->name,
+                                        'content' => $this->renderAjax('update', [
+                                            'model' => $model,
+                                            'user_model' => $user_model,
+                                        ]),
+                                        'footer' => Html::button('Close',
+                                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                                    ];
+                                }
+                                $model->user_id = $user_model->id;
+                                if (!$model->save()) {
+                                    Yii::error($user_model->errors, '_error');
+                                    return [
+                                        'title' => $model->name,
+                                        'content' => $this->renderAjax('update', [
+                                            'model' => $model,
+                                            'user_model' => $user_model,
+                                        ]),
+                                        'footer' => Html::button('Close',
+                                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                                    ];
+                                }
+                            } else {
+                                $user_model->addError('open_pass', 'Не указан пароль');
+                                return [
+                                    'title' => $model->name,
+                                    'content' => $this->renderAjax('update', [
+                                        'model' => $model,
+                                        'user_model' => $user_model,
+                                    ]),
+                                    'footer' => Html::button('Close',
+                                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                                ];
+                            }
+                        }
+                    }
+                    return [
+                        'forceReload' => '#crud-datatable-pjax',
+                        'forceClose' => true,
+                    ];
+                } else {
+                    return [
+                        'title' => "Редактирование покупателя",
+                        'content' => $this->renderAjax('update', [
+                            'model' => $model,
+                            'user_model' => $user_model,
+                        ]),
+                        'footer' => Html::button('Close',
+                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                    ];
+                }
             }
-        }else{
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -210,6 +271,7 @@ class BuyerController extends Controller
             } else {
                 return $this->render('update', [
                     'model' => $model,
+                    'user_model' => $user_model,
                 ]);
             }
         }
@@ -231,13 +293,13 @@ class BuyerController extends Controller
         $request = Yii::$app->request;
         $this->findModel($id)->delete();
 
-        if($request->isAjax){
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true,'forceReload'=>'#crud-datatable-pjax'];
-        }else{
+            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -245,40 +307,6 @@ class BuyerController extends Controller
         }
 
 
-    }
-
-    /**
-     * Delete multiple existing Buyer model.
-     * For ajax request will return json object
-     * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
-     * @return mixed
-     * @throws NotFoundHttpException
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
-     */
-    public function actionBulkDelete()
-    {        
-        $request = Yii::$app->request;
-        $pks = explode(',', $request->post( 'pks' )); // Array or selected records primary keys
-        foreach ( $pks as $pk ) {
-            $model = $this->findModel($pk);
-            $model->delete();
-        }
-
-        if($request->isAjax){
-            /*
-            *   Process for ajax request
-            */
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true,'forceReload'=>'#crud-datatable-pjax'];
-        }else{
-            /*
-            *   Process for non-ajax request
-            */
-            return $this->redirect(['index']);
-        }
-       
     }
 
     /**

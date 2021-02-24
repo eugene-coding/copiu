@@ -15,20 +15,24 @@ use yii\helpers\Url;
  * @property int $id
  * @property string $fio ФИО
  * @property string $login Логин
- * @property string $password Пароль
+ * @property string $password Хеш пароля
+ * @property string $new_password Новый пароль
  * @property int $role Роль
  * @property string $phone Телефон номер
  * @property string $email Email
  * @property string $avatar Путь к аватару пользователя
+ * @property string $open_pass Пароль
  *
  * @property string $roleDescription Описание роли
  *
  */
 class Users extends ActiveRecord
 {
+    const ROLE_ADMIN = 'admin';
+    const ROLE_BUYER = 'buyer';
+
     public $new_password;
     public $image;
-
 
     public static function tableName()
     {
@@ -38,11 +42,12 @@ class Users extends ActiveRecord
     public function rules()
     {
         return [
-            [['fio', 'login', 'password', 'role', 'email'], 'required'],
+            [['fio', 'login', 'role'], 'required'],
             [['login'], 'unique'],
             [['email'], 'email'],
-            [['avatar'], 'string'],
+            [['avatar', 'open_pass'], 'string'],
             [['fio', 'login', 'password', 'new_password', 'phone', 'email', 'role'], 'string', 'max' => 255],
+            [['open_pass'], 'string'],
         ];
     }
 
@@ -59,7 +64,7 @@ class Users extends ActiveRecord
             'avatar' => 'Фото',
             'image' => 'Фото',
             'new_password' => 'Новый пароль',
-
+            'open_pass' => 'Пароль',
         ];
     }
 
@@ -71,10 +76,12 @@ class Users extends ActiveRecord
     public function beforeSave($insert)
     {
         if ($this->isNewRecord) {
+            $this->open_pass = $this->password;
             $this->password = Yii::$app->security->generatePasswordHash($this->password);
         }
 
         if ($this->new_password != null) {
+            $this->open_pass = $this->new_password;
             $this->password = Yii::$app->security->generatePasswordHash($this->new_password);
         }
         return parent::beforeSave($insert);
@@ -135,7 +142,6 @@ class Users extends ActiveRecord
         }
     }
 
-
     /**
      * Получает список ролей системы
      * @return array
@@ -145,5 +151,6 @@ class Users extends ActiveRecord
         return ArrayHelper::map(Yii::$app->authManager->roles,'name','description');
 
     }
+
 
 }

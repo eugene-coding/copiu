@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "price_category".
@@ -84,5 +85,10 @@ class PriceCategory extends ActiveRecord
             'success' => true,
             'data' => 'Синхронизация ценовых категорий прошла успешно',
         ];
+    }
+
+    public static function getList ()
+    {
+        return ArrayHelper::map(static::find()->orderBy(['name' => SORT_ASC])->all(), 'id', 'name');
     }
 }

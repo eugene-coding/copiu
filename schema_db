@@ -54,16 +54,6 @@
     <row name="password" null="1" autoincrement="0">
         <datatype>INTEGER</datatype>
         <default>NULL</default></row>
-    <row name="work_mode" null="1" autoincrement="0">
-        <datatype>INTEGER</datatype>
-        <default>NULL</default><comment>Режим работы</comment>
-    </row>
-    <row name="is_active" null="1" autoincrement="0">
-        <datatype>INTEGER</datatype>
-        <default>NULL</default></row>
-    <row name="balance" null="1" autoincrement="0">
-        <datatype>INTEGER</datatype>
-        <default>NULL</default></row>
     <key type="PRIMARY" name="">
         <part>id</part>
     </key>
@@ -166,6 +156,21 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><comment>Внешний идентификатор</comment>
         </row>
+        <row name="balance" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="min_balance" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="min_order_cost" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="delivery_cost" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="work_mode" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>

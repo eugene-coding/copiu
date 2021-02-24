@@ -1,9 +1,12 @@
 <?php
+
+use app\models\PriceCategory;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Buyer */
+/* @var $user_model app\models\Buyer */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -11,21 +14,38 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
+    <div class="row">
+        <div class="col-xs-6">
+            <?= $form->field($user_model, 'login')->textInput() ?>
+        </div>
+        <div class="col-xs-6">
+            <?= $form->field($user_model, 'open_pass')->textInput() ?>
+        </div>
+    </div>
 
-    <?= $form->field($model, 'pc_id')->textInput() ?>
+    <div class="row">
+        <div class="col-xs-6">
+            <b> Ценовая категория:</b><br> <?= $model->workModeLabel; ?>
+        </div>
+        <div class="col-xs-6">
+            <?= $form->field($model, 'delivery_cost')->input('number') ?>
+        </div>
+    </div>
 
-    <?= $form->field($model, 'user_id')->textInput() ?>
+    <div class="row">
+        <div class="col-xs-6">
+            <?= $form->field($model, 'min_order_cost')->input('number') ?>
+        </div>
+        <div class="col-xs-6">
+            <?= $form->field($model, 'min_balance')->input('number') ?>
+        </div>
+    </div>
+    <?= $form->field($model, 'work_mode')->dropDownList($model::getWorkModeList()) ?>
 
-    <?= $form->field($model, 'outer_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'outer_id')->hiddenInput()->label(false) ?>
 
-  
-	<?php if (!Yii::$app->request->isAjax){ ?>
-	  	<div class="form-group">
-	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-	    </div>
-	<?php } ?>
+    <?= $form->field($model, 'user_id')->hiddenInput()->label(false) ?>
 
     <?php ActiveForm::end(); ?>
-    
+
 </div>

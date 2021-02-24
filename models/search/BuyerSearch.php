@@ -19,6 +19,7 @@ class BuyerSearch extends Buyer
         return [
             [['id', 'pc_id', 'user_id'], 'integer'],
             [['name', 'outer_id'], 'safe'],
+            [['work_mode'], 'integer'],
         ];
     }
 
@@ -46,6 +47,7 @@ class BuyerSearch extends Buyer
             'query' => $query,
         ]);
 
+
         $this->load($params);
 
         if (!$this->validate()) {
@@ -58,6 +60,7 @@ class BuyerSearch extends Buyer
             'id' => $this->id,
             'pc_id' => $this->pc_id,
             'user_id' => $this->user_id,
+            'work_mode' => $this->work_mode,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])

@@ -29,11 +29,14 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'role',
+        'value' => function (\app\models\Users $model){
+            return $model->getRoleDescription($model->role);
+        }
     ],
-    [
-        'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'phone',
-    ],
+//    [
+//        'class'=>'\kartik\grid\DataColumn',
+//        'attribute'=>'phone',
+//    ],
     // [
         // 'class'=>'\kartik\grid\DataColumn',
         // 'attribute'=>'email',
@@ -45,6 +48,7 @@ return [
     [
         'class' => 'kartik\grid\ActionColumn',
         'dropdown' => false,
+        'template' => '{update} {delete}',
         'vAlign'=>'middle',
         'urlCreator' => function($action, $model, $key, $index) { 
                 return Url::to([$action,'id'=>$key]);
