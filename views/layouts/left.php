@@ -20,28 +20,28 @@ use dmstr\widgets\Menu;
             </div>
         </div>
 
-        <!-- search form -->
-        <form action="#" method="get" class="sidebar-form">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Search..."/>
-                <span class="input-group-btn">
-                <button type='submit' name='search' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i>
-                </button>
-              </span>
-            </div>
-        </form>
-        <!-- /.search form -->
-
         <?php try {
             echo Menu::widget(
                 [
                     'options' => ['class' => 'sidebar-menu tree', 'data-widget' => 'tree'],
                     'items' => [
-                        ['label' => 'Menu Yii2', 'options' => ['class' => 'header']],
-                        ['label' => 'Users', 'icon' => 'users', 'url' => ['/users'], 'visible' => Users::isAdmin()],
+                        ['label' => 'Меню', 'options' => ['class' => 'header']],
+                        [
+                            'label' => 'Пользователи',
+                            'icon' => 'users',
+                            'url' => ['/users'],
+                            'visible' => Users::isAdmin()
+                        ],
+                        [
+                            'label' => 'Ценовые категории',
+                            'icon' => 'inbox',
+                            'url' => ['/price-category'],
+                            'visible' => Users::isAdmin()
+                        ],
+                        ['label' => 'Покупатели', 'icon' => 'male', 'url' => ['/buyer'], 'visible' => Users::isAdmin()],
                         [
                             'label' => 'Настройки',
-                            'icon' => 'wrench',
+                            'template' => '<a href="{url}" role="modal-remote"><i class="fa fa-wrench"></i> {label}</a>',
                             'url' => ['/settings'],
                             'visible' => Users::isAdmin()
                         ],
@@ -53,29 +53,12 @@ use dmstr\widgets\Menu;
                             'visible' => Users::isAdmin()
                         ],
                         [
-                            'label' => 'Some tools',
+                            'label' => 'Система',
                             'icon' => 'share',
                             'url' => '#',
                             'items' => [
                                 ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii'],],
                                 ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug'],],
-                                [
-                                    'label' => 'Level One',
-                                    'icon' => 'circle-o',
-                                    'url' => '#',
-                                    'items' => [
-                                        ['label' => 'Level Two', 'icon' => 'circle-o', 'url' => '#',],
-                                        [
-                                            'label' => 'Level Two',
-                                            'icon' => 'circle-o',
-                                            'url' => '#',
-                                            'items' => [
-                                                ['label' => 'Level Three', 'icon' => 'circle-o', 'url' => '#',],
-                                                ['label' => 'Level Three', 'icon' => 'circle-o', 'url' => '#',],
-                                            ],
-                                        ],
-                                    ],
-                                ],
                             ],
                         ],
                     ],
