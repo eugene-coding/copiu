@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\IkkoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\Buyer;
 use app\models\PriceCategory;
@@ -250,8 +251,10 @@ class SiteController extends Controller
     public function actionTest()
     {
         $helper = new PostmanApiHelper();
+        $result = $helper->getItems();
 
-        $result = $helper->getAll();
+//        $ikko = new IkkoApiHelper();
+//        $result = $ikko->test();
 
         VarDumper::dump($result, 10, true);
     }
