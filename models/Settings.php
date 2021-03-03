@@ -87,4 +87,26 @@ class Settings extends ActiveRecord
         $setting = Settings::find()->andWhere(['key' => $key])->one();
         return $setting->value;
     }
+
+    /**
+     * @param $key
+     * @param $new_value
+     * @return bool
+     */
+    public static function setValueByKey($key, $new_value)
+    {
+        /** @var Settings $setting */
+        $setting = static::find()->andWhere(['key' => $key])->one();
+
+        if (!$setting) return false;
+
+        $setting->value = $new_value;
+
+        if (!$setting->save()){
+            Yii::error($setting->errors, '_error');
+            return false;
+        }
+
+        return true;
+    }
 }

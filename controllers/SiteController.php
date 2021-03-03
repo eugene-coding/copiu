@@ -170,6 +170,7 @@ class SiteController extends Controller
             'Синхронизация покупателей и ценовых категорий' => '/site/sync-all',
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
+            'Синхронизация номенклатуры' => '/site/sync-nomenclature',
         ];
 
         if ($request->isGet) {
@@ -180,7 +181,10 @@ class SiteController extends Controller
                 ]),
             ];
         }
-
+        return [
+            'title' => 'Синхронизация данных',
+            'content' => 'Ок',
+        ];
     }
 
     /**
@@ -210,7 +214,7 @@ class SiteController extends Controller
         return [
             'success' => false,
             'data' => 'Синхронизация ценовых категорий прошла успешно',
-            'error' => 'Ошбика Синхронизации ценовых категорий',
+            'error' => 'Ошибка Синхронизации ценовых категорий',
         ];
     }
 
@@ -221,11 +225,16 @@ class SiteController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        $helper = new PostmanApiHelper();
+//        $helper = new PostmanApiHelper();
+        $helper = new IkkoApiHelper();
         $buyer_model = new Buyer();
         $pc_model = new PriceCategory();
 
         $data = $helper->getAll();
+
+        if (isset($data['success']) && $data['success'] === false){
+           return $data;
+        }
 
         $sync_pc_result = $pc_model->sync($data['price_category']);
         if (!$sync_pc_result['success']) {
@@ -248,16 +257,36 @@ class SiteController extends Controller
         ];
     }
 
-    public function actionTest()
+    public function actionSyncNomenclature()
     {
-        $helper = new PostmanApiHelper();
-        $result = $helper->getItems();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $ikko = new IkkoApiHelper();
 
-//        $ikko = new IkkoApiHelper();
-//        $result = $ikko->test();
+        $items = $ikko->getItems();
+        if (isset($items['success']) && !$items['success']){
+            return $items;
+        }
+        Yii::info(isset($items[0]) ? $items[0] : 'Данные не получены', 'test');
 
-        VarDumper::dump($result, 10, true);
+        //Импортируем номенклатуру
+
+        return [
+            'success' => true,
+            'data' => 'Номенклатура синхронизирована'
+        ];
+
     }
 
+    public function actionTest()
+    {
+//        $helper = new PostmanApiHelper();
+//        $result = $helper->getItems();
 
+        $ikko = new IkkoApiHelper();
+        $result = $ikko->getItems();
+//        $result = $ikko->logout();
+
+        VarDumper::dump($result[0], 10, true);
+//        return $result;
+    }
 }

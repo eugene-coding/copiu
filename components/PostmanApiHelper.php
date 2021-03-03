@@ -96,6 +96,7 @@ class PostmanApiHelper
 
     public function getItems()
     {
+
         if (!$this->server_url){
             $path = 'uploads/getPriceListItems.xml';
             $str = file_get_contents($path);

@@ -14,8 +14,8 @@ class m210224_075656_insert_values_to_settings_table extends Migration
     public function safeUp()
     {
         $this->batchInsert(Settings::tableName(), ['key', 'label', 'user_id', 'is_system'], [
-                ['postman_server_url', 'Адрес сервера Postman', 1, 1],
-                ['postman_server_port', 'Port сервера Postman', 1, 1],
+                ['token', 'Токен доступа', 1, 1],
+                ['token_date', 'Дата и время получения токена', 1, 1],
         ]);
     }
 
