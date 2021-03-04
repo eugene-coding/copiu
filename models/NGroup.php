@@ -39,6 +39,7 @@ class NGroup extends ActiveRecord
             [['description'], 'string'],
             [['parent_id'], 'integer'],
             [['name', 'outer_id', 'num', 'code'], 'string', 'max' => 255],
+            [['outer_id'], 'unique'],
         ];
     }
 

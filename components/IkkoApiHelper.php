@@ -37,8 +37,15 @@ class IkkoApiHelper
         $this->login = Settings::getValueByKey(['ikko_server_login']);
         $this->password = Settings::getValueByKey(['ikko_server_password']);
         $this->token = Settings::getValueByKey(['token']);
+        $date = Settings::getValueByKey(['token_date']);
+        $time = strtotime($date);
+        if ((time() - $time) > (60 * 60)){
+            $token_is_expired = true;
+        } else {
+            $token_is_expired = false;
+        }
 
-        if (!$this->token) {
+        if (!$this->token || $token_is_expired) {
             $this->login();
         }
 

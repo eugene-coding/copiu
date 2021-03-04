@@ -29,7 +29,7 @@ use yii\helpers\Html;
                                 <div>Идет синхронизация. Ожидайте</div>
                             </div>
                             <div class="sync-result" style="display: none;">
-                                <div class="sync-result-message"></div>
+                                <div class="sync-result-message" style="margin-bottom: 5px;"></div>
                                 <?= Html::button('Ок', [
                                     'class' => 'btn btn-success btn-block sync-result-btn',
                                 ]) ?>

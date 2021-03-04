@@ -6,6 +6,7 @@ use app\components\IkkoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\Buyer;
 use app\models\NGroup;
+use app\models\Nomenclature;
 use app\models\PriceCategory;
 use Yii;
 use yii\filters\AccessControl;
@@ -194,6 +195,8 @@ class SiteController extends Controller
      */
     public function actionSyncBuyer()
     {
+        set_time_limit(600);
+
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $helper = new PostmanApiHelper();
@@ -212,6 +215,8 @@ class SiteController extends Controller
      */
     public function actionSyncPriceCategory()
     {
+        set_time_limit(600);
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         return [
             'success' => false,
@@ -225,6 +230,8 @@ class SiteController extends Controller
      */
     public function actionSyncAll()
     {
+        set_time_limit(600);
+
         Yii::$app->response->format = Response::FORMAT_JSON;
 
 //        $helper = new PostmanApiHelper();
@@ -261,6 +268,7 @@ class SiteController extends Controller
 
     public function actionSyncNomenclature()
     {
+        set_time_limit(600);
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
 
@@ -270,13 +278,14 @@ class SiteController extends Controller
         }
         Yii::info(isset($items[0]) ? $items[0] : 'Данные не получены', 'test');
 
+        if (count($items) == 0){
+            return [
+                'success' => false,
+                'error' => 'Ошибка получения данных, запустите синхронизацию еще раз'
+            ];
+        }
         //Импортируем номенклатуру
-
-        return [
-            'success' => true,
-            'data' => 'Номенклатура синхронизирована'
-        ];
-
+        return Nomenclature::import($items);
     }
 
     public function actionSyncNomenclatureGroup()
