@@ -90,7 +90,7 @@
         </key>
         <comment>Заказы</comment>
     </table>
-    <table x="697" y="68" name="invoice">
+    <table x="761" y="50" name="invoice">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>

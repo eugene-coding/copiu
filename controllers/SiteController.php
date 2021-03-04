@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\components\IkkoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\Buyer;
+use app\models\NGroup;
 use app\models\PriceCategory;
 use Yii;
 use yii\filters\AccessControl;
@@ -167,10 +168,11 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $syncing_methods = [
-            'Синхронизация покупателей и ценовых категорий' => '/site/sync-all',
+            '1. Синхронизация покупателей и ценовых категорий' => '/site/sync-all',
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
-            'Синхронизация номенклатуры' => '/site/sync-nomenclature',
+            '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
+            '3. Синхронизация номенклатуры' => '/site/sync-nomenclature',
         ];
 
         if ($request->isGet) {
@@ -232,8 +234,8 @@ class SiteController extends Controller
 
         $data = $helper->getAll();
 
-        if (isset($data['success']) && $data['success'] === false){
-           return $data;
+        if (isset($data['success']) && $data['success'] === false) {
+            return $data;
         }
 
         $sync_pc_result = $pc_model->sync($data['price_category']);
@@ -263,7 +265,7 @@ class SiteController extends Controller
         $ikko = new IkkoApiHelper();
 
         $items = $ikko->getItems();
-        if (isset($items['success']) && !$items['success']){
+        if (isset($items['success']) && !$items['success']) {
             return $items;
         }
         Yii::info(isset($items[0]) ? $items[0] : 'Данные не получены', 'test');
@@ -276,6 +278,25 @@ class SiteController extends Controller
         ];
 
     }
+
+    public function actionSyncNomenclatureGroup()
+    {
+        set_time_limit(300);
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $ikko = new IkkoApiHelper();
+
+        $items = $ikko->getNomenclatureGroups();
+        if (isset($items['success']) && !$items['success']) {
+            return $items;
+        }
+//        Yii::info(isset($items[0]) ? $items[0] : 'Данные не получены', 'test');
+
+        //Импортируем Группы номенклатуры
+        $n_group = new NGroup();
+        return $n_group->import($items);
+    }
+
 
     public function actionTest()
     {

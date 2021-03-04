@@ -7,7 +7,7 @@ use yii\helpers\Html;
     <div class="syncing">
         <div class="row">
             <?php foreach ($syncing_methods as $method_name => $url):?>
-                <div class="col-xs-12">
+                <div class="col-xs-6">
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <?= $method_name ?>

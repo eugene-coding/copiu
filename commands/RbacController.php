@@ -46,6 +46,7 @@ class RbacController extends Controller
         $syncPriceCategory = $authManager->createPermission('sync-price-category');
         $syncAll = $authManager->createPermission('sync-all');
         $syncNom = $authManager->createPermission('sync-nomenclature');
+        $syncNomGroup = $authManager->createPermission('sync-nomenclature-group');
 
 
         //Добавляем разрешения в AuthManager
@@ -66,6 +67,7 @@ class RbacController extends Controller
         $authManager->add($syncPriceCategory);
         $authManager->add($syncAll);
         $authManager->add($syncNom);
+        $authManager->add($syncNomGroup);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -107,6 +109,7 @@ class RbacController extends Controller
         $authManager->addChild($admin, $syncPriceCategory);
         $authManager->addChild($admin, $syncAll);
         $authManager->addChild($admin, $syncNom);
+        $authManager->addChild($admin, $syncNomGroup);
 
         $authManager->addChild($admin, $buyer);
 

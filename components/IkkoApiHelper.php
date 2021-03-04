@@ -1,4 +1,5 @@
 <?php
+
 namespace app\components;
 
 use app\models\Settings;
@@ -37,7 +38,7 @@ class IkkoApiHelper
         $this->password = Settings::getValueByKey(['ikko_server_password']);
         $this->token = Settings::getValueByKey(['token']);
 
-        if (!$this->token){
+        if (!$this->token) {
             $this->login();
         }
 
@@ -60,7 +61,7 @@ class IkkoApiHelper
         ];
         $this->request_string = $this->base_url . 'resto/api/auth?' . http_build_query($params);
         $this->token = $this->send();
-        if ($this->token){
+        if ($this->token) {
             Settings::setValueByKey('token', $this->token);
             Settings::setValueByKey('token_date', date('Y-m-d H:i:s'));
             return true;
@@ -82,12 +83,11 @@ class IkkoApiHelper
         Yii::info('Request string: ' . $this->request_string, 'test');
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->request_string);
-        if ($to_postman){
+        if ($to_postman) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         }
-
-        if ($type == "POST"){
+        curl_setopt($ch, CURLOPT_URL, $this->request_string);
+        if ($type == "POST") {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
         }
@@ -109,23 +109,17 @@ class IkkoApiHelper
 
     public function getItems()
     {
-        $this->request_string =  $this->base_url . 'resto/api/v2/entities/products/list?includeDeleted=false&key=' . $this->token;
-        $result = $this->send();
+        $this->request_string = $this->base_url
+            . 'resto/api/v2/entities/products/list?includeDeleted=false&key='
+            . $this->token;
+        $result = $this->send(false);
 
-        if (strpos($result, 'Token is expired or invalid') !== false){
-           $this->login();
+        if (strpos($result, 'Token is expired or invalid') !== false) {
+            $this->login();
             $result = $this->send();
         }
 
         return json_decode($result, 'true');
-    }
-
-    /**
-     * Синзронизация категорий пользоватлей
-     */
-    public function getUserCategories()
-    {
-
     }
 
     /**
@@ -134,7 +128,7 @@ class IkkoApiHelper
      */
     public function getAll()
     {
-        if (!$this->base_url){
+        if (!$this->base_url) {
             $path = 'uploads/postman_response.xml';
             $str = file_get_contents($path);
             $xml = simplexml_load_string($str);
@@ -143,7 +137,7 @@ class IkkoApiHelper
             $xml = $this->send(true);
         }
 
-        if (strpos($xml, 'access is not allowed') > 0){
+        if (strpos($xml, 'access is not allowed') > 0) {
             return [
                 'success' => false,
                 'error' => 'Неавторизованные запросы запрещены'
@@ -184,7 +178,7 @@ class IkkoApiHelper
     public function getPriceListItems()
     {
 
-        if (!$this->base_url){
+        if (!$this->base_url) {
             $path = 'uploads/getPriceListItems.xml';
             $str = file_get_contents($path);
             $xml = simplexml_load_string($str);
@@ -194,7 +188,7 @@ class IkkoApiHelper
         }
 
         Yii::warning($xml);
-        if ($xml){
+        if ($xml) {
             return [
                 'success' => true,
                 'data' => $xml
@@ -207,5 +201,29 @@ class IkkoApiHelper
 
     }
 
+    /**
+     * Получает номенклатурные группы
+     * @return mixed
+     */
+    public function getNomenclatureGroups()
+    {
+        $this->request_string = $this->base_url
+            . 'resto/api/v2/entities/products/group/list?includeDeleted=false&key='
+            . $this->token;
+        $result = $this->send(false);
+
+        if (strpos($result, 'Token is expired or invalid') !== false) {
+            $this->login();
+            $result = $this->send();
+        }
+
+        if (!$result){
+           return [
+               'success' => false,
+               'error' => 'Данные не получены',
+           ];
+        }
+        return json_decode($result, 'true');
+    }
 
 }

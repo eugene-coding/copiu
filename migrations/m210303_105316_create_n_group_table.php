@@ -23,6 +23,16 @@ class m210303_105316_create_n_group_table extends Migration
         ]);
 
         $this->addCommentOnTable('{{%n_group}}', 'Номенклатурные группы');
+
+        $this->addForeignKey(
+            'fk-n_group-parent_id',
+            '{{%n_group}}',
+            'parent_id',
+            '{{%n_group}}',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
     }
 
     /**
