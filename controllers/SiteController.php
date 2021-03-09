@@ -174,6 +174,7 @@ class SiteController extends Controller
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/sync-nomenclature',
+            '4. Синхронизация цен для ценовых категорий' => '/site/sync-price-for-p-c',
         ];
 
         if ($request->isGet) {
@@ -235,7 +236,7 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
 //        $helper = new PostmanApiHelper();
-        $helper = new IkkoApiHelper();
+        $helper = new PostmanApiHelper();
         $buyer_model = new Buyer();
         $pc_model = new PriceCategory();
 
@@ -278,7 +279,7 @@ class SiteController extends Controller
         }
         Yii::info(isset($items[0]) ? $items[0] : 'Данные не получены', 'test');
 
-        if (count($items) == 0){
+        if (count($items) == 0) {
             return [
                 'success' => false,
                 'error' => 'Ошибка получения данных, запустите синхронизацию еще раз'
@@ -306,6 +307,17 @@ class SiteController extends Controller
         return $n_group->import($items);
     }
 
+    /**
+     * Синхронизация цен для ценовых категорий
+     */
+    public function actionSyncPriceForPC()
+    {
+        set_time_limit(600);
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $postman = new PostmanApiHelper();
+
+       return $postman->getPriceListItems();
+    }
 
     public function actionTest()
     {

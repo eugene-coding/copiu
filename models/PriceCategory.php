@@ -59,17 +59,33 @@ class PriceCategory extends ActiveRecord
         return $this->hasMany(Buyer::class, ['pc_id' => 'id']);
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function sync($data)
     {
+        $updated = 0;
+
         $rows = [];
         $exist_category = PriceCategory::find()->select(['outer_id'])->column();
 //        Yii::info($exist_category, 'test');
+        $new_categories = [];
 
-        foreach ($data as $pc){
+        foreach ($data as $pc) {
             $outer_id = $pc['id'];
-            if (!in_array($outer_id, $exist_category)){
-                $name = $pc['r']['name']['customValue'];
+            $new_categories[] = $outer_id;
+            $name = $pc['r']['name']['customValue'];
+            if (!in_array($outer_id, $exist_category)) {
                 $rows[] = [$name, $outer_id];
+            } else {
+                /** @var PriceCategory $pc_model */
+                $pc_model = PriceCategory::find()->andWhere(['outer_id' => $outer_id])->one();
+                $pc_model->name = $name;
+                if (!$pc_model->save()) {
+                    Yii::error($pc_model->errors, '_error');
+                }
+                $updated++;
             }
         }
 
@@ -80,14 +96,25 @@ class PriceCategory extends ActiveRecord
             Yii::error($e->getMessage(), '_error');
         }
 
+        //Удаляем лишние
+        $cat_for_delete = array_diff($exist_category, $new_categories);
 
+        Yii::warning('Категории для удаления: ' . implode(', ', $cat_for_delete), 'test');
+
+        PriceCategory::deleteAll(['IN', 'outer_id', $cat_for_delete]);
+        $deleted = count($cat_for_delete) > 0 ? 'Удалено: ' . count($cat_for_delete) : '';
+        $cat_insert = count($rows) > 0 ? 'Добавлено: ' . count($rows) : '';
+        $updated = $updated > 0 ? 'Обнволено: ' . $updated : '';
         return [
             'success' => true,
-            'data' => 'Синхронизация ценовых категорий прошла успешно',
+            'data' => 'Синхронизация ценовых категорий прошла успешно.<br>'
+                . $cat_insert
+                . $updated
+                . $deleted,
         ];
     }
 
-    public static function getList ()
+    public static function getList()
     {
         return ArrayHelper::map(static::find()->orderBy(['name' => SORT_ASC])->all(), 'id', 'name');
     }

@@ -24,8 +24,6 @@ class IkkoApiHelper
     protected $password;
     protected $data;
     protected $token;
-    protected $cookie;
-    protected $headers;
     protected $post_data;
 
     public function __construct()
@@ -44,15 +42,11 @@ class IkkoApiHelper
         } else {
             $token_is_expired = false;
         }
+        Yii::info('Token expired: ' . (int)$token_is_expired, 'test');
 
         if (!$this->token || $token_is_expired) {
             $this->login();
         }
-
-        $this->headers = [
-            'X-Resto-LoginName: ' . $this->login,
-            'X-Resto-PasswordHash: ' . sha1($this->password),
-        ];
     }
 
     public function test()
@@ -85,14 +79,11 @@ class IkkoApiHelper
         return $this->send();
     }
 
-    protected function send($to_postman = true, $type = 'GET')
+    protected function send($type = 'GET')
     {
         Yii::info('Request string: ' . $this->request_string, 'test');
 
         $ch = curl_init();
-        if ($to_postman) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
-        }
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
         if ($type == "POST") {
             curl_setopt($ch, CURLOPT_POST, 1);
@@ -119,7 +110,7 @@ class IkkoApiHelper
         $this->request_string = $this->base_url
             . 'resto/api/v2/entities/products/list?includeDeleted=false&key='
             . $this->token;
-        $result = $this->send(false);
+        $result = $this->send();
 
         if (strpos($result, 'Token is expired or invalid') !== false) {
             $this->login();
@@ -129,84 +120,9 @@ class IkkoApiHelper
         return json_decode($result, 'true');
     }
 
-    /**
-     * Синхронизируем покупатлей и ценовые категории
-     * @return array
-     */
-    public function getAll()
-    {
-        if (!$this->base_url) {
-            $path = 'uploads/postman_response.xml';
-            $str = file_get_contents($path);
-            $xml = simplexml_load_string($str);
-        } else {
-            $this->request_string = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
-            $xml = $this->send(true);
-        }
 
-        if (strpos($xml, 'access is not allowed') > 0) {
-            return [
-                'success' => false,
-                'error' => 'Неавторизованные запросы запрещены'
-            ];
-        }
 
-        $json = json_encode($xml);
-        $arr = json_decode($json, true);
 
-        $arr_price_category = []; //Ценовые категории
-        $arr_buyer = []; //Покупатели
-
-        Yii::info($arr, 'test');
-        foreach ($arr['entitiesUpdate']['items']['i'] as $item) {
-            if ($item['deleted'] == 'false') {
-                switch ($item['type']) {
-                    case 'User':
-                        if ($item['r']['supplier'] == 'true') {
-                            $arr_buyer[] = $item;
-                        }
-                        break;
-                    case 'ClientPriceCategory':
-                        $arr_price_category[] = $item;
-                        break;
-                }
-            }
-        }
-        return [
-            'buyer' => $arr_buyer,
-            'price_category' => $arr_price_category,
-        ];
-    }
-
-    /**
-     * Цены для ценовых категорий
-     * @return array
-     */
-    public function getPriceListItems()
-    {
-
-        if (!$this->base_url) {
-            $path = 'uploads/getPriceListItems.xml';
-            $str = file_get_contents($path);
-            $xml = simplexml_load_string($str);
-        } else {
-            $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
-            $xml = $this->send(true);
-        }
-
-        Yii::warning($xml);
-        if ($xml) {
-            return [
-                'success' => true,
-                'data' => $xml
-            ];
-        }
-        return [
-            'success' => false,
-            'error' => 'Данные не получены'
-        ];
-
-    }
 
     /**
      * Получает номенклатурные группы
@@ -217,7 +133,7 @@ class IkkoApiHelper
         $this->request_string = $this->base_url
             . 'resto/api/v2/entities/products/group/list?includeDeleted=false&key='
             . $this->token;
-        $result = $this->send(false);
+        $result = $this->send();
 
         if (strpos($result, 'Token is expired or invalid') !== false) {
             $this->login();

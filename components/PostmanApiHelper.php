@@ -2,54 +2,89 @@
 
 namespace app\components;
 
+use app\models\Nomenclature;
+use app\models\PriceCategory;
+use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
 use Yii;
 
 
 /**
- * @property string $server_url Адрес АПИ сервера
- * @property int $server_port Порт АПИ сервера
- * @property string $api_data Данные, полученнные по АПИ
- * @property string $request_url СТрока запроса без наименования метода
- * @property string $base_url Адрес сервера
+ * @property string $base_url Адрес АПИ сервера
+ * @property string $request_string СТрока запроса без наименования метода
+ * @property string $login
+ * @property string $password
+ * @property string $headers Заголовки
+ * @property string $post_data Данные, отправляемые в POST запросе
  */
 class PostmanApiHelper
 {
-    private $server_url;
-    private $server_port;
-    private $request_url;
     private $base_url;
+    private $request_string;
+    private $login;
+    private $password;
+    private $headers;
+    private $post_data;
 
     public function __construct()
     {
-        $this->server_url = Settings::getValueByKey('postman_server_url');
-        $this->server_port = Settings::getValueByKey('postman_server_port');
-        $this->base_url = $this->server_url . ':' . $this->server_port . '/';
+        $this->base_url = Settings::getValueByKey('ikko_server_url');
+        if (strpos($this->base_url, '/', strlen($this->base_url) - 2) === false) {
+            $this->base_url .= '/';
+        }
+
+        $this->login = Settings::getValueByKey(['ikko_server_login']);
+        $this->password = Settings::getValueByKey(['ikko_server_password']);
+
+        $this->headers = [
+            'X-Resto-LoginName: ' . $this->login,
+            'X-Resto-PasswordHash: ' . sha1($this->password),
+        ];
     }
 
-    public function request()
+    public function send($type = 'GET')
     {
+        Yii::info('Request string: ' . $this->request_string, 'test');
+        Yii::info($this->headers, 'test');
+
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->request_url);
+        curl_setopt($ch, CURLOPT_URL, $this->request_string);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if ($type != "GET") {
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
+        }
         $response = curl_exec($ch);
+        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
         curl_close($ch);
 
-//        Yii::info($response);
+        Yii::info($response);
 
         return $response;
     }
 
+    /**
+     * Синхронизируем покупатлей и ценовые категории
+     * @return array
+     */
     public function getAll()
     {
-        Yii::info($this->server_url, 'test');
-        if (!$this->server_url){
-            $path = 'uploads/postman_response.xml';
-            $str = file_get_contents($path);
-            $xml = simplexml_load_string($str);
+        if (!$this->base_url) {
+        $path = 'uploads/postman_response.xml';
+        $str = file_get_contents($path);
+        $xml = simplexml_load_string($str);
         } else {
-            $this->request_url = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
-            $xml = $this->request();
+            $this->request_string = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
+            $xml = $this->send();
+        }
+
+        if (strpos($xml, 'access is not allowed') > 0) {
+            return [
+                'success' => false,
+                'error' => 'Неавторизованные запросы запрещены'
+            ];
         }
 
         $json = json_encode($xml);
@@ -58,12 +93,13 @@ class PostmanApiHelper
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
 
+        Yii::info($arr, 'test');
         foreach ($arr['entitiesUpdate']['items']['i'] as $item) {
             if ($item['deleted'] == 'false') {
                 switch ($item['type']) {
                     case 'User':
                         if ($item['r']['supplier'] == 'true') {
-                           $arr_buyer[] = $item;
+                            $arr_buyer[] = $item;
                         }
                         break;
                     case 'ClientPriceCategory':
@@ -94,29 +130,120 @@ class PostmanApiHelper
         return $this->getAll()['price_category'];
     }
 
-    public function getItems()
+    /**
+     * Цены для ценовых категорий
+     * @return array
+     */
+    public function getPriceListItems()
     {
 
-        if (!$this->server_url){
-            $path = 'uploads/getPriceListItems.xml';
-            $str = file_get_contents($path);
-            $xml = simplexml_load_string($str);
+        $skipped = 0;
+        $added = 0;
+        $errors = 0;
+
+        if (!$this->base_url) {
+        $path = 'uploads/getPriceListItems.xml';
+        $str = file_get_contents($path);
+        $xml = simplexml_load_string($str);
         } else {
-            $this->request_url = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
-            $xml = $this->request();
+            $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
+            $xml = $this->send(true, 'POST');
         }
 
-        Yii::warning($xml);
-        if ($xml){
+        if (strpos($xml, 'access is not allowed')){
             return [
-                'success' => true,
-                'data' => $xml
+                'success' => false,
+                'error' => 'Неавторизированные запросы запрещены',
             ];
         }
-         return [
-             'success' => false,
-             'error' => 'Данные не получены'
-         ];
+
+        $json = json_encode($xml);
+        $arr = json_decode($json, true);
+
+        $items = $arr['returnValue']['v'];
+        Yii::info($items, 'test');
+
+        if (!$items) {
+            return [
+                'success' => false,
+                'error' => 'Нет данных'
+            ];
+        }
+
+        foreach ($items as $item) {
+            $product_outer_id = isset($item['i']['@attributes']['eid']) ? $item['i']['@attributes']['eid'] : null;
+            if (!$product_outer_id) {
+                Yii::info('Нет ID продукта. Пропускаем', 'test');
+                $skipped++;
+                continue;
+            }
+
+            Yii::info($product_outer_id, 'test');
+            Yii::info($item['i']['pricesForCategories'], 'test');
+
+            $categories = isset($item['i']['pricesForCategories']['k']) ? $item['i']['pricesForCategories']['k'] : null;
+            if (!$categories) {
+                Yii::info('Нет категорий. Пропускаем', 'test');
+                $skipped++;
+                continue;
+            }
+
+            $prices = $item['i']['pricesForCategories']['v'];
+
+            for ($i = 0; $i < count($categories); $i++) {
+                $category = PriceCategory::findOne(['outer_id' => $categories[$i]]);
+
+                if (!$category) {
+                    Yii::info('Категория не найдена. Пропускаем', 'test');
+                    continue;
+                }
+
+                $price = $prices[$i];
+                $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
+
+                if (!$product){
+                    Yii::info('Продукт не найден. Пропускаем', 'test');
+                    continue;
+                }
+
+                $model = new PriceCategoryToNomenclature([
+                    'pc_id' => $category->id,
+                    'n_id' => $product->id,
+                    'price' => $price,
+                ]);
+
+                if (!$model->validate('pc_id')){
+                    Yii::info($model->errors, 'test');
+                    continue;
+                }
+
+                if (!$model->save()) {
+                    Yii::error($model->errors, '_error');
+                    $errors++;
+                } else {
+                    $added++;
+                }
+            }
+
+        }
+
+        $data = 'Синхронизация прошла успешно<br>';
+//
+//        if ($errors){
+//            $data .= 'Ошибок: ' . $errors . '<br>';
+//        }
+//        if ($skipped){
+//            $data .= 'Пропущено: ' . $skipped . '<br>';
+//        }
+//
+//        if ($added){
+//            $data .= 'Добавлено: ' . $added . '<br>';
+//        }
+
+        return [
+            'success' => true,
+            'data' => $data
+        ];
 
     }
 }

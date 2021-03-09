@@ -34,8 +34,9 @@ class PriceCategoryToNomenclature extends ActiveRecord
         return [
             [['pc_id', 'n_id'], 'integer'],
             [['price'], 'number'],
-            [['n_id'], 'exist', 'skipOnError' => true, 'targetClass' => Nomenclature::className(), 'targetAttribute' => ['n_id' => 'id']],
-            [['pc_id'], 'exist', 'skipOnError' => true, 'targetClass' => PriceCategory::className(), 'targetAttribute' => ['pc_id' => 'id']],
+            [['n_id'], 'exist', 'skipOnError' => true, 'targetClass' => Nomenclature::class, 'targetAttribute' => ['n_id' => 'id']],
+            [['pc_id'], 'exist', 'skipOnError' => true, 'targetClass' => PriceCategory::class, 'targetAttribute' => ['pc_id' => 'id']],
+            [['pc_id'], 'unique', 'targetAttribute' => ['pc_id', 'n_id']],
         ];
     }
 

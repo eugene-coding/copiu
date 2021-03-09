@@ -148,6 +148,16 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><comment>Объем одной единицы</comment>
         </row>
+        <row name="type" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>GOODS	Товар.
+            DISH	Блюдо.
+            PREPARED	Заготовка (полуфабрикат).
+            SERVICE	Услуга.
+            MODIFIER	Модификатор.
+            OUTER	Товары поставщиков, не являющиеся товарами систем iiko.
+            RATE	Тариф (дочерний элемента для услуги).</comment>
+        </row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>

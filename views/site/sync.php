@@ -7,7 +7,7 @@ use yii\helpers\Html;
     <div class="syncing">
         <div class="row">
             <?php foreach ($syncing_methods as $method_name => $url):?>
-                <div class="col-xs-6">
+                <div class="col-xs-12">
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <?= $method_name ?>
@@ -55,8 +55,9 @@ $(document).ready(function() {
         start_block.slideUp(300);
         progress_block.slideDown(300);
         
-        $.post(url)
+        $.get(url)
         .done(function(res) {
+            console.log(res);
             if (res.success){
                 result_block.find('.sync-result-message').html(res.data);
             } else {
