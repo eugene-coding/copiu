@@ -8,6 +8,7 @@ use app\models\Buyer;
 use app\models\NGroup;
 use app\models\Nomenclature;
 use app\models\PriceCategory;
+use app\models\Users;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -110,6 +111,14 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            //Проверяем баланс
+            if (!$model->checkBalance() && !Users::isAdmin()){
+                Yii::$app->user->logout();
+                $model->addError('password', 'Для продолжения работы баланс недостаточен.');
+                return $this->render('login', [
+                    'model' => $model,
+                ]);
+            }
             return $this->goBack();
         }
 

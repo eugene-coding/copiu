@@ -164,25 +164,21 @@ class IkkoApiHelper
     public function getBalance($counteragent_outer_id = null)
     {
         $date = date('Y-m-d\TH:i:s', time());
-        if (!$counteragent_outer_id){
+        if (!$counteragent_outer_id) {
             $this->request_string = $this->base_url
-                .  "resto/api/v2/reports/balance/counteragents?timestamp={$date}&key={$this->token}";
+                . "resto/api/v2/reports/balance/counteragents?timestamp={$date}&key={$this->token}";
         } else {
             $this->request_string = $this->base_url
-                .  "resto/api/v2/reports/balance/counteragents?timestamp={$date}&key={$this->token}&counteragent={$counteragent_outer_id}";
+                . "resto/api/v2/reports/balance/counteragents?timestamp={$date}&key={$this->token}&counteragent={$counteragent_outer_id}";
         }
 
-       $result = $this->send();
+        $result = $this->send();
 
         $info = json_decode($result, 'true');
-        Yii::info($info);
+        Yii::info($info, 'test');
 
-        if (!$counteragent_outer_id){
-            return $info;
-        } else {
-            $sum = isset($info[0]['sum']) ? $info[0]['sum'] : 0;
-            return $sum;
-        }
+        $sum = isset($info[0]['sum']) ? $info[0]['sum'] : 0;
+        return $sum;
     }
 
 

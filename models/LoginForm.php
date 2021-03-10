@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\IkkoApiHelper;
 use Yii;
 use yii\base\Model;
 
@@ -90,10 +91,35 @@ class LoginForm extends Model
     public function getUser()
     {
         if ($this->_user === false) {
-            Yii::info('$this->username: ' . $this->username, 'test');
-
             $this->_user = User::findByUsername($this->username);
         }
         return $this->_user;
+    }
+
+    /**
+     * Проверяет баланс покупателя
+     * @return bool
+     */
+    public function checkBalance()
+    {
+        $user = $this->getUser();
+        Yii::info($user->attributes, 'test');
+
+        $buyer = $user->buyer;
+        if ($buyer && $buyer->work_mode === Buyer::WORK_MODE_BALANCE_LIMIT){
+            $helper = new IkkoApiHelper();
+            $buyer->balance = $helper->getBalance($buyer->outer_id);
+            if (!$buyer->save()){
+                Yii::error($buyer->errors, '_error');
+            }
+
+            if ($buyer->balance < $buyer->min_balance){
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 }

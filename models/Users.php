@@ -24,6 +24,7 @@ use yii\helpers\Url;
  * @property string $open_pass Пароль
  *
  * @property string $roleDescription Описание роли
+ * @property Buyer $buyer Покупатель
  *
  */
 class Users extends ActiveRecord
@@ -150,6 +151,11 @@ class Users extends ActiveRecord
     {
         return ArrayHelper::map(Yii::$app->authManager->roles,'name','description');
 
+    }
+
+    public function getBuyer()
+    {
+        return $this->hasOne(Buyer::class, ['user_id' => 'id']);
     }
 
 

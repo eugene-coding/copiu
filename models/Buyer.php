@@ -4,7 +4,6 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
-use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -166,5 +165,4 @@ class Buyer extends ActiveRecord
 
         return '';
     }
-
 }
