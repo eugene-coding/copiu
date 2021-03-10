@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "order_blank".
@@ -14,7 +14,7 @@ use Yii;
  * @property int|null $day_limit Ограничение по дням
  * @property string|null $synced_at Дата и время синхронизации
  */
-class OrderBlank extends \yii\db\ActiveRecord
+class OrderBlank extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -30,8 +30,8 @@ class OrderBlank extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['date', 'synced_at'], 'safe'],
-            [['time_limit', 'day_limit'], 'integer'],
+            [['date', 'synced_at', 'time_limit'], 'safe'],
+            [[ 'day_limit'], 'integer'],
             [['number'], 'string', 'max' => 255],
         ];
     }

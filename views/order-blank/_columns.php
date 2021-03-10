@@ -3,10 +3,6 @@ use yii\helpers\Url;
 
 return [
     [
-        'class' => 'kartik\grid\CheckboxColumn',
-        'width' => '20px',
-    ],
-    [
         'class' => 'kartik\grid\SerialColumn',
         'width' => '30px',
     ],
@@ -21,6 +17,7 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'date',
+        'format' => 'date'
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
@@ -33,9 +30,11 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'synced_at',
+        'format' => 'datetime'
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
+        'template' => '{update} {delete}',
         'dropdown' => false,
         'vAlign'=>'middle',
         'urlCreator' => function($action, $model, $key, $index) { 

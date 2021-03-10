@@ -11,17 +11,27 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'number')->textInput(['maxlength' => true]) ?>
+    <div class="row">
+        <div class="col-xs-6">
+            <?= $form->field($model, 'number')->textInput(['maxlength' => true]) ?>
+        </div>
+        <div class="col-xs-6">
+            <?= $form->field($model, 'date')->input('date') ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <?= $form->field($model, 'time_limit')->input('time') ?>
+        </div>
+        <div class="col-xs-6">
+            <?= $form->field($model, 'day_limit')->input('number') ?>
+        </div>
+    </div>
 
-    <?= $form->field($model, 'date')->textInput() ?>
 
-    <?= $form->field($model, 'time_limit')->textInput() ?>
 
-    <?= $form->field($model, 'day_limit')->textInput() ?>
 
-    <?= $form->field($model, 'synced_at')->textInput() ?>
 
-  
 	<?php if (!Yii::$app->request->isAjax){ ?>
 	  	<div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

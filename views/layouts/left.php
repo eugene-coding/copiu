@@ -38,6 +38,12 @@ use dmstr\widgets\Menu;
                             'url' => ['/price-category'],
                             'visible' => Users::isAdmin()
                         ],
+                        [
+                            'label' => 'Бланки заказа',
+                            'icon' => 'file-text-o',
+                            'url' => ['/order-blank'],
+                            'visible' => Users::isAdmin()
+                        ],
                         ['label' => 'Покупатели', 'icon' => 'male', 'url' => ['/buyer'], 'visible' => Users::isAdmin()],
                         [
                             'label' => 'Настройки',
