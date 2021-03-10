@@ -82,9 +82,6 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="buyer" row="id" />
         </row>
-        <row name="supplier_id" null="1" autoincrement="0">
-            <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
@@ -317,5 +314,29 @@
             <part>id</part>
         </key>
         <comment>Связь ценовых категорий с номенклатурой</comment>
+    </table>
+    <table x="1597" y="109" name="order_blank">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="number" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="date" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="time_limit" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="day_limit" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="synced_at" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Бланки заказов</comment>
     </table>
 </sql>

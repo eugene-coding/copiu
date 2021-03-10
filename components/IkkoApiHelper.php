@@ -181,5 +181,24 @@ class IkkoApiHelper
         return $sum;
     }
 
+    public function getOrderBlank($params)
+    {
+        if (!isset($params['form']) || !$params['form']){
+            Yii::error('Отсутствует параметр "from"', 'error');
+            return false;
+        }
+        if (!isset($params['to']) || !$params['to']){
+            Yii::error('Отсутствует параметр "to"', 'error');
+            return false;
+        }
+        $params['key'] = $this->token;
+
+        $params['currentYear'] = false;
+        $query = http_build_query($params);
+        $this->request_string = $this->base_url
+            . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
+        return $this->send();
+    }
+
 
 }
