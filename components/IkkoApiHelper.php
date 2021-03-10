@@ -37,7 +37,7 @@ class IkkoApiHelper
         $this->token = Settings::getValueByKey(['token']);
         $date = Settings::getValueByKey(['token_date']);
         $time = strtotime($date);
-        if ((time() - $time) > (60 * 60)){
+        if ((time() - $time) > (60 * 60)) {
             $token_is_expired = true;
         } else {
             $token_is_expired = false;
@@ -54,6 +54,10 @@ class IkkoApiHelper
         $this->login();
     }
 
+    /**
+     * Получение токена доступа
+     * @return bool
+     */
     protected function login()
     {
         $params = [
@@ -71,6 +75,10 @@ class IkkoApiHelper
         }
     }
 
+    /**
+     * Освобождение лицензии
+     * @return mixed
+     */
     public function logout()
     {
         $this->request_string = $this->base_url . 'resto/api/logout?key=' . $this->token;
@@ -105,6 +113,10 @@ class IkkoApiHelper
         return $response;
     }
 
+    /**
+     * Номенклатура
+     * @return mixed
+     */
     public function getItems()
     {
         $this->request_string = $this->base_url
@@ -119,10 +131,6 @@ class IkkoApiHelper
 
         return json_decode($result, 'true');
     }
-
-
-
-
 
     /**
      * Получает номенклатурные группы
@@ -140,13 +148,42 @@ class IkkoApiHelper
             $result = $this->send();
         }
 
-        if (!$result){
-           return [
-               'success' => false,
-               'error' => 'Данные не получены',
-           ];
+        if (!$result) {
+            return [
+                'success' => false,
+                'error' => 'Данные не получены',
+            ];
         }
         return json_decode($result, 'true');
     }
+
+    /**
+     * @param string||null $counteragent
+     * @return mixed
+     */
+    public function getBalance($counteragent_outer_id = null)
+    {
+        $date = date('Y-m-d\TH:i:s', time());
+        if (!$counteragent_outer_id){
+            $this->request_string = $this->base_url
+                .  "resto/api/v2/reports/balance/counteragents?timestamp={$date}&key={$this->token}";
+        } else {
+            $this->request_string = $this->base_url
+                .  "resto/api/v2/reports/balance/counteragents?timestamp={$date}&key={$this->token}&counteragent={$counteragent_outer_id}";
+        }
+
+       $result = $this->send();
+
+        $info = json_decode($result, 'true');
+        Yii::info($info);
+
+        if (!$counteragent_outer_id){
+            return $info;
+        } else {
+            $sum = isset($info[0]['sum']) ? $info[0]['sum'] : 0;
+            return $sum;
+        }
+    }
+
 
 }

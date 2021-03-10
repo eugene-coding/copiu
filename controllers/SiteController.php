@@ -325,10 +325,12 @@ class SiteController extends Controller
 //        $result = $helper->getItems();
 
         $ikko = new IkkoApiHelper();
-        $result = $ikko->getItems();
+        $sum = $ikko->getBalance();
+//        $result = $ikko->getItems();
 //        $result = $ikko->logout();
 
-        VarDumper::dump($result[0], 10, true);
+        VarDumper::dump($sum, 10, true);
+//        VarDumper::dump($result[0], 10, true);
 //        return $result;
     }
 }
