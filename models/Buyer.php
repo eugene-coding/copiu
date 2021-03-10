@@ -128,8 +128,12 @@ class Buyer extends ActiveRecord
                     $price_category = null;
                 }
                 $rows[] = [$name, $price_category, $outer_id];
+            } else {
+                Yii::info($buyer['r']['name']['customValue'] . ' уже есть в базе. Пропускаем', 'test');
             }
         }
+        Yii::info('Строки для добавления покупателей', 'test');
+        Yii::info($rows, 'test');
 
         try {
             Yii::$app->db->createCommand()->batchInsert(Buyer::tableName(), ['name', 'pc_id', 'outer_id'],

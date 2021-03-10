@@ -101,7 +101,9 @@ class PriceCategory extends ActiveRecord
 
         Yii::warning('Категории для удаления: ' . implode(', ', $cat_for_delete), 'test');
 
-        PriceCategory::deleteAll(['IN', 'outer_id', $cat_for_delete]);
+        if ($cat_for_delete){
+            PriceCategory::deleteAll(['IN', 'outer_id', $cat_for_delete]);
+        }
         $deleted = count($cat_for_delete) > 0 ? 'Удалено: ' . count($cat_for_delete) : '';
         $cat_insert = count($rows) > 0 ? 'Добавлено: ' . count($rows) : '';
         $updated = $updated > 0 ? 'Обнволено: ' . $updated : '';

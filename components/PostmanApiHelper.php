@@ -37,8 +37,12 @@ class PostmanApiHelper
         $this->password = Settings::getValueByKey(['ikko_server_password']);
 
         $this->headers = [
+            'X-Resto-ServerEdition: IIKO_CHAIN',
+            'X-Resto-BackVersion: 7.5.6019.0',
+            'X-Resto-AuthType: BACK',
             'X-Resto-LoginName: ' . $this->login,
             'X-Resto-PasswordHash: ' . sha1($this->password),
+            'Content-Type: raw',
         ];
     }
 
@@ -60,7 +64,7 @@ class PostmanApiHelper
         Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
         curl_close($ch);
 
-        Yii::info($response);
+//        Yii::info($response);
 
         return $response;
     }
@@ -72,12 +76,27 @@ class PostmanApiHelper
     public function getAll()
     {
         if (!$this->base_url) {
-        $path = 'uploads/postman_response.xml';
-        $str = file_get_contents($path);
-        $xml = simplexml_load_string($str);
+            $path = 'uploads/postman_response.xml';
+            $str = file_get_contents($path);
+            $xml = simplexml_load_string($str);
         } else {
+            $body = <<<XML
+<?xml version="1.0" encoding="utf-8"?>
+<args>
+    <entities-version>-1</entities-version>
+    <client-type>BACK</client-type>
+    <use-raw-entities>true</use-raw-entities>
+    <fromRevision>-1</fromRevision>
+    <timeoutMillis>30000</timeoutMillis>
+    <useRawEntities>true</useRawEntities>
+</args>
+XML;
+
+            $this->post_data = $body;
             $this->request_string = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
-            $xml = $this->send();
+            $result = $this->send('POST');
+//            file_put_contents('waitEntitiesUpdate.xml', $result);
+            $xml = simplexml_load_string($result);
         }
 
         if (strpos($xml, 'access is not allowed') > 0) {
@@ -93,7 +112,6 @@ class PostmanApiHelper
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
 
-        Yii::info($arr, 'test');
         foreach ($arr['entitiesUpdate']['items']['i'] as $item) {
             if ($item['deleted'] == 'false') {
                 switch ($item['type']) {
@@ -108,6 +126,9 @@ class PostmanApiHelper
                 }
             }
         }
+//        Yii::info($arr_buyer, 'test');
+//        Yii::info($arr_price_category, 'test');
+
         return [
             'buyer' => $arr_buyer,
             'price_category' => $arr_price_category,
@@ -142,15 +163,15 @@ class PostmanApiHelper
         $errors = 0;
 
         if (!$this->base_url) {
-        $path = 'uploads/getPriceListItems.xml';
-        $str = file_get_contents($path);
-        $xml = simplexml_load_string($str);
+            $path = 'uploads/getPriceListItems.xml';
+            $str = file_get_contents($path);
+            $xml = simplexml_load_string($str);
         } else {
             $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
             $xml = $this->send(true, 'POST');
         }
 
-        if (strpos($xml, 'access is not allowed')){
+        if (strpos($xml, 'access is not allowed')) {
             return [
                 'success' => false,
                 'error' => 'Неавторизированные запросы запрещены',
@@ -201,7 +222,7 @@ class PostmanApiHelper
                 $price = $prices[$i];
                 $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
 
-                if (!$product){
+                if (!$product) {
                     Yii::info('Продукт не найден. Пропускаем', 'test');
                     continue;
                 }
@@ -212,7 +233,7 @@ class PostmanApiHelper
                     'price' => $price,
                 ]);
 
-                if (!$model->validate('pc_id')){
+                if (!$model->validate('pc_id')) {
                     Yii::info($model->errors, 'test');
                     continue;
                 }
