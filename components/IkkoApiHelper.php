@@ -3,6 +3,7 @@
 namespace app\components;
 
 use app\models\Settings;
+use DOMDocument;
 use Yii;
 
 /**
@@ -25,6 +26,8 @@ class IkkoApiHelper
     protected $data;
     protected $token;
     protected $post_data;
+    protected $headers;
+
 
     public function __construct()
     {
@@ -90,6 +93,7 @@ class IkkoApiHelper
     protected function send($type = 'GET')
     {
 //        Yii::info('Request string: ' . $this->request_string, 'test');
+//        Yii::info('Headers: ' . json_encode($this->headers), 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
@@ -97,19 +101,22 @@ class IkkoApiHelper
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
         }
+        if ($this->headers){
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
+        }
         curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         $response = curl_exec($ch);
 
-//        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
+        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
 
         curl_close($ch);
         if ($response === false) {
             Yii::error(curl_error($ch), '_error');
         }
 
-//        Yii::info($response, 'test');
+        Yii::info($response, 'test');
         return $response;
     }
 
@@ -183,15 +190,15 @@ class IkkoApiHelper
 
     public function getOrderBlank($params)
     {
-        if (!isset($params['from']) || !$params['from']){
+        if (!isset($params['from']) || !$params['from']) {
             Yii::error('Отсутствует параметр "from"', 'error');
             return false;
         }
-        if (!isset($params['to']) || !$params['to']){
+        if (!isset($params['to']) || !$params['to']) {
             Yii::error('Отсутствует параметр "to"', 'error');
             return false;
         }
-        if (!isset($params['number']) || !$params['number']){
+        if (!isset($params['number']) || !$params['number']) {
             Yii::error('Отсутствует параметр "number"', 'error');
             return false;
         }
@@ -208,5 +215,79 @@ class IkkoApiHelper
         return json_decode($result, 'true');
     }
 
+    /**
+     * Создание расходной накладной
+     * @param array $params Параметры документа
+     * @return string
+     */
+    public function makeExpenseInvoice($params)
+    {
+        $dom = new domDocument('1.0', 'utf-8');
+        $root = $dom->createElement('document');
+        $dom->appendChild($root);
+        $number = $dom->createElement('documentNumber', $params['documentNumber']);
+        $date_incoming = $dom->createElement('dateIncoming', $this->toIikoDate($params['dateIncoming']));
+        $counteragent_id = $dom->createElement('counteragentId', $params['counteragentId']);
+        $comment = $dom
+            ->createElement('comment', "Доставка с {$params['from']} по {$params['to']} + «комментарий»");
+
+        $root->appendChild($number);
+        $root->appendChild($date_incoming);
+        $root->appendChild($counteragent_id);
+        $root->appendChild($comment);
+
+        $items = $dom->createElement('items');
+        foreach ($params['items'] as $item) {
+            $item_element = $dom->createElement('item');
+            $product_id = $dom->createElement('productId', $item['productId']);
+            $num = $dom->createElement('productArticle', $item['num']);
+            $price = $dom->createElement('price', $item['price']);
+            $amount = $dom->createElement('amount', $item['amount']);
+            $sum = $dom->createElement('sum', $item['sum']);
+
+            $item_element->appendChild($product_id);
+            $item_element->appendChild($num);
+            $item_element->appendChild($price);
+            $item_element->appendChild($amount);
+            $item_element->appendChild($sum);
+            $items->appendChild($item_element);
+        }
+        $root->appendChild($items);
+
+//        $path = "uploads/invoice.xml";
+//        $dom->save($path);
+
+        $this->post_data = $dom->saveXML();
+        $this->headers = [
+            'Content-Type: application/xml'
+        ];
+
+        $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
+        $result = $this->send('POST');
+//        Yii::info($result, 'test');
+        return $result;
+    }
+
+    /**
+     * Преобразует дату в формат 2015-02-25T00:12:34
+     * @param string $datetime
+     * @return false|string
+     */
+    private function toIikoDate($datetime)
+    {
+        $time = strtotime($datetime);
+        return date('Y-m-d\TH:i:s', $time);
+    }
+
+    /**
+     * Преобразует дату в формат 25.02.2020
+     * @param string $datetime
+     * @return false|string
+     */
+    private function toRusDate($datetime)
+    {
+        $time = strtotime($datetime);
+        return date('d.m.Y', $time);
+    }
 
 }
