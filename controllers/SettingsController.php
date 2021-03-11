@@ -76,6 +76,9 @@ class SettingsController extends Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
+            $system_settings = [];
+            $cms_settings = [];
+
             $result = [];
             if ($request->isPost){
                 $keys = $request->post('keys');
@@ -92,10 +95,23 @@ class SettingsController extends Controller
                     $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
                 }
             }
+
+            /** @var Settings $setting */
+            foreach ($settings as $setting){
+                if ($setting->is_system){
+                    array_push($system_settings, $setting);
+                } else {
+                    array_push($cms_settings, $setting);
+                }
+            }
+
             return [
                 'title' => 'Настройки',
                 'content' => $this->renderAjax('_form', [
-                    'settings' => $settings,
+                    'settings' => [
+                        'system' => $system_settings,
+                        'cms' => $cms_settings,
+                    ],
                     'result' => $result,
                 ]),
                 'footer' => Html::button('Закрыть', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .

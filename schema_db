@@ -315,7 +315,7 @@
         </key>
         <comment>Связь ценовых категорий с номенклатурой</comment>
     </table>
-    <table x="1597" y="109" name="order_blank">
+    <table x="1692" y="66" name="order_blank">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -338,5 +338,24 @@
             <part>id</part>
         </key>
         <comment>Бланки заказов</comment>
+    </table>
+    <table x="1349" y="133" name="order_blank_to_nomenclature">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="ob_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="order_blank" row="id" />
+            <comment>order_blank</comment>
+        </row>
+        <row name="n_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="nomenclature" row="id" />
+            <comment>nomenclature</comment>
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Связь накладных с номенклатурой</comment>
     </table>
 </sql>

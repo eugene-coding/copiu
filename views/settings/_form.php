@@ -13,20 +13,49 @@ use yii\widgets\ActiveForm;
 <div class="settings-form">
 
     <?php $form = ActiveForm::begin(); ?>
-    <table class="table table-hover">
-        <tbody>
-        <?php /** @var Settings $model */
-        foreach ($settings as $model): ?>
-            <tr>
-                <td><?= $model->label; ?></td>
-                <td><?= Html::textInput('keys[' . $model->key . ']', $model->value, [
-                        'class' => 'form-control'
-                    ]) ?></td>
-            </tr>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Системные
+        </div>
+        <div class="panel-body">
+            <table class="table table-hover">
+                <tbody>
+                <?php /** @var Settings $model */
+                foreach ($settings['system'] as $model): ?>
+                    <tr>
+                        <td><?= $model->label; ?></td>
+                        <td><?= Html::textInput('keys[' . $model->key . ']', $model->value, [
+                                'class' => 'form-control'
+                            ]) ?></td>
+                    </tr>
 
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Данные организации для работы с АПИ
+        </div>
+        <div class="panel-body">
+            <table class="table table-hover">
+                <tbody>
+                <?php /** @var Settings $model */
+                foreach ($settings['cms'] as $model): ?>
+                    <tr>
+                        <td><?= $model->label; ?></td>
+                        <td><?= Html::textInput('keys[' . $model->key . ']', $model->value, [
+                                'class' => 'form-control'
+                            ]) ?></td>
+                    </tr>
+
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <?php ActiveForm::end(); ?>
     <?php if ($result): ?>
         <div class="message text-center">

@@ -1,8 +1,7 @@
 <?php
+
 use yii\helpers\Html;
-use yii\bootstrap\Modal;
 use kartik\grid\GridView;
-use johnitvn\ajaxcrud\CrudAsset; 
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\search\OrderBlankSearch */
@@ -11,8 +10,12 @@ use johnitvn\ajaxcrud\CrudAsset;
 $this->title = 'Бланки заказа';
 $this->params['breadcrumbs'][] = $this->title;
 
-CrudAsset::register($this);
-
+$this->registerJsFile('/js/order_blank.js', [
+    'depends' => [
+        'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset',
+    ]
+]);
 ?>
 <div class="order-blank-index">
     <div id="ajaxCrudDatatable">
@@ -33,11 +36,12 @@ CrudAsset::register($this);
                                     'title' => 'Добавить накладную',
                                     'class' => 'btn btn-default'
                                 ]) .
-                            Html::a('<i class="glyphicon glyphicon-sort"></i> Синхронизировать', ['sync'],
+                            Html::button('<i class="glyphicon glyphicon-sort"></i> Синхронизировать',
                                 [
-                                    'role' => 'modal-remote',
                                     'title' => 'Синронизация накладных',
-                                    'class' => 'btn btn-default'
+                                    'class' => 'btn btn-default',
+                                    'id' => 'sync-order-blank-btn',
+                                    'data-url' => '/order-blank/syncing'
                                 ]) .
                             '{toggleData}' .
                             '{export}'
@@ -48,6 +52,7 @@ CrudAsset::register($this);
                 'responsive' => true,
                 'panel' => [
                     'type' => 'primary',
+                    'before' => '<div id="before-panel-message" style="display: none;"></div>',
                     'heading' => '<i class="glyphicon glyphicon-list"></i> Список накладных',
                     'after' => '<div class="clearfix"></div>',
                 ]
@@ -57,8 +62,3 @@ CrudAsset::register($this);
         } ?>
     </div>
 </div>
-<?php Modal::begin([
-    "id"=>"ajaxCrudModal",
-    "footer"=>"",// always need it for jquery plugin
-])?>
-<?php Modal::end(); ?>

@@ -13,9 +13,9 @@ class m210225_101635_insert_ikko_settings_to_settings_table extends Migration
     public function safeUp()
     {
         $this->batchInsert('{{%settings}}', ['key', 'label', 'user_id', 'is_system'], [
-            ['ikko_server_url', 'Адрес:порт сервера IKKO', 1, 1],
-            ['ikko_server_login', 'IKKO логин', 1, 1],
-            ['ikko_server_password', 'IKKO пароль', 1, 1],
+            ['ikko_server_url', 'Адрес:порт сервера', 1, 1],
+            ['ikko_server_login', 'Логин сервера', 1, 1],
+            ['ikko_server_password', 'Пароль сервера', 1, 1],
         ]);
     }
 

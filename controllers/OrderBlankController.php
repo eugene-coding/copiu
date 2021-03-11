@@ -276,4 +276,18 @@ class OrderBlankController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+    /**
+     * Синхронизация накладных
+     */
+    public function actionSyncing()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        return OrderBlank::sync();
+//        return [
+//            'success' => true,
+//            'data' => 'Все ок',
+//        ];
+    }
 }

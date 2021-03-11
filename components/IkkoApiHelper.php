@@ -89,7 +89,7 @@ class IkkoApiHelper
 
     protected function send($type = 'GET')
     {
-        Yii::info('Request string: ' . $this->request_string, 'test');
+//        Yii::info('Request string: ' . $this->request_string, 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
@@ -102,7 +102,7 @@ class IkkoApiHelper
 
         $response = curl_exec($ch);
 
-        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
+//        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
 
         curl_close($ch);
         if ($response === false) {
@@ -183,7 +183,7 @@ class IkkoApiHelper
 
     public function getOrderBlank($params)
     {
-        if (!isset($params['form']) || !$params['form']){
+        if (!isset($params['from']) || !$params['from']){
             Yii::error('Отсутствует параметр "from"', 'error');
             return false;
         }
@@ -191,13 +191,21 @@ class IkkoApiHelper
             Yii::error('Отсутствует параметр "to"', 'error');
             return false;
         }
+        if (!isset($params['number']) || !$params['number']){
+            Yii::error('Отсутствует параметр "number"', 'error');
+            return false;
+        }
         $params['key'] = $this->token;
 
-        $params['currentYear'] = false;
+        $params['currentYear'] = 'false';
         $query = http_build_query($params);
         $this->request_string = $this->base_url
             . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
-        return $this->send();
+        $result = $this->send();
+
+        \Yii::info($result, 'test');
+
+        return json_decode($result, 'true');
     }
 
 
