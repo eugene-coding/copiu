@@ -50,6 +50,12 @@ $fieldOptions2 = [
             <!-- /.col -->
         </div>
 
+        <div class="row">
+            <div class="col-xs-12">
+                Контактный телефон по вопросам доступа к системе <a href="tel:+79258478185">8 (925) 847 81 85</a>
+            </div>
+        </div>
+
 
         <?php ActiveForm::end(); ?>
     </div>

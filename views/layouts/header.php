@@ -244,26 +244,17 @@ use yii\helpers\Html;
                                  alt="User Image"/>
 
                             <p>
-                                <?= Yii::$app->user->identity->fio ?> - Web Developer
-                                <small>Member since Nov. 2012</small>
+                                <?= Yii::$app->user->identity->fio ?><br>
+                                <?= Yii::$app->user->identity->roleDescription ?>
+
                             </p>
                         </li>
                         <!-- Menu Body -->
-                        <li class="user-body">
-                            <div class="col-xs-4 text-center">
-                                <a href="#">Followers</a>
-                            </div>
-                            <div class="col-xs-4 text-center">
-                                <a href="#">Sales</a>
-                            </div>
-                            <div class="col-xs-4 text-center">
-                                <a href="#">Friends</a>
-                            </div>
-                        </li>
+
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <?= Html::a('Profile', ['/users/profile'], [
+                                <?= Html::a('Профиль', ['/users/profile'], [
                                     'class' => 'btn btn-default btn-flat',
                                     'role' => 'modal-remote'
 
@@ -271,7 +262,7 @@ use yii\helpers\Html;
                             </div>
                             <div class="pull-right">
                                 <?= Html::a(
-                                    'Sign out',
+                                    'Выход',
                                     ['/site/logout'],
                                     ['data-method' => 'post', 'class' => 'btn btn-default btn-flat']
                                 ) ?>

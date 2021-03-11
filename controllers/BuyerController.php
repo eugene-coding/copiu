@@ -205,6 +205,7 @@ class BuyerController extends Controller
                 ];
             } else {
                 if ($model->load($request->post())) {
+                    Yii::info($model->attributes, 'test');
                     if (!$model->user_id) {
                         $user_model->load($request->post());
                         //Проверяем указан ли логин
@@ -255,6 +256,19 @@ class BuyerController extends Controller
                                 ];
                             }
                         }
+                    }
+                    if (!$model->save()) {
+                        Yii::error($user_model->errors, '_error');
+                        return [
+                            'title' => $model->name,
+                            'content' => $this->renderAjax('update', [
+                                'model' => $model,
+                                'user_model' => $user_model,
+                            ]),
+                            'footer' => Html::button('Close',
+                                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        ];
                     }
                     return [
                         'forceReload' => '#crud-datatable-pjax',

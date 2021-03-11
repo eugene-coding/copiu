@@ -111,14 +111,16 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            //Проверяем баланс
-            if (!$model->checkBalance() && !Users::isAdmin()){
+            //Проверяем доступ
+            $access = $model->checkAccess();
+            if (!$access['success']){
                 Yii::$app->user->logout();
-                $model->addError('password', 'Для продолжения работы баланс недостаточен.');
+                $model->addError('password', $access['error']);
                 return $this->render('login', [
                     'model' => $model,
                 ]);
             }
+
             return $this->goBack();
         }
 

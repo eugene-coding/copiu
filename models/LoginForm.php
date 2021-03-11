@@ -98,14 +98,11 @@ class LoginForm extends Model
 
     /**
      * Проверяет баланс покупателя
+     * @param Buyer $buyer
      * @return bool
      */
-    public function checkBalance()
+    public function checkBalance($buyer)
     {
-        $user = $this->getUser();
-        Yii::info($user->attributes, 'test');
-
-        $buyer = $user->buyer;
         if ($buyer && $buyer->work_mode === Buyer::WORK_MODE_BALANCE_LIMIT){
             $helper = new IkkoApiHelper();
             $buyer->balance = $helper->getBalance($buyer->outer_id);
@@ -121,5 +118,34 @@ class LoginForm extends Model
         } else {
             return true;
         }
+    }
+
+    public function checkAccess()
+    {
+        if (Users::isAdmin()) return ['success' => true];
+
+        $user = $this->getUser();
+        $buyer = $user->buyer;
+        Yii::info($buyer->attributes, 'test');
+        //Проверяем деактивацию
+        if ($buyer->work_mode === $buyer::WORK_MODE_DEACTIVATED){
+            return [
+                'success' => false,
+                'error' => 'Ваша учетная запись заблокирована.'
+            ];
+        }
+
+        //Проверяем баланс
+        if (!$this->checkBalance($buyer) ){
+            return [
+                'success' => false,
+                'error' => 'Для совершения заказа недостаточен баланс.'
+            ];
+        }
+
+
+        return [
+            'success' => true,
+        ];
     }
 }

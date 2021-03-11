@@ -25,7 +25,7 @@ use yii\widgets\ActiveForm;
 
     <div class="row">
         <div class="col-xs-6">
-            <b> Ценовая категория:</b><br> <?= $model->workModeLabel; ?>
+            <b> Ценовая категория:</b><br> <?= $model->pc_id ? $model->pc->name : 'По умолчанию'; ?>
         </div>
         <div class="col-xs-6">
             <?= $form->field($model, 'delivery_cost')->input('number') ?>
