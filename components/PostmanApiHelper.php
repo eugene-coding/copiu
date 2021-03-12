@@ -267,4 +267,13 @@ XML;
         ];
 
     }
+
+    /**
+     * Создание акта оказания услуг
+     * @param array $params
+     */
+    public function makeActOfServices($params)
+    {
+
+    }
 }

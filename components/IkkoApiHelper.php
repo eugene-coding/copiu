@@ -188,6 +188,11 @@ class IkkoApiHelper
         return $sum;
     }
 
+    /**
+     * Получение накладной по номеру
+     * @param array $params Параметры
+     * @return mixed
+     */
     public function getOrderBlank($params)
     {
         if (!isset($params['from']) || !$params['from']) {
@@ -288,6 +293,11 @@ class IkkoApiHelper
     {
         $time = strtotime($datetime);
         return date('d.m.Y', $time);
+    }
+
+    public function getInvoice()
+    {
+
     }
 
 }

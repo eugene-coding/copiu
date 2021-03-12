@@ -79,7 +79,7 @@ class Buyer extends ActiveRecord
             'balance' => 'Баланс',
             'min_balance' => 'Минимальный баланс',
             'min_order_cost' => 'Минимальный заказ',
-            'delivery_cost' => 'Сумма доставки',
+            'delivery_cost' => 'Сумма доставки (если сумма заказа меньше минимальной)',
             'work_mode' => 'Режим работы',
         ];
     }

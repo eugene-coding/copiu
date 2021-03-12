@@ -12,7 +12,8 @@ class m210224_091702_add_delivery_cost_column_to_buyer_table extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%buyer}}', 'delivery_cost', $this->double()->defaultValue(0)->comment('Минимальная сумма заказа'));
+        $this->addColumn('{{%buyer}}', 'delivery_cost', $this->double()
+            ->defaultValue(0)->comment('Сумма услуги доставки если сумма заказа меньше минимальной'));
     }
 
     /**

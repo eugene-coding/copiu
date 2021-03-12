@@ -122,6 +122,14 @@ class Users extends ActiveRecord
     }
 
     /**
+     * @return bool
+     */
+    public static function isBuyer()
+    {
+        return Yii::$app->user->identity->role == 'buyer';
+    }
+
+    /**
      * @return mixed
      */
     public function getAvatar()

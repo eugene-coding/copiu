@@ -66,6 +66,13 @@ use dmstr\widgets\Menu;
                                 ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii'],],
                                 ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug'],],
                             ],
+                            'visible' => Users::isAdmin()
+                        ],
+                        [
+                            'label' => 'Заказы',
+                            'icon' => 'shopping-cart',
+                            'url' => ['/order'],
+                            'visible' => Users::isBuyer()
                         ],
                     ],
                 ]
