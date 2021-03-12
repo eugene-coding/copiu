@@ -37,7 +37,7 @@
             <type label="SET" length="1" sql="SET" quote=""/>
             <type label="Bit" length="0" sql="bit" quote=""/>
         </group>
-    </datatypes><table x="336" y="384" name="users">
+    </datatypes><table x="308" y="347" name="users">
     <row name="id" null="1" autoincrement="1">
         <datatype>INTEGER</datatype>
         <default>NULL</default></row>
@@ -59,7 +59,7 @@
     </key>
     <comment>Пользователи</comment>
 </table>
-    <table x="829" y="411" name="price_category">
+    <table x="621" y="520" name="price_category">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -74,7 +74,7 @@
         </key>
         <comment>Ценовая категория</comment>
     </table>
-    <table x="1010" y="49" name="order">
+    <table x="644" y="217" name="order">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -82,19 +82,30 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="buyer" row="id" />
         </row>
-        <row name="date" null="1" autoincrement="0">
+        <row name="created_at" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
-        <row name="order_blank_id" null="1" autoincrement="0">
+        <row name="target_date" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default><relation table="order_blank" row="id" />
-        </row>
+            <default>NULL</default></row>
+        <row name="delivery_time_from" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="delivery_time_to" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="total_price" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="comment" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
         <comment>Заказы</comment>
     </table>
-    <table x="761" y="50" name="invoice">
+    <table x="465" y="31" name="invoice">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -116,7 +127,7 @@
         </key>
         <comment>Накладные</comment>
     </table>
-    <table x="1443" y="403" name="nomenclature">
+    <table x="1191" y="394" name="nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -167,7 +178,7 @@
         </key>
         <comment>Номенклатура товаров</comment>
     </table>
-    <table x="558" y="224" name="buyer">
+    <table x="459" y="214" name="buyer">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -206,16 +217,18 @@
         </key>
         <comment>Покупатели</comment>
     </table>
-    <table x="1059" y="195" name="order_to_prouct">
+    <table x="992" y="215" name="order_to_prouct">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
         <row name="order_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><relation table="order" row="id" />
+        </row>
         <row name="nomenclature_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><relation table="nomenclature" row="id" />
+        </row>
         <row name="price" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -253,7 +266,7 @@
         </key>
         <comment>Настройки</comment>
     </table>
-    <table x="1777" y="385" name="n_group">
+    <table x="1403" y="366" name="n_group">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -284,7 +297,7 @@
         </key>
         <comment>Группы номенклатуры</comment>
     </table>
-    <table x="1785" y="601" name="measure">
+    <table x="1386" y="585" name="measure">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -299,7 +312,7 @@
         </key>
         <comment>Единицы измерения</comment>
     </table>
-    <table x="1046" y="415" name="price_category_to_nomenclature">
+    <table x="834" y="381" name="price_category_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -320,7 +333,7 @@
         </key>
         <comment>Связь ценовых категорий с номенклатурой</comment>
     </table>
-    <table x="1272" y="39" name="order_blank">
+    <table x="802" y="20" name="order_blank">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -344,7 +357,7 @@
         </key>
         <comment>Бланки заказов (накладные)</comment>
     </table>
-    <table x="1583" y="189" name="order_blank_to_nomenclature">
+    <table x="1107" y="65" name="order_blank_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
