@@ -8,7 +8,6 @@ use app\models\Buyer;
 use app\models\NGroup;
 use app\models\Nomenclature;
 use app\models\PriceCategory;
-use app\models\Users;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -28,7 +27,7 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'only' => ['logout'],
                 'rules' => [
                     [
@@ -40,7 +39,7 @@ class SiteController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],

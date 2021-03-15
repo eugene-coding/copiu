@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Users;
 use Yii;
 use app\models\PriceCategory;
 use app\models\search\PriceCategorySearch;
@@ -30,6 +31,9 @@ class PriceCategoryController extends Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
+                        'matchCallback' => function($rule, $action){
+                            return Users::isAdmin();
+                        }
                     ],
 
                 ],

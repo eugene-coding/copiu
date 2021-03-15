@@ -81,25 +81,36 @@
         <row name="buyer_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="buyer" row="id" />
+            <comment>Покупатель</comment>
         </row>
         <row name="created_at" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><comment>Дата создания</comment>
+        </row>
         <row name="target_date" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><comment>На какую дату делается заказ</comment>
+        </row>
         <row name="delivery_time_from" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><comment>Время доставки "с"</comment>
+        </row>
         <row name="delivery_time_to" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><comment>Время доставки "до"</comment>
+        </row>
         <row name="total_price" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><comment>Общая сумма заказа (с доставкой)</comment>
+        </row>
         <row name="comment" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default></row>
+            <default>NULL</default><comment>Комментарий</comment>
+        </row>
+        <row name="status" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Статус заказа (черновик, в работе, выполнен)</comment>
+        </row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>

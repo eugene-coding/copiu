@@ -6,6 +6,7 @@ use app\components\IkkoApiHelper;
 use app\models\query\OrderBlankQuery;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\Html;
 
 /**
  * This is the model class for table "order_blank".
@@ -16,6 +17,8 @@ use yii\db\ActiveRecord;
  * @property int|null $time_limit Ограничение по времени
  * @property int|null $day_limit Ограничение по дням
  * @property string|null $synced_at Дата и время синхронизации
+ *
+ * @property Nomenclature[] $products Продукты в из накладной
  */
 class OrderBlank extends ActiveRecord
 {
@@ -95,7 +98,7 @@ class OrderBlank extends ActiveRecord
             $number = $blank_model->number;
             $date = Yii::$app->formatter->asDate($blank_model->date);
 
-            if (!$data){
+            if (!$data) {
                 return [
                     'success' => false,
                     'error' => "Ошибка синхронизации. Для накладной № {$number} от {$date} не получена информация",
@@ -110,11 +113,16 @@ class OrderBlank extends ActiveRecord
                         'ob_id' => $blank_id,
                     ]);
 
-                    if (!$model->save()){
+                    if (!$model->save()) {
                         Yii::error($model->errors, '_error');
                     }
                 } else {
                     Yii::warning('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
+                }
+                //Пишем время синхронизации
+                $blank_model->synced_at = date('Y-m-d H:i:s', time());
+                if ($blank_model->save()) {
+                    Yii::error($blank_model->errors, '_error');
                 }
             }
         }
@@ -123,5 +131,125 @@ class OrderBlank extends ActiveRecord
             'success' => true,
             'data' => 'Синхронизация завершена'
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getProducts()
+    {
+        return $this->hasMany(Nomenclature::class, ['id' => 'ob_id'])
+            ->viaTable(OrderBlankToNomenclature::tableName(), ['n_id' => 'id']);
+    }
+
+    /**
+     * Получает бланки заказов на дату
+     * @param string $date Дата на которую производится заказ (Y-m-d)
+     * @return string
+     */
+    public function getBlanksByDate($date)
+    {
+        $date = date('Y-m-d 00:00:00', strtotime($date));
+        $target_date = date('Y-m-d 23:59:59');
+
+        $diff_time = strtotime($date) - strtotime($target_date);
+        $diff_days = floor($diff_time / (60 * 60 * 24) + 1);
+
+        Yii::info('Diff days: ' . $diff_days, 'test');
+
+        $blanks = self::find()
+            ->andWhere(['<=', 'day_limit', $diff_days])
+            ->all();
+
+//        $data = [];
+//
+//        /** @var OrderBlank $blank */
+//        foreach ($blanks as $blank) {
+//            $products = $blank->products;
+//            $count_products = count($products) ? count($products) : 0;
+//            $limit = Yii::$app->formatter->asTime($blank->time_limit);
+//            $min_delivery_date = date('d.m.Y', time() + ($blank->day_limit * 24 * 60 * 60));
+//            $data[] = [
+//                'target_date' => $target_date,
+//                'number' => $blank->number,
+//                'count_products' => $count_products,
+//                'time_limit' => $limit,
+//                'day_limit' => $blank->day_limit,
+//                'min_delivery_date' => $min_delivery_date
+//            ];
+//        }
+
+        return $this->blanksToTable($blanks, $date);
+    }
+
+    /**
+     * @param OrderBlank[] $blanks
+     * @param string $target_date
+     * @return string
+     */
+    private function blanksToTable($blanks, $target_date)
+    {
+        $result = '';
+        $blank_ids = [];
+        /** @var OrderBlank $blank */
+        foreach ($blanks as $blank) {
+            $products = $blank->products;
+            $count_products = count($products) ? count($products) : 0;
+            /** @var int $max_order_time Максимальная дата доставки для продукта */
+            $max_order_time = strtotime($blank->time_limit); //Максимальное дата и время, до которого можно совершить заказ
+            if ($max_order_time < time()) {
+                $max_order_time = $max_order_time + (60 * 60 * 24);
+            }
+            Yii::info('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
+
+            $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 *60 * 60));
+            $delivery_time = strtotime($delivery_date);
+
+            Yii::info('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
+            Yii::info('Дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+            Yii::info('Расчетная дата доставки больше даты заказа: '
+                . (int)(strtotime($delivery_date) >  strtotime($target_date)), 'test');
+
+            if (strtotime($delivery_date) >  strtotime($target_date)){
+                //Есил расчетная дата доставки больше даты, на которую заказывается продукты
+                continue;
+            }
+
+            if ($delivery_time < strtotime($target_date)){
+                //Если продукты заказаны на более позднюю дату, чем расчетная
+                $max_order_time = time();
+            }
+
+            $result .= '<tr>';
+            $result .= '<td>';
+            $result .= '<span class="fa fa-check text-success"></span> Бланк ' . $blank->number . ' продуктов ' . $count_products
+                . ", можно оформить <b>" . date('d.m.Y', $max_order_time) . "</b> до <b>" . Yii::$app->formatter->asTime($blank->time_limit)
+                . "</b>. Заказ будет доставлен <b>" . date('d.m.Y', strtotime($target_date)) . '</b><br>';
+            $result .= '</td>';
+            $result .= '</tr>';
+            $blank_ids[] = $blank->id;
+        }
+
+        if (!$result) {
+            return $result;
+        }
+
+        $table = '<table class="table table-bordered table-hover">';
+        $table .= '<tbody>';
+        $table .= $result;
+        $table .= '</tbody>';
+        $table .= '</table>';
+        $btn = Html::button('Далее', [
+            'class' => 'btn btn-primary btn-block',
+            'type' => 'submit',
+        ]);
+        $hidden_input = Html::input('text', 'Order[blanks]', implode(',', $blank_ids), [
+            'style' => 'display: none;'
+        ]);
+
+
+        return $table . $btn . $hidden_input;
+
     }
 }

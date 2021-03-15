@@ -9,7 +9,7 @@ $config = [
     'bootstrap' => ['log'],
     'language' => 'ru-RU',
     'name' => 'Хлеб с маслом',
-    'defaultRoute' => 'buyer',
+    'defaultRoute' => 'order',
     'timeZone' => 'Europe/Moscow',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -68,6 +68,7 @@ $config = [
         'formatter' => [
             'dateFormat' => 'php:d.m.Y',
             'datetimeFormat' => 'php:d.m.Y H:i',
+            'timeFormat' => 'php:H:i',
         ],
         'db' => $db,
         'urlManager' => [

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Users;
 use Yii;
 use app\models\Settings;
 use app\models\search\SettingsSearch;
@@ -30,6 +31,9 @@ class SettingsController extends Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
+                        'matchCallback' => function($rule, $action){
+                            return Users::isAdmin();
+                        }
                     ],
 
                 ],

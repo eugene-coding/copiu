@@ -21,6 +21,7 @@ class m210312_084032_create_order_table extends Migration
             'delivery_time_to' => $this->time()->comment('Время доставки "до"'),
             'total_price' => $this->double()->comment('Общая сумма заказа (включая доставку)'),
             'comment' => $this->text()->comment('Комментарий'),
+            'status' => $this->smallInteger()->comment('Статус заказа'),
         ]);
 
         $this->addForeignKey(

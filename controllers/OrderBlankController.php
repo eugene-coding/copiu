@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Users;
 use Yii;
 use app\models\OrderBlank;
 use app\models\search\OrderBlankSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -22,6 +24,24 @@ class OrderBlankController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['get-orders-by-date'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function($rule, $action){
+                            return Users::isAdmin();
+                        }
+                    ],
+
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -289,5 +309,43 @@ class OrderBlankController extends Controller
 //            'success' => true,
 //            'data' => 'Все ок',
 //        ];
+    }
+
+    /**
+     * Получает накладные на указзанную дату
+     * @return array
+     */
+    public function actionGetOrdersByDate()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+
+        if (!$_POST['date']) {
+            return [
+                'success' => false,
+                'error' => 'Не выбрана дата',
+            ];
+        }
+        if (strtotime($_POST['date']) < time()) {
+            return [
+                'success' => false,
+                'error' => 'Дата заказа уже наступила. Заказ невозможен',
+            ];
+        }
+
+        $target_date = date('Y-m-d', strtotime($_POST['date']));
+
+        $model = new OrderBlank();
+        $data = $model->getBlanksByDate($target_date);
+
+        if (!$data){
+            $data = 'Бланки заказов отсуствуют';
+        }
+
+
+        return [
+            'success' => true,
+            'data' => $data,
+        ];
     }
 }

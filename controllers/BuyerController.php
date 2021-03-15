@@ -31,6 +31,9 @@ class BuyerController extends Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
+                        'matchCallback' => function($rule, $action){
+                            return Users::isAdmin();
+                        }
                     ],
 
                 ],

@@ -20,13 +20,18 @@ use yii\db\ActiveRecord;
  * @property string|null $unit_weight Вес одной единицы
  * @property string|null $unit_capacity Объём одной единицы
  * @property string|null $type Тип
+ * @property double|null $count Кол-во
  *
  * @property Measure $measure
  * @property NGroup $nGroup
  * @property PriceCategoryToNomenclature[] $priceCategoryToNomenclatures
+ * @property OrderBlank[] $orderBlanks
  */
 class Nomenclature extends ActiveRecord
 {
+
+    public $count;
+
     /**
      * {@inheritdoc}
      */
@@ -43,7 +48,7 @@ class Nomenclature extends ActiveRecord
         return [
             [['description'], 'string'],
             [['n_group_id', 'measure_id'], 'integer'],
-            [['default_price', 'unit_weight', 'unit_capacity'], 'number'],
+            [['default_price', 'unit_weight', 'unit_capacity', 'count'], 'number'],
             [['name', 'outer_id', 'num', 'type'], 'string', 'max' => 255],
             [
                 ['measure_id'],
@@ -70,9 +75,9 @@ class Nomenclature extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'description' => 'Description',
-            'outer_id' => 'Outer ID',
+            'name' => 'Наименование',
+            'description' => 'Описание',
+            'outer_id' => 'Внещний идентификатор',
             'num' => 'Артикул',
             'n_group_id' => 'Номенклатурная группа',
             'measure_id' => 'Единица измерения',
@@ -80,13 +85,14 @@ class Nomenclature extends ActiveRecord
             'unit_weight' => 'Вес одной единицы',
             'unit_capacity' => 'Объём одной единицы',
             'type' => 'Тип',
+            'count' => 'Кол-во',
         ];
     }
 
     /**
      * Gets query for [[Measure]].
      *
-     * @return \yii\db\ActiveQuery|\app\models\query\MeasureQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getMeasure()
     {
@@ -101,6 +107,16 @@ class Nomenclature extends ActiveRecord
     public function getNGroup()
     {
         return $this->hasOne(NGroup::className(), ['id' => 'n_group_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getOrderBlanks()
+    {
+        return $this->hasMany(OrderBlank::class, ['id' => 'ob_id'])
+            ->viaTable(OrderBlankToNomenclature::tableName(), ['n_id' => 'id']);
     }
 
     /**
@@ -221,4 +237,6 @@ class Nomenclature extends ActiveRecord
             'RATE' => 'Тариф',
         ];
     }
+
+
 }

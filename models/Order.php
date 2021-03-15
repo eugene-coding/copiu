@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use app\models\query\OrderQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "order".
@@ -15,11 +16,17 @@ use Yii;
  * @property string|null $delivery_time_to Время доставки "до"
  * @property float|null $total_price Общая сумма заказа (включая доставку)
  * @property string|null $comment Комментарий
+ * @property int $status Статус
+ * @property string||null $blanks Бланки заказов
  *
  * @property Buyer $buyer
  */
-class Order extends \yii\db\ActiveRecord
+class Order extends ActiveRecord
 {
+    const STATUS_DRAFT = 1;
+    const STATUS_WORK = 2;
+    const STATUS_DONE = 3;
+
     /**
      * {@inheritdoc}
      */
@@ -34,11 +41,11 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['buyer_id'], 'integer'],
+            [['buyer_id', 'status'], 'integer'],
             [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to'], 'safe'],
             [['total_price'], 'number'],
-            [['comment'], 'string'],
-            [['buyer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Buyer::className(), 'targetAttribute' => ['buyer_id' => 'id']],
+            [['comment', 'blanks'], 'string'],
+            [['buyer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Buyer::class, 'targetAttribute' => ['buyer_id' => 'id']],
         ];
     }
 
@@ -56,25 +63,41 @@ class Order extends \yii\db\ActiveRecord
             'delivery_time_to' => 'Время доставки \"до\"',
             'total_price' => 'Общая сумма заказа (включая доставку)',
             'comment' => 'Комментарий',
+            'status' => 'Статус',
+            'blanks' => 'Бланки заказов',
         ];
     }
+
 
     /**
      * Gets query for [[Buyer]].
      *
-     * @return \yii\db\ActiveQuery|\app\models\query\BuyerQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getBuyer()
     {
-        return $this->hasOne(Buyer::className(), ['id' => 'buyer_id']);
+        return $this->hasOne(Buyer::class, ['id' => 'buyer_id']);
     }
 
     /**
      * {@inheritdoc}
-     * @return \app\models\query\OrderQuery the active query used by this AR class.
+     * @return OrderQuery the active query used by this AR class.
      */
     public static function find()
     {
-        return new \app\models\query\OrderQuery(get_called_class());
+        return new OrderQuery(get_called_class());
+    }
+
+    /**
+     * Список статусов заказа
+     * @return array
+     */
+    public function getStatusList()
+    {
+        return [
+          self::STATUS_DRAFT => 'Черновик',
+          self::STATUS_DRAFT => 'В работе',
+          self::STATUS_DRAFT => 'Завершен',
+        ];
     }
 }

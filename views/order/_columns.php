@@ -1,9 +1,11 @@
 <?php
+
+use app\models\Order;
 use yii\helpers\Url;
 
 return [
     [
-        'class' => 'kartik\grid\CheckboxColumn',
+        'class' => 'kartik\grid\RadioColumn',
         'width' => '20px',
     ],
     [
@@ -17,6 +19,9 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'buyer_id',
+        'content' => function (Order $model){
+            return $model->buyer->name;
+        }
     ],
     // [
         // 'class'=>'\kartik\grid\DataColumn',
@@ -25,6 +30,7 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'target_date',
+        'format' => 'date',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
