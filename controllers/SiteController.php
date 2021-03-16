@@ -207,7 +207,7 @@ class SiteController extends Controller
     public function actionSyncBuyer()
     {
         set_time_limit(600);
-
+        ini_set("memory_limit", "2000M");
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $helper = new PostmanApiHelper();
@@ -227,6 +227,7 @@ class SiteController extends Controller
     public function actionSyncPriceCategory()
     {
         set_time_limit(600);
+        ini_set("memory_limit", "2000M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return [
@@ -242,6 +243,7 @@ class SiteController extends Controller
     public function actionSyncAll()
     {
         set_time_limit(600);
+        ini_set("memory_limit", "2000M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -280,6 +282,8 @@ class SiteController extends Controller
     public function actionSyncNomenclature()
     {
         set_time_limit(600);
+        ini_set("memory_limit", "2000M");
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
 
@@ -302,6 +306,7 @@ class SiteController extends Controller
     public function actionSyncNomenclatureGroup()
     {
         set_time_limit(300);
+        ini_set("memory_limit", "2000M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
@@ -323,6 +328,8 @@ class SiteController extends Controller
     public function actionSyncPriceForPC()
     {
         set_time_limit(600);
+        ini_set("memory_limit", "2000M");
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         $postman = new PostmanApiHelper();
 
