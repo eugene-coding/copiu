@@ -116,7 +116,7 @@ class IkkoApiHelper
             Yii::error(curl_error($ch), '_error');
         }
 
-        Yii::info($response, 'test');
+//        Yii::info($response, 'test');
         return $response;
     }
 

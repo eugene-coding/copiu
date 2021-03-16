@@ -204,13 +204,13 @@ class Nomenclature extends ActiveRecord
             }
 
             $model->name = $item['name'];
-            $model->description = $item['description'];
+            $model->description = $item['description']?:'';
             $model->outer_id = $item['id'];
-            $model->num = $item['num'];
+            $model->num = $item['num']?:0;
             $model->n_group_id = $n_group_id;
-            $model->default_price = $item['defaultSalePrice'];
-            $model->unit_weight = $item['unitWeight'];
-            $model->unit_capacity = $item['unitCapacity'];
+            $model->default_price = $item['defaultSalePrice']?:0;
+            $model->unit_weight = $item['unitWeight']?:0;
+            $model->unit_capacity = $item['unitCapacity']?:0;
             $model->type = $item['type'];
 
             Yii::info($model->attributes, 'test');
