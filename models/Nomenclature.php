@@ -20,12 +20,15 @@ use yii\db\ActiveRecord;
  * @property string|null $unit_weight Вес одной единицы
  * @property string|null $unit_capacity Объём одной единицы
  * @property string|null $type Тип
- * @property double|null $count Кол-во
+ * @property array|null $count Кол-во
+ * @property array|null $price Цена товара
  *
  * @property Measure $measure
  * @property NGroup $nGroup
  * @property PriceCategoryToNomenclature[] $priceCategoryToNomenclatures
  * @property OrderBlank[] $orderBlanks
+ * @property OrderToNomenclature[] $orderToNomenclature
+ * @property double $priceForBuyer
  */
 class Nomenclature extends ActiveRecord
 {
@@ -48,7 +51,7 @@ class Nomenclature extends ActiveRecord
         return [
             [['description'], 'string'],
             [['n_group_id', 'measure_id'], 'integer'],
-            [['default_price', 'unit_weight', 'unit_capacity', 'count'], 'number'],
+            [['default_price', 'unit_weight', 'unit_capacity'], 'number'],
             [['name', 'outer_id', 'num', 'type'], 'string', 'max' => 255],
             [
                 ['measure_id'],
@@ -65,6 +68,7 @@ class Nomenclature extends ActiveRecord
                 'targetAttribute' => ['n_group_id' => 'id']
             ],
             [['outer_id'], 'unique'],
+            ['count', 'price', 'safe'],
         ];
     }
 
@@ -117,6 +121,14 @@ class Nomenclature extends ActiveRecord
     {
         return $this->hasMany(OrderBlank::class, ['id' => 'ob_id'])
             ->viaTable(OrderBlankToNomenclature::tableName(), ['n_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderToNomenclature()
+    {
+        return $this->hasMany(OrderToNomenclature::class, ['nomenclature_id' => 'id']);
     }
 
     /**
@@ -238,5 +250,35 @@ class Nomenclature extends ActiveRecord
         ];
     }
 
+    /**
+     * Получает цену продукта для покупателя
+     */
+    public function getPriceForBuyer()
+    {
+        /** @var Users $user */
+        $user = Yii::$app->user->identity;
+        $buyer = $user->buyer;
+
+        if (!$buyer || !$buyer->pc_id) return $this->default_price;
+
+        /** @var PriceCategoryToNomenclature $pc_t_n */
+        $pc_t_n = PriceCategoryToNomenclature::find()
+            ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])->one();
+
+       return $pc_t_n->price;
+
+    }
+
+    /**
+     * Колво продуктов в заказе
+     * @param $order_id
+     * @return mixed
+     */
+    public function getCount($order_id)
+    {
+        return OrderToNomenclature::find()
+            ->andWhere(['nomenclature_id' => $this->id, 'order_id' => $order_id])
+            ->one()->count;
+    }
 
 }

@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "order_to_nomenclature".
@@ -15,8 +15,9 @@ use Yii;
  *
  * @property Nomenclature $nomenclature
  * @property Order $order
+ * @property double $totalPrice
  */
-class OrderToNomenclature extends \yii\db\ActiveRecord
+class OrderToNomenclature extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -34,8 +35,22 @@ class OrderToNomenclature extends \yii\db\ActiveRecord
         return [
             [['order_id', 'nomenclature_id'], 'integer'],
             [['price', 'count'], 'number'],
-            [['nomenclature_id'], 'exist', 'skipOnError' => true, 'targetClass' => Nomenclature::className(), 'targetAttribute' => ['nomenclature_id' => 'id']],
-            [['order_id'], 'exist', 'skipOnError' => true, 'targetClass' => Order::className(), 'targetAttribute' => ['order_id' => 'id']],
+            [
+                ['nomenclature_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Nomenclature::className(),
+                'targetAttribute' => ['nomenclature_id' => 'id']
+            ],
+            [
+                ['order_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Order::class,
+                'targetAttribute' => ['order_id' => 'id']
+            ],
+            [['order_id', 'nomenclature_id'], 'unique', 'targetAttribute' => ['order_id', 'nomenclature_id']],
+
         ];
     }
 
@@ -71,5 +86,18 @@ class OrderToNomenclature extends \yii\db\ActiveRecord
     public function getOrder()
     {
         return $this->hasOne(Order::className(), ['id' => 'order_id']);
+    }
+
+    /**
+     * Общая сумма заказа
+     * @param int $order_id Заказ
+     * @return bool|false|null|string
+     */
+    public static function getTotalPrice($order_id)
+    {
+        return self::find()
+            ->select(['SUM(price*count)'])
+            ->andWhere(['order_id' => $order_id])
+            ->scalar();
     }
 }

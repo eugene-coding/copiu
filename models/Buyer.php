@@ -161,12 +161,46 @@ class Buyer extends ActiveRecord
         ];
     }
 
+    /**
+     * Наименование типа работы
+     * @return mixed|string
+     */
     public function getWorkModeLabel()
     {
-        if ($this->work_mode){
+        if ($this->work_mode) {
             return $this::getWorkModeList()[$this->work_mode];
         }
 
         return '';
+    }
+
+    /**
+     * Интервалы для выбора времени доставки
+     * @param $type
+     * @return array
+     */
+    public function getDeliveryTimeIntervals($type)
+    {
+        switch ($type) {
+            case 'from':
+                return $this->getTimeIntervals(3, 15);
+                break;
+            case 'to':
+                return $this->getTimeIntervals(5, 17);
+                break;
+            default:
+                return[];
+        }
+    }
+
+    private function getTimeIntervals($start, $end)
+    {
+        $result_arr = [];
+        for ($i = $start; $i <= $end; $i++){
+            $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
+            $result_arr[$val] = $val;
+        }
+
+        return $result_arr;
     }
 }

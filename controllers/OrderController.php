@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\models\Nomenclature;
+use app\models\OrderToNomenclature;
+use app\models\Users;
 use Yii;
 use app\models\Order;
 use app\models\search\OrderSearch;
@@ -180,7 +182,27 @@ class OrderController extends Controller
     public function actionUpdate($id, $step = null)
     {
         $request = Yii::$app->request;
+
         $model = $this->findModel($id);
+        $blanks = explode(',', $model->blanks);
+        $orderToNomenclatureDataProvider = new ActiveDataProvider([
+            'query' => Nomenclature::find()
+                ->joinWith(['orderToNomenclature'])
+                ->andWhere(['order_to_nomenclature.order_id' => $model->id]),
+        ]);
+        $orderToNomenclatureDataProvider->pagination = false;
+        $products_in_order = OrderToNomenclature::find()
+            ->select(['nomenclature_id'])
+            ->andWhere(['order_id' => $model->id])
+            ->column();
+
+        $productsDataProvider = new ActiveDataProvider([
+            'query' => Nomenclature::find()
+                ->joinWith(['orderBlanks'])
+                ->andWhere(['IN', 'order_blank.id', $blanks])
+                ->andWhere(['NOT IN', 'nomenclature.id', $products_in_order])
+        ]);
+        $productsDataProvider->pagination = false;
 
         if ($request->isAjax) {
             /*
@@ -188,15 +210,20 @@ class OrderController extends Controller
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
+                $_pjax = $request->get('_pjax');
                 return [
-                    'title' => "Update Order #" . $id,
-                    'content' => $this->renderAjax('update', [
-                        'model' => $model,
-                    ]),
-                    'footer' => Html::button('Close',
-                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                    'forceClose' => true,
+                    'forceReload' => $_pjax
                 ];
+//                return [
+//                    'title' => "Update Order #" . $id,
+//                    'content' => $this->renderAjax('update', [
+//                        'model' => $model,
+//                    ]),
+//                    'footer' => Html::button('Close',
+//                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+//                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+//                ];
             } else {
                 if ($model->load($request->post()) && $model->save()) {
                     return [
@@ -229,16 +256,12 @@ class OrderController extends Controller
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
-                $productsDataProvider = new ActiveDataProvider([
-                    'query' => Nomenclature::find()
-                        ->joinWith(['orderBlanks'])
-                        ->andWhere(['IN', 'order_blank.id', $model->blanks]),
-                ]);
-                $productsDataProvider->pagination = false;
+
                 return $this->render('update', [
                     'model' => $model,
                     'step' => $step,
                     'productsDataProvider' => $productsDataProvider,
+                    'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
                 ]);
             }
         }
@@ -324,5 +347,256 @@ class OrderController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * Добавляет продукты в заказ
+     * @param int $order_id Заказ
+     * @return array
+     */
+    public function actionBulkAddProduct($order_id)
+    {
+        $request = Yii::$app->request;
+
+        $selection = $request->post('selection');
+
+        foreach ($selection as $item) {
+            $nomenclature_model = Nomenclature::findOne($item);
+            $price = $nomenclature_model->getPriceForBuyer();
+
+            $product_exists = OrderToNomenclature::find()
+                ->andWhere(['order_id' => $order_id, 'nomenclature_id' => $item])
+                ->exists();
+            if ($product_exists) {
+                continue;
+            }
+
+            $model = new OrderToNomenclature([
+                'order_id' => $order_id,
+                'nomenclature_id' => $item,
+                'price' => $price,
+                'count' => 1,
+            ]);
+
+            if (!$model->save()) {
+                Yii::error($model->errors, '_error');
+            }
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        return [
+            'forceReload' => '#selected-product-pjax',
+            'forceClose' => true,
+        ];
+    }
+
+    /**
+     * Исключает продукт из заказа
+     * @param $order_id
+     * @param int $nomenclature_id Позиция номенклатуры
+     * @return array
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionExcludeProduct($order_id, $nomenclature_id)
+    {
+        /** @var OrderToNomenclature $model */
+        $model = OrderToNomenclature::find()
+            ->andWhere(['nomenclature_id' => $nomenclature_id, 'order_id' => $order_id])
+            ->one();
+        if ($model && !$model->delete()) {
+            Yii::error($model->errors, '_error');
+        }
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'forceClose' => true,
+            'forceReload' => '#order-pjax',
+        ];
+
+    }
+
+    /**
+     * Включает продукт в заказ
+     * @param $order_id
+     * @param int $nomenclature_id Позиция номенклатуры
+     * @return array
+     */
+    public function actionIncludeProduct($order_id, $nomenclature_id)
+    {
+        $nomenclature_model = Nomenclature::findOne($nomenclature_id);
+
+        $model = new OrderToNomenclature();
+        $model->order_id = $order_id;
+        $model->nomenclature_id = $nomenclature_id;
+        $model->count = 0;
+        $model->price = $nomenclature_model->getPriceForBuyer();
+
+        if (!$model->save()) {
+            Yii::error($model->errors, '_error');
+        }
+
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'forceClose' => true,
+            'forceReload' => '#order-pjax',
+        ];
+    }
+
+    /**
+     * @param int $id Идентификатор заказа
+     * @return string
+     */
+    public function actionOrderProducts($id)
+    {
+        $model = Order::findOne($id);
+        $dataProvider = new ActiveDataProvider([
+            'query' => Nomenclature::find()
+                ->joinWith(['orderToNomenclature'])
+                ->andWhere(['order_to_nomenclature.order_id' => $model->id]),
+        ]);
+        return $this->renderAjax('_order_nomenclature', [
+            'model' => $model,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionOrderCreate()
+    {
+        $request = Yii::$app->request;
+        $model = new Order();
+        $user = Users::findOne(Yii::$app->user->identity->id);
+        $model->buyer_id = $user->buyer->id;
+        Yii::info($model->attributes, 'test');
+
+        if ($request->isPost) {
+            $model->load($request->post());
+            $model->save();
+            $this->redirect(['order-update', 'id' => $model->id]);
+        } else {
+            return $this->render('_form', [
+                'model' => $model,
+            ]);
+        }
+
+    }
+
+    /**
+     * Редактирование заказа
+     * @param $id
+     * @return string
+     */
+    public function actionOrderUpdate($id)
+    {
+        $request = Yii::$app->request;
+        $model = Order::findOne($id);
+
+        $blanks = explode(',', $model->blanks);
+        $orderToNomenclatureDataProvider = new ActiveDataProvider([
+            'query' => Nomenclature::find()
+                ->joinWith(['orderToNomenclature'])
+                ->andWhere(['order_to_nomenclature.order_id' => $model->id]),
+        ]);
+        $orderToNomenclatureDataProvider->pagination = false;
+        $products_in_order = OrderToNomenclature::find()
+            ->select(['nomenclature_id'])
+            ->andWhere(['order_id' => $model->id])
+            ->column();
+
+        $productsDataProvider = new ActiveDataProvider([
+            'query' => Nomenclature::find()
+                ->joinWith(['orderBlanks'])
+                ->andWhere(['IN', 'order_blank.id', $blanks])
+                ->andWhere(['NOT IN', 'nomenclature.id', $products_in_order])
+        ]);
+        $productsDataProvider->pagination = false;
+
+        if ($request->isAjax) {
+            return $this->render('_form', [
+                'model' => $model,
+                'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
+                'productsDataProvider' => $productsDataProvider,
+            ]);
+        }
+
+        if ($request->isGet) {
+            $model->step += 1;
+
+            return $this->render('_form', [
+                'model' => $model,
+                'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
+                'productsDataProvider' => $productsDataProvider,
+            ]);
+        } else {
+            $model->load($request->post());
+            if ($model->count) {
+                foreach ($model->count as $nomenclature_id => $count) {
+                    $n = Nomenclature::findOne($nomenclature_id);
+
+                    $otn = OrderToNomenclature::find()
+                        ->andWhere(['order_id' => $model->id, 'nomenclature_id' => $nomenclature_id])->one();
+                    if (!$otn) {
+                        $otn = new OrderToNomenclature();
+                        $otn->order_id = $model->id;
+                        $otn->nomenclature_id = $nomenclature_id;
+                    }
+                    $otn->price = $n->getPriceForBuyer();
+                    $otn->count = $count;
+
+                    if (!$otn->save()) {
+                        Yii::error($otn->errors, '_error');
+                        $model->step--;
+                    }
+                }
+            }
+            if ($model->delivery_time_from) {
+                $from = date('H', strtotime($model->delivery_time_from));
+                $to = date('H', strtotime($model->delivery_time_to));
+                if (!$to) {
+                    $model->delivery_time_to = date('H:i', strtotime($from) + (60 * 60 * 2));
+                    $to = date('H', strtotime($model->delivery_time_to));
+                }
+                Yii::info('FROM: ' . $from, 'test');
+                Yii::info('TO: ' . $to, 'test');
+                if ($from > $to) {
+                    $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
+                    $model->step--;
+                } elseif(($to - $from) < 2) {
+                    $model->addError('error_delivery_time', 'Уведичте период доставки');
+                    $model->step--;
+                }
+            }
+            $model->step++;
+            if (!$model->hasErrors() && !$model->save()) {
+                Yii::error($model->errors, '_error');
+            }
+
+            return $this->render('_form', [
+                'model' => $model,
+                'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
+                'productsDataProvider' => $productsDataProvider,
+            ]);
+        }
+    }
+
+
+    /**
+     * Отссеняет (удаляет) заказ
+     * @param int $id Идентификатор заказа
+     * @return Response
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionCancel($id)
+    {
+        $model = Order::findOne($id);
+
+        if (!$model->delete()) {
+            \Yii::error($model->errors, '_error');
+        }
+
+        return $this->redirect('index');
     }
 }

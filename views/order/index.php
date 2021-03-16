@@ -31,7 +31,7 @@ $this->registerJsFile('/js/order_form.js', [
                 'toolbar' => [
                     [
                         'content' =>
-                            Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить заказ', ['create'],
+                            Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить заказ', ['order-create'],
                                 [
 //                                    'role' => 'modal-remote',
                                     'title' => 'Добавить заказ',

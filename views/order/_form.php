@@ -1,8 +1,7 @@
 <?php
 
-use app\components\MyBulkButtonWidget;
 use kartik\date\DatePicker;
-use kartik\grid\GridView;
+
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yii\widgets\Pjax;
@@ -10,15 +9,23 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $model app\models\Order */
 /* @var $form yii\widgets\ActiveForm */
-/* @var int $step Шаг заказа */
 /* @var $productsDataProvider \yii\data\ActiveDataProvider */
+/* @var $orderToNomenclatureDataProvider \yii\data\ActiveDataProvider */
 
-if ($step == 1) {
+
+if ($model->step == 1) {
     $title = 'Создание заказа. Шаг 1.';
-} elseif ($step == 2) {
+} elseif ($model->step == 2) {
     $title = 'Создание заказа. Шаг 2. (Формируем заказ на ' . Yii::$app->formatter->asDate($model->target_date) . ')';
 
+} elseif ($model->step == 3) {
+    $title = 'Создание заказа. Шаг 3. (Формируем заказ на ' . Yii::$app->formatter->asDate($model->target_date) . ')';
+} elseif ($model->step == 4) {
+    $title = 'Создание заказа. Шаг 4. (Формируем заказ на ' . Yii::$app->formatter->asDate($model->target_date) . ')';
+} elseif ($model->step == 5) {
+    $title = 'Заказ создан на ' . Yii::$app->formatter->asDate($model->target_date);
 }
+Yii::info('Шаг: ' . $model->step, 'test');
 
 $this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;
@@ -32,13 +39,31 @@ $this->registerJsFile('/js/order_form.js', [
 ]);
 ?>
 
-
 <hr>
 <div class="order-form">
-
     <?php $form = ActiveForm::begin(); ?>
-
-    <?php if ($step == 1): ?>
+    <?php if ($model->step != 5): ?>
+        <div class="buttons" style="margin-bottom: 2rem">
+            <div class="row">
+                <div class="col-xs-2">
+                    <?= Html::a('Отмена', ['/order/cancel', 'id' => $model->id], [
+                        'class' => 'btn btn-default btn-block',
+                        'title' => 'Отменить формирование закзаза',
+                    ]) ?>
+                </div>
+                <div class="col-xs-8"></div>
+                <div class="col-xs-2">
+                    <?= Html::submitButton('Далее', [
+                        'class' => 'btn btn-success btn-block',
+                        'title' => 'Сохранить и продолжить',
+                    ]) ?>
+                </div>
+            </div>
+            <hr>
+        </div>
+        <?= $form->field($model, 'status')->hiddenInput(['value' => $model::STATUS_DRAFT])->label(false) ?>
+    <?php endif; ?>
+    <?php if ($model->step == 1): ?>
         <div class="row">
             <div class="col-xs-3 text-center" style="display: flex; flex-direction: column; align-items: center;">
                 <?= $form->field($model, 'target_date')->widget(DatePicker::class, [
@@ -51,11 +76,11 @@ $this->registerJsFile('/js/order_form.js', [
                         // you can hide the input by setting the following
                         'style' => 'display:none'
                     ],
-                ])->label('Выберите дату доставки') ?>
+                ])->label('Выберите дату доставки'); ?>
                 <?= Html::button('Подтвердить дату ', [
                     'class' => 'btn btn-success btn-block',
                     'id' => 'confirm-order-date',
-                ]) ?>
+                ]); ?>
                 <input type="text" name="selected_date" id="selected-date" class="hidden">
             </div>
             <div class="col-xs-9" style="min-height: 300px;">
@@ -69,111 +94,79 @@ $this->registerJsFile('/js/order_form.js', [
                 </div>
             </div>
         </div>
-    <?php elseif ($step == 2): ?>
+    <?php elseif ($model->step == 2): ?>
+        <h4>Выберите позиции и установите количество</h4>
+        <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
+            будет добавлена услуга доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
+        <?php Pjax::begin([
+        'id' => 'order-pjax',
+        'enablePushState' => false,
+    ]) ?>
         <div class="row">
             <div class="col-xs-6">
-                <?php Pjax::begin(['id' => 'selected-product-pjax']) ?>
-                <?php
-                $counter = 1;
-                ?>
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="panel-title"><i class="glyphicon glyphicon-list"></i> Позиции в заказе</h3>
-                    </div>
-                    <div class="panel-body">
-                        <table class="table table-bordered table-hover">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Наименование</th>
-                                <th>Кол-во</th>
-                                <th>Ед. измерения</th>
-                                <th>Цена</th>
-                                <th>Итого</th>
-                                <th>...</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php /** @var \app\models\Nomenclature $product */
-                            foreach ($productsDataProvider->getModels() as $product): ?>
-                            <tr>
-                                <td><?= $counter ?></td>
-                                <td><?= $product->name ?></td>
-                                <td><?= $product->count ?></td>
-                                <td><?= $product->measure->name ?></td>
-                                <td><?= $product->default_price ?></td>
-                                <td><?= $product->count * $product->default_price ?></td>
-                                <td><?= Html::a('<i class="fa fa-close">', ['/order/exclude-product'],[
-                                        'title' => 'Исключить продукт из списка'
-                                    ]) ?></td>
-
-                                <?php $counter++; ?>
-                                <?php endforeach; ?>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-                <?php Pjax::end(); ?>
+                <?= $this->render('_order_nomenclature', [
+                    'model' => $model,
+                    'dataProvider' => $orderToNomenclatureDataProvider,
+                ]) ?>
             </div>
             <div class="col-xs-6">
-                <?php
-                try {
-                    echo GridView::widget([
-                        'id' => 'crud-datatable',
-                        'dataProvider' => $productsDataProvider,
-//                        'filterModel' => $searchModel,
-                        'pjax' => true,
-                        'columns' => require(__DIR__ . '/_nomenclature_columns.php'),
-                        'striped' => true,
-                        'condensed' => true,
-                        'responsive' => true,
-                        'toolbar' => false,
-                        'panel' => [
-                            'type' => 'primary',
-                            'heading' => '<i class="glyphicon glyphicon-list"></i> Доступные позиции',
-//                    'before' => '<em>* Resize table columns just like a spreadsheet by dragging the column edges.</em>',
-                            'after' => MyBulkButtonWidget::widget([
-                                    'buttons' => Html::a('<i class="glyphicon glyphicon-ok"></i>&nbsp; Добавить в заказ выделенные позиции',
-                                        ["bulk-add"],
-                                        [
-                                            "class" => "btn btn-success btn-xs",
-                                            'role' => 'modal-remote-bulk',
-                                        ]),
-                                ]) .
-                                '<div class="clearfix"></div>',
-                        ]
-                    ]);
-                } catch (Exception $e) {
-                    echo $e->getMessage();
-                } ?>
-            </div>
-            <div class="col-xs-4">
-                <?= $form->field($model, 'delivery_time_from')->input('time') ?>
-
-                <?= $form->field($model, 'delivery_time_to')->input('time') ?>
-
-                <?= $form->field($model, 'total_price')->input('number') ?>
-
-                <?= $form->field($model, 'comment')->textarea(['rows' => 3]) ?>
-
-                <?= $form->field($model, 'buyer_id')->hiddenInput()->label(false) ?>
+                <?= $this->render('_nomenclature', [
+                    'model' => $model,
+                    'dataProvider' => $productsDataProvider,
+                ]) ?>
             </div>
         </div>
+        <?php Pjax::end(); ?>
 
-        <?php if (!Yii::$app->request->isAjax) { ?>
-            <div class="form-group">
-                <?= Html::submitButton('Далее',
-                    ['class' => 'btn btn-success btn-block']) ?>
+    <?php elseif ($model->step == 3): ?>
+        <div class="row">
+            <div class="col-xs-6">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Укажите временной интервал доставки
+                        <small>(Не менее двух часов)</small>
+                    </div>
+                    <div class="panel-body">
+                        <div class="time-dropdown" style="display: flex; align-items: center; justify-content: space-around;">
+                            <?= $form->field($model, 'delivery_time_from')
+                                ->dropDownList($model->buyer->getDeliveryTimeIntervals('from'))->label('С') ?>
+                            <?= $form->field($model, 'delivery_time_to')
+                                ->dropDownList($model->buyer->getDeliveryTimeIntervals('to'))->label('ДО') ?>
+                        </div>
+                        <div class="error-time text-center">
+                            <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
+                        </div>
+                    </div>
+                </div>
             </div>
-        <?php } ?>
+            <div class="col-xs-6">
+                <?= $form->field($model, 'comment')->textarea(['rows' => 6]) ?>
+            </div>
+        </div>
+    <?php elseif ($model->step == 4): ?>
+        <?= $this->render('_pre_order_form', [
+            'model' => $model,
+            'form' => $form,
+        ]) ?>
+    <?php elseif ($model->step == 5): ?>
+        <div class="done text-center">
+            <h4>Накладная № 1111 успешно создана</h4>
+            <?php if ($model->deliveryCost): ?>
+                <h4>Акт оказания услуг (доставка) 7777 успешно создан</h4>
+            <?php endif; ?>
+            <?= Html::a('Завершить', ['/order'], [
+                'class' => 'btn btn-success'
+            ]) ?>
+        </div>
     <?php endif; ?>
 
-
-
+    <div class="row">
+        <div class="col-xs-12">
+            <?= $form->field($model, 'buyer_id')->hiddenInput()->label(false) ?>
+            <?= $form->field($model, 'step')->hiddenInput()->label(false) ?>
+        </div>
+    </div>
 
     <?php ActiveForm::end(); ?>
-
 </div>
-

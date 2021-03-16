@@ -2,6 +2,7 @@
 
 namespace app\models\search;
 
+use app\models\Users;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -18,7 +19,7 @@ class OrderSearch extends Order
     public function rules()
     {
         return [
-            [['id', 'buyer_id'], 'integer'],
+            [['id', 'buyer_id', 'status'], 'integer'],
             [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to', 'comment'], 'safe'],
             [['total_price'], 'number'],
         ];
@@ -44,9 +45,18 @@ class OrderSearch extends Order
     {
         $query = Order::find();
 
+        $query->orderBy(['status' => SORT_ASC, 'target_date' => SORT_ASC]);
+
+        if (!Users::isAdmin()){
+            /** @var Users $user */
+            $user = Users::findOne(Yii::$app->user->identity->id);
+            $query->andWhere(['buyer_id' => $user->buyer->id]);
+        }
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
 
         $this->load($params);
 
@@ -64,6 +74,7 @@ class OrderSearch extends Order
             'delivery_time_from' => $this->delivery_time_from,
             'delivery_time_to' => $this->delivery_time_to,
             'total_price' => $this->total_price,
+            'status' => $this->status,
         ]);
 
         $query->andFilterWhere(['like', 'comment', $this->comment]);

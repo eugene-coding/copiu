@@ -147,6 +147,7 @@ class OrderBlank extends ActiveRecord
      * Получает бланки заказов на дату
      * @param string $date Дата на которую производится заказ (Y-m-d)
      * @return string
+     * @throws \yii\base\InvalidConfigException
      */
     public function getBlanksByDate($date)
     {
@@ -162,24 +163,6 @@ class OrderBlank extends ActiveRecord
             ->andWhere(['<=', 'day_limit', $diff_days])
             ->all();
 
-//        $data = [];
-//
-//        /** @var OrderBlank $blank */
-//        foreach ($blanks as $blank) {
-//            $products = $blank->products;
-//            $count_products = count($products) ? count($products) : 0;
-//            $limit = Yii::$app->formatter->asTime($blank->time_limit);
-//            $min_delivery_date = date('d.m.Y', time() + ($blank->day_limit * 24 * 60 * 60));
-//            $data[] = [
-//                'target_date' => $target_date,
-//                'number' => $blank->number,
-//                'count_products' => $count_products,
-//                'time_limit' => $limit,
-//                'day_limit' => $blank->day_limit,
-//                'min_delivery_date' => $min_delivery_date
-//            ];
-//        }
-
         return $this->blanksToTable($blanks, $date);
     }
 
@@ -187,6 +170,7 @@ class OrderBlank extends ActiveRecord
      * @param OrderBlank[] $blanks
      * @param string $target_date
      * @return string
+     * @throws \yii\base\InvalidConfigException
      */
     private function blanksToTable($blanks, $target_date)
     {
@@ -240,16 +224,13 @@ class OrderBlank extends ActiveRecord
         $table .= $result;
         $table .= '</tbody>';
         $table .= '</table>';
-        $btn = Html::button('Далее', [
-            'class' => 'btn btn-primary btn-block',
-            'type' => 'submit',
-        ]);
+
         $hidden_input = Html::input('text', 'Order[blanks]', implode(',', $blank_ids), [
             'style' => 'display: none;'
         ]);
 
 
-        return $table . $btn . $hidden_input;
+        return $table . $hidden_input;
 
     }
 }
