@@ -303,7 +303,9 @@ class SiteController extends Controller
             ];
         }
         //Импортируем номенклатуру
-        return Nomenclature::import($items);
+       $result = Nomenclature::import($items);
+        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+        return $result;
     }
 
     public function actionSyncNomenclatureGroup()

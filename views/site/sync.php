@@ -70,9 +70,9 @@ $(document).ready(function() {
         .always(function() {
              progress_block.slideUp(300);
              result_block.slideDown(300);
-             setTimeout(function() {
-                $('.sync-result-btn').trigger('click');
-            }, 10000);
+            //  setTimeout(function() {
+            //     $('.sync-result-btn').trigger('click');
+            // }, 10000);
         });
       
   });
