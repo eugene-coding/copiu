@@ -48,3 +48,13 @@ public function beforeAction($action)
  } 
  ```
  
+ #Подготовка проекта к работе
+ ##Планировщик CRON
+  ```
+  Добавить на выполнение с периодичностью раз в сутки:
+  https://mysite.ru/site/get-nomenclature
+  
+  Добавить на выполнение  с периодичностью каждые 2 минуты адрес:
+   https://mysite.ru/site/sync-nomenclature
+  ```
+ 

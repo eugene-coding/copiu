@@ -213,7 +213,7 @@ class Nomenclature extends ActiveRecord
             $model->unit_capacity = $item['unitCapacity']?:0;
             $model->type = $item['type'];
 
-            Yii::info($model->attributes, 'test');
+//            Yii::info($model->attributes, 'test');
 
             if (!$model->save()) {
                 Yii::error($model->errors, '_error');

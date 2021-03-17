@@ -8,6 +8,7 @@ use app\models\Buyer;
 use app\models\NGroup;
 use app\models\Nomenclature;
 use app\models\PriceCategory;
+use app\models\Settings;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -30,6 +31,11 @@ class SiteController extends Controller
                 'class' => AccessControl::class,
                 'only' => ['logout'],
                 'rules' => [
+                    [
+                        'actions' => ['sync-nomenclature','get-nomenclature'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
                     [
                         'actions' => ['logout'],
                         'allow' => true,
@@ -183,7 +189,7 @@ class SiteController extends Controller
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
-            '3. Синхронизация номенклатуры' => '/site/sync-nomenclature',
+            '3. Синхронизация номенклатуры' => '/site/get-nomenclature',
             '4. Синхронизация цен для ценовых категорий' => '/site/sync-price-for-p-c',
         ];
 
@@ -247,13 +253,11 @@ class SiteController extends Controller
 
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-//        $helper = new PostmanApiHelper();
         $helper = new PostmanApiHelper();
         $buyer_model = new Buyer();
         $pc_model = new PriceCategory();
 
         $data = $helper->getAll();
-//        Yii::warning('Получили данные и запихнули все в массив. Память ' . memory_get_usage(true), 'test');
 
         if (isset($data['success']) && $data['success'] === false) {
             return $data;
@@ -274,7 +278,7 @@ class SiteController extends Controller
                 'error' => 'Ошбика синхронизации покупателей',
             ];
         }
-        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+//        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
 
         return [
             'success' => true,
@@ -283,35 +287,91 @@ class SiteController extends Controller
     }
 
     /**
-     * Синхронизация номенклатуры
+     * Получение и сохранение в файл номенклатуры
      * @return array|mixed
      * @throws \Exception
      */
-    public function actionSyncNomenclature()
+    public function actionGetNomenclature()
     {
+        //Проверяем период получения номенклатуры
+        $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
+        $diff_time = time() - $last_time;
+        if ($diff_time < (60 * 60 * 12)){
+            return 'Ожидание синхронизации';
+        }
+
         set_time_limit(600);
 //        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
 
-        $path_file = $ikko->getItems();
-        $items = json_decode(file_get_contents($path_file), true);
-        if (isset($items['success']) && !$items['success']) {
-            return $items;
-        }
-        Yii::info(isset($items[0]) ? $items[0] : 'Данные не получены', 'test');
+       $ikko->getItems();
 
-        if (count($items) == 0) {
-            return [
-                'success' => false,
-                'error' => 'Ошибка получения данных, запустите синхронизацию еще раз'
-            ];
+       Settings::setValueByKey('get_nomenclature_date', date('Y-m-d H:i:s', time()));
+
+        return [
+            'success' => true,
+            'data' => 'Файл номенклатуры создан успешно. Номенклатура будет синхронизирована в течении получаса',
+        ];
+    }
+
+    /**
+     * Синхронизация номенклатуры.
+     * Производится частями по 500 позиций
+     */
+    public function actionSyncNomenclature()
+    {
+        //Проверяем период синхронизации номенклатуры
+        $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
+        $diff_time = time() - $last_time;
+        if ($diff_time < 110){
+            return 'Ожидание синхронизации';
         }
-        //Импортируем номенклатуру
-       $result = Nomenclature::import($items);
-        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
-        return $result;
+        set_time_limit(600);
+
+        $path_json = 'uploads/list_items.json';
+        Yii::info('Файл найден: ' . (int)is_file($path_json), 'test');
+        if (!is_file($path_json)) {
+            return 'Файл не найден';
+        } else {
+            $json = file_get_contents($path_json);
+
+            $data = json_decode($json, true);
+            Yii::info('Всего записей: ' . count($data), 'test');
+
+            $next_chunk = (int)Settings::getValueByKey('sync_nomenclature_next_chunk');
+            $chunk_data = array_chunk($data, 500);
+            $count_chank = count($chunk_data);
+            Yii::info('Всего чанков: ' . $count_chank, 'test');
+
+            if ($next_chunk === null) {
+                $next_chunk = 0;
+            }
+
+            if (!isset($chunk_data[$next_chunk]) || !$chunk_data[$next_chunk]){
+                //Если нет чанка или он пустой - значит данные все импортированы, завршаем импорт
+                Settings::setValueByKey('sync_nomenclature_next_chunk', null);
+                try {
+                    unlink($path_json);
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage(), '_error');
+                }
+            }
+
+            $result = Nomenclature::import($chunk_data[$next_chunk]);
+            $chunk_num = $next_chunk + 1;
+            $result['chunk_done'] = "{$chunk_num} из {$count_chank}";
+            Settings::setValueByKey('sync_nomenclature_sync_date', date('Y-m-d H:i:s', time()));
+
+            if ($result['success']){
+                $next_chunk++;
+                Settings::setValueByKey('sync_nomenclature_next_chunk', (string)$next_chunk);
+            }
+            Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+            VarDumper::dump($result, 10, true);
+        }
+
     }
 
     public function actionSyncNomenclatureGroup()
