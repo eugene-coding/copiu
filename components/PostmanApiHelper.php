@@ -64,7 +64,7 @@ class PostmanApiHelper
         Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
         curl_close($ch);
 
-//        Yii::info($response);
+        Yii::info($response);
 
         return $response;
     }
@@ -95,7 +95,6 @@ XML;
             $this->post_data = $body;
             $this->request_string = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
             $result = $this->send('POST');
-//            file_put_contents('waitEntitiesUpdate.xml', $result);
             $xml = simplexml_load_string($result);
         }
 
@@ -106,26 +105,48 @@ XML;
             ];
         }
 
-        $json = json_encode($xml);
-        $arr = json_decode($json, true);
+//        $json = json_encode($xml);
+//        $arr = json_decode($json, true);
 
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
 
-        foreach ($arr['entitiesUpdate']['items']['i'] as $item) {
-            if ($item['deleted'] == 'false') {
-                switch ($item['type']) {
+        foreach ($xml->entitiesUpdate->items->i as $item) {
+            if ($item->deleted == 'false') {
+                switch ($item->type) {
                     case 'User':
-                        if ($item['r']['supplier'] == 'true') {
-                            $arr_buyer[] = $item;
+                        if ($item->r->supplier == 'true') {
+                            $arr_buyer[] = [
+                                'id' => $item->id,
+                                'name' => $item->r->name->customValue ,
+                                'price_category' =>  $item->r->priceCategory,
+                            ];
                         }
                         break;
                     case 'ClientPriceCategory':
-                        $arr_price_category[] = $item;
+                        $arr_price_category[] = [
+                            'id' => $item->id,
+                            'name' => $item->r->name->customValue,
+                        ];
                         break;
                 }
             }
         }
+
+//        foreach ($arr['entitiesUpdate']['items']['i'] as $item) {
+//            if ($item['deleted'] == 'false') {
+//                switch ($item['type']) {
+//                    case 'User':
+//                        if ($item['r']['supplier'] == 'true') {
+//                            $arr_buyer[] = $item;
+//                        }
+//                        break;
+//                    case 'ClientPriceCategory':
+//                        $arr_price_category[] = $item;
+//                        break;
+//                }
+//            }
+//        }
 //        Yii::info($arr_buyer, 'test');
 //        Yii::info($arr_price_category, 'test');
 
@@ -161,14 +182,18 @@ XML;
         $skipped = 0;
         $added = 0;
         $errors = 0;
-
         if (!$this->base_url) {
             $path = 'uploads/getPriceListItems.xml';
             $str = file_get_contents($path);
             $xml = simplexml_load_string($str);
         } else {
+            $this->post_data = <<<XML
+<?xml version="1.0" encoding="utf-8"?><args><entities-version>547512</entities-version><client-type>BACK</client-type><enable-warnings>false</enable-warnings><use-raw-entities>true</use-raw-entities><dateFrom>2021-02-08T13:26:43.762+03:00</dateFrom><dateTo>9999-12-31T23:59:59.999+03:00</dateTo><departments><i cls="Department">f5460b95-c588-b515-0164-21bb6182000d</i></departments><includeItemsWithSchedules>false</includeItemsWithSchedules></args>
+XML;
+
             $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
-            $xml = $this->send(true, 'POST');
+            $str = $this->send('POST');
+            $xml = simplexml_load_string($str);
         }
 
         if (strpos($xml, 'access is not allowed')) {
@@ -178,10 +203,10 @@ XML;
             ];
         }
 
-        $json = json_encode($xml);
-        $arr = json_decode($json, true);
+//        $json = json_encode($xml);
+//        $arr = json_decode($json, true);
 
-        $items = $arr['returnValue']['v'];
+        $items = $xml->returnValue->v;
         Yii::info($items, 'test');
 
         if (!$items) {
@@ -192,24 +217,29 @@ XML;
         }
 
         foreach ($items as $item) {
-            $product_outer_id = isset($item['i']['@attributes']['eid']) ? $item['i']['@attributes']['eid'] : null;
+            $product_outer_id = (string)$item->i['eid'];
             if (!$product_outer_id) {
                 Yii::info('Нет ID продукта. Пропускаем', 'test');
                 $skipped++;
                 continue;
             }
 
-            Yii::info($product_outer_id, 'test');
-            Yii::info($item['i']['pricesForCategories'], 'test');
 
-            $categories = isset($item['i']['pricesForCategories']['k']) ? $item['i']['pricesForCategories']['k'] : null;
+            Yii::info($product_outer_id, 'test');
+            $categories_and_prices = [];
+            if ($item->i->pricesForCategories){
+                $categories_and_prices = json_decode(json_encode($item->i->pricesForCategories), true);
+            }
+//            $categories = isset($item['i']['pricesForCategories']['k']) ? $item['i']['pricesForCategories']['k'] : null;
+            $categories = isset($categories_and_prices['k']) ? $categories_and_prices['k']: null;
             if (!$categories) {
                 Yii::info('Нет категорий. Пропускаем', 'test');
                 $skipped++;
                 continue;
             }
 
-            $prices = $item['i']['pricesForCategories']['v'];
+//            $prices = $item['i']['pricesForCategories']['v'];
+            $prices =isset($categories_and_prices['v']) ? $categories_and_prices['v']: null;;
 
             for ($i = 0; $i < count($categories); $i++) {
                 $category = PriceCategory::findOne(['outer_id' => $categories[$i]]);

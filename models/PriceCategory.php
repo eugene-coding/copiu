@@ -69,13 +69,13 @@ class PriceCategory extends ActiveRecord
 
         $rows = [];
         $exist_category = PriceCategory::find()->select(['outer_id'])->column();
-//        Yii::info($exist_category, 'test');
+        Yii::info($exist_category, 'test');
         $new_categories = [];
 
         foreach ($data as $pc) {
-            $outer_id = $pc['id'];
+            $outer_id = (string)$pc['id'];
             $new_categories[] = $outer_id;
-            $name = $pc['r']['name']['customValue'];
+            $name = (string)$pc['name'];
             if (!in_array($outer_id, $exist_category)) {
                 $rows[] = [$name, $outer_id];
             } else {
@@ -83,11 +83,16 @@ class PriceCategory extends ActiveRecord
                 $pc_model = PriceCategory::find()->andWhere(['outer_id' => $outer_id])->one();
                 $pc_model->name = $name;
                 if (!$pc_model->save()) {
+                    Yii::error($pc_model->attributes, '_error');
                     Yii::error($pc_model->errors, '_error');
+                    Yii::info('PriceCategory NOT updated', 'test');
+                } else {
+                    Yii::info('PriceCategory updated', 'test');
                 }
                 $updated++;
             }
         }
+        Yii::info($rows, 'test');
 
         try {
             Yii::$app->db->createCommand()->batchInsert(PriceCategory::tableName(), ['name', 'outer_id'],

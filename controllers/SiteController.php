@@ -243,7 +243,7 @@ class SiteController extends Controller
     public function actionSyncAll()
     {
         set_time_limit(600);
-        ini_set("memory_limit", "200M");
+//        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -253,12 +253,14 @@ class SiteController extends Controller
         $pc_model = new PriceCategory();
 
         $data = $helper->getAll();
+//        Yii::warning('Получили данные и запихнули все в массив. Память ' . memory_get_usage(true), 'test');
 
         if (isset($data['success']) && $data['success'] === false) {
             return $data;
         }
 
         $sync_pc_result = $pc_model->sync($data['price_category']);
+
         if (!$sync_pc_result['success']) {
             return [
                 'success' => false,
@@ -272,6 +274,7 @@ class SiteController extends Controller
                 'error' => 'Ошбика синхронизации покупателей',
             ];
         }
+        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
 
         return [
             'success' => true,
@@ -282,7 +285,7 @@ class SiteController extends Controller
     public function actionSyncNomenclature()
     {
         set_time_limit(600);
-        ini_set("memory_limit", "200M");
+//        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
@@ -306,7 +309,7 @@ class SiteController extends Controller
     public function actionSyncNomenclatureGroup()
     {
         set_time_limit(300);
-        ini_set("memory_limit", "200M");
+//        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
@@ -328,12 +331,15 @@ class SiteController extends Controller
     public function actionSyncPriceForPC()
     {
         set_time_limit(600);
-        ini_set("memory_limit", "200M");
+//        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $postman = new PostmanApiHelper();
 
-        return $postman->getPriceListItems();
+        $result = $postman->getPriceListItems();
+        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+
+        return $result;
     }
 
     /**

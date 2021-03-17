@@ -118,10 +118,10 @@ class Buyer extends ActiveRecord
         $price_categories = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
 
         foreach ($data as $buyer) {
-            $outer_id = $buyer['id'];
+            $outer_id = (string)$buyer['id'];
             if (!in_array($outer_id, $exists_buyer)) {
-                $name = $buyer['r']['name']['customValue'];
-                $outer_price_category = $buyer['r']['priceCategory'][0];
+                $name = (string)$buyer['name'];
+                $outer_price_category = (string)$buyer['price_category'];
                 if ($outer_price_category) {
                     $price_category = $price_categories[$outer_price_category];
                 } else {
@@ -129,7 +129,7 @@ class Buyer extends ActiveRecord
                 }
                 $rows[] = [$name, $price_category, $outer_id];
             } else {
-                Yii::info($buyer['r']['name']['customValue'] . ' уже есть в базе. Пропускаем', 'test');
+                Yii::info($buyer['name'] . ' уже есть в базе. Пропускаем', 'test');
             }
         }
         Yii::info('Строки для добавления покупателей', 'test');
