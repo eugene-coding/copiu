@@ -282,6 +282,11 @@ class SiteController extends Controller
         ];
     }
 
+    /**
+     * Синхронизация номенклатуры
+     * @return array|mixed
+     * @throws \Exception
+     */
     public function actionSyncNomenclature()
     {
         set_time_limit(600);
@@ -290,7 +295,8 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $ikko = new IkkoApiHelper();
 
-        $items = $ikko->getItems();
+        $path_file = $ikko->getItems();
+        $items = json_decode(file_get_contents($path_file), true);
         if (isset($items['success']) && !$items['success']) {
             return $items;
         }
@@ -349,32 +355,33 @@ class SiteController extends Controller
      */
     public function actionTest()
     {
+        $result = json_decode(file_get_contents('uploads/list_items.json'), true);
 //        $helper = new PostmanApiHelper();
 //        $result = $helper->getItems();
 
-        $ikko = new IkkoApiHelper();
-
-        $invoice_params = [
-            'documentNumber' => 'A345f',
-            'dateIncoming' => date('Y-m-d H:i:s', time()),
-            'counteragentId' => '2e8fe03e-a13c-4f0b-8100-0d24350d0e1c',
-            'from' => '13:00',
-            'to' => '15:00',
-            'items' => [
-                [
-                    'productId' => 'f8e8cb4c-6337-46db-b41d-003e50b30d2f',
-                    'num' => '12347',
-                    'amount' => 3,
-                    'price' => 10,
-                    'sum' => 30,
-                ]
-            ],
-        ];
-        $result = $ikko->makeExpenseInvoice($invoice_params);
+//        $ikko = new IkkoApiHelper();
+//        $invoice_params = [
+//            'documentNumber' => 'A345f',
+//            'dateIncoming' => date('Y-m-d H:i:s', time()),
+//            'counteragentId' => '2e8fe03e-a13c-4f0b-8100-0d24350d0e1c',
+//            'from' => '13:00',
+//            'to' => '15:00',
+//            'items' => [
+//                [
+//                    'productId' => 'f8e8cb4c-6337-46db-b41d-003e50b30d2f',
+//                    'num' => '12347',
+//                    'amount' => 3,
+//                    'price' => 10,
+//                    'sum' => 30,
+//                ]
+//            ],
+//        ];
+//        $result = $ikko->makeExpenseInvoice($invoice_params);
 //        $sum = $ikko->getBalance();
 //        $result = $ikko->getItems();
 //        $result = $ikko->logout();
 
+        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
         VarDumper::dump($result, 10, true);
 //        VarDumper::dump($result[0], 10, true);
 //        return $result;

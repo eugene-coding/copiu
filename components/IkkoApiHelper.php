@@ -92,7 +92,7 @@ class IkkoApiHelper
 
     protected function send($type = 'GET')
     {
-//        Yii::info('Request string: ' . $this->request_string, 'test');
+        Yii::info('Request string: ' . $this->request_string, 'test');
 //        Yii::info('Headers: ' . json_encode($this->headers), 'test');
 
         $ch = curl_init();
@@ -101,7 +101,7 @@ class IkkoApiHelper
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
         }
-        if ($this->headers){
+        if ($this->headers) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         }
         curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
@@ -123,6 +123,7 @@ class IkkoApiHelper
     /**
      * Номенклатура
      * @return mixed
+     * @throws \Exception
      */
     public function getItems()
     {
@@ -136,8 +137,14 @@ class IkkoApiHelper
             $result = $this->send();
         }
 
-        return json_decode($result, 'true');
+        $path_file = 'uploads/list_items.json';
+        file_put_contents($path_file, $result);
+        return $path_file;
+//        return json_decode($result, 'true');
+
+
     }
+
 
     /**
      * Получает номенклатурные группы
