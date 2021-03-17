@@ -38,14 +38,6 @@ class m210317_140316_insert_row_to_settings_table extends Migration
                     1
                 ],
             ]);
-        $this->insert('{{%settings}}', [
-            'key' => 'sync_nomenclature_next_chunk',
-            'label' => 'Следующий чанк для синхронизации',
-            'description' => 'Синхронизация делит файл номенклатуры на части.' .
-                'Каждый заход синхронизируется по 500 записей. Чанк указывает какую часть записей синхронизировать следующей',
-            'user_id' => 1,
-            'is_system' => 1
-        ]);
     }
 
     /**

@@ -293,6 +293,8 @@ class SiteController extends Controller
      */
     public function actionGetNomenclature()
     {
+        set_time_limit(600);
+
         //Проверяем период получения номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
         $diff_time = time() - $last_time;
@@ -300,7 +302,6 @@ class SiteController extends Controller
             return 'Ожидание синхронизации';
         }
 
-        set_time_limit(600);
 //        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
