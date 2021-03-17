@@ -68,7 +68,7 @@ class Nomenclature extends ActiveRecord
                 'targetAttribute' => ['n_group_id' => 'id']
             ],
             [['outer_id'], 'unique'],
-            ['count', 'price', 'safe'],
+            ['count', 'safe'],
         ];
     }
 

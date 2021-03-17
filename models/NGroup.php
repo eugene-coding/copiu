@@ -125,8 +125,8 @@ class NGroup extends ActiveRecord
                 }
             }
         }
-        Yii::info($child_groups, '_error');
-        Yii::info($outer_id_to_id, '_error');
+//        Yii::info($child_groups, 'test');
+//        Yii::info($outer_id_to_id, 'test');
 
         //Импортируем группы у которых есть предок
         foreach ($child_groups as $group){
