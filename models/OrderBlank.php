@@ -19,6 +19,7 @@ use yii\helpers\Html;
  * @property string|null $synced_at Дата и время синхронизации
  *
  * @property Nomenclature[] $products Продукты в из накладной
+ * @property OrderBlankToNomenclature[] $orderBlankToNomenclature
  */
 class OrderBlank extends ActiveRecord
 {
@@ -68,6 +69,7 @@ class OrderBlank extends ActiveRecord
 
     /**
      * Синхронизация всех накладных
+     * @throws \yii\base\InvalidConfigException
      */
     public static function sync()
     {
@@ -133,14 +135,18 @@ class OrderBlank extends ActiveRecord
         ];
     }
 
+    public function getOrderBlankToNomenclature()
+    {
+        return $this->hasMany(OrderBlankToNomenclature::class, ['ob_id' => 'id']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
-     * @throws \yii\base\InvalidConfigException
      */
     public function getProducts()
     {
         return $this->hasMany(Nomenclature::class, ['id' => 'ob_id'])
-            ->viaTable(OrderBlankToNomenclature::tableName(), ['n_id' => 'id']);
+            ->via('orderBlankToNomenclature');
     }
 
     /**
@@ -178,8 +184,8 @@ class OrderBlank extends ActiveRecord
         $blank_ids = [];
         /** @var OrderBlank $blank */
         foreach ($blanks as $blank) {
-            $products = $blank->products;
-            $count_products = count($products) ? count($products) : 0;
+            $count_products = OrderBlankToNomenclature::find()->andWhere(['ob_id' => $blank->id])->count();
+
             /** @var int $max_order_time Максимальная дата доставки для продукта */
             $max_order_time = strtotime($blank->time_limit); //Максимальное дата и время, до которого можно совершить заказ
             if ($max_order_time < time()) {
@@ -191,7 +197,7 @@ class OrderBlank extends ActiveRecord
             $delivery_time = strtotime($delivery_date);
 
             Yii::info('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
-            Yii::info('Дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+            Yii::info('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
             Yii::info('Расчетная дата доставки больше даты заказа: '
                 . (int)(strtotime($delivery_date) >  strtotime($target_date)), 'test');
 

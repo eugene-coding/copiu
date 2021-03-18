@@ -80,7 +80,7 @@ $this->registerJsFile('/js/order_form.js', [
                     'class' => 'btn btn-success btn-block',
                     'id' => 'confirm-order-date',
                 ]); ?>
-                <input type="text" name="selected_date" id="selected-date" class="hidden">
+<!--                <input type="text" name="selected_date" id="selected-date" class="hidden">-->
             </div>
             <div class="col-xs-9" style="min-height: 300px;">
                 <div class="nomenclature-loader" style="display: none;">
@@ -88,9 +88,7 @@ $this->registerJsFile('/js/order_form.js', [
                         <i class="fa fa-spinner fa-spin fa-fw fa-5x" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div class="nomenclature" style="display: none;">
-
-                </div>
+                <div class="nomenclature" style="display: none;"></div>
             </div>
         </div>
     <?php elseif ($model->step == 2): ?>
@@ -127,7 +125,8 @@ $this->registerJsFile('/js/order_form.js', [
                         <small>(Не менее двух часов)</small>
                     </div>
                     <div class="panel-body">
-                        <div class="time-dropdown" style="display: flex; align-items: center; justify-content: space-around;">
+                        <div class="time-dropdown"
+                             style="display: flex; align-items: center; justify-content: space-around;">
                             <?= $form->field($model, 'delivery_time_from')
                                 ->dropDownList($model->buyer->getDeliveryTimeIntervals('from'))->label('С') ?>
                             <?= $form->field($model, 'delivery_time_to')

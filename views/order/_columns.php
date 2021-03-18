@@ -78,7 +78,7 @@ return [
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{view} {update} {delete}',
+        'template' => '{view} {delete}',
         'dropdown' => false,
         'vAlign' => 'middle',
         'urlCreator' => function ($action, $model, $key, $index) {

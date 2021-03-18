@@ -314,6 +314,7 @@ class OrderBlankController extends Controller
     /**
      * Получает накладные на указзанную дату
      * @return array
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionGetOrdersByDate()
     {
