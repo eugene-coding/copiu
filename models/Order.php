@@ -20,6 +20,8 @@ use yii\db\ActiveRecord;
  * @property string||null $blanks Бланки заказов
  * @property double $count Кол-во продуктов
  * @property int $step Текущий шаг заказа
+ * @property string||null $invoice_number Номер накладной
+ * @property string||null $delivery_act_number Номер Акта оказанных услуг
  *
  * @property Buyer $buyer
  * @property Nomenclature[] $products;
@@ -53,7 +55,7 @@ class Order extends ActiveRecord
             [['buyer_id', 'status', 'step'], 'integer'],
             [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to', 'count'], 'safe'],
             [['total_price'], 'number'],
-            [['comment', 'blanks'], 'string'],
+            [['comment', 'blanks', 'invoice_number', 'delivery_act_number'], 'string'],
             [
                 ['buyer_id'],
                 'exist',
@@ -76,10 +78,12 @@ class Order extends ActiveRecord
             'target_date' => 'Дата на которую формируется заказ',
             'delivery_time_from' => 'Время доставки "от"',
             'delivery_time_to' => 'Время доставки "до"',
-            'total_price' => 'Общая сумма заказа',
+            'total_price' => 'Сумма заказа',
             'comment' => 'Комментарий',
             'status' => 'Статус',
             'blanks' => 'Бланки заказов',
+            'invoice_number' => 'Накладная',
+            'delivery_act_number' => 'Акт оказания услуг (доставка)',
         ];
     }
 

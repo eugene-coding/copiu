@@ -20,7 +20,6 @@ use yii\db\ActiveRecord;
  * @property string|null $unit_weight Вес одной единицы
  * @property string|null $unit_capacity Объём одной единицы
  * @property string|null $type Тип
- * @property array|null $count Кол-во
  * @property array|null $price Цена товара
  *
  * @property Measure $measure
@@ -270,15 +269,31 @@ class Nomenclature extends ActiveRecord
     }
 
     /**
+     * Цена продукта для заказа
+     * @param $order_id
+     * @return float|null
+     */
+    public function getPriceForOrder($order_id)
+    {
+        /** @var OrderToNomenclature $query */
+        $query = OrderToNomenclature::find()->andWhere(['order_id' => $order_id, 'nomenclature_id' => $this->id])->one();
+
+        return $query->price;
+    }
+
+    /**
      * Колво продуктов в заказе
      * @param $order_id
      * @return mixed
      */
     public function getCount($order_id)
     {
-        return OrderToNomenclature::find()
+        /** @var OrderToNomenclature $query */
+        $query = OrderToNomenclature::find()
             ->andWhere(['nomenclature_id' => $this->id, 'order_id' => $order_id])
-            ->one()->count;
+            ->one();
+
+        return $query->count;
     }
 
 }
