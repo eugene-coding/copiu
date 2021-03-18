@@ -192,12 +192,21 @@ class Buyer extends ActiveRecord
      */
     public function getDeliveryTimeIntervals($type)
     {
+        $from_setting = Settings::getValueByKey('delivery_min_time');
+        $from = (int)explode(':',$from_setting)[0];
+
+        $to_setting = Settings::getValueByKey('delivery_max_time');
+        $to = (int)explode(':',$to_setting)[0];
+
+        Yii::info('From: ' . $from, 'test');
+        Yii::info('To: ' . $to, 'test');
+
         switch ($type) {
             case 'from':
-                return $this->getTimeIntervals(3, 15);
+                return $this->getTimeIntervals($from, $to - 2);
                 break;
             case 'to':
-                return $this->getTimeIntervals(5, 17);
+                return $this->getTimeIntervals($from + 2, $to);
                 break;
             default:
                 return[];
@@ -211,6 +220,8 @@ class Buyer extends ActiveRecord
             $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
             $result_arr[$val] = $val;
         }
+
+        Yii::info($result_arr, 'test');
 
         return $result_arr;
     }
