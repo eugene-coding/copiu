@@ -1,7 +1,5 @@
 <?php
 
-use app\models\PriceCategory;
-use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -40,7 +38,14 @@ use yii\widgets\ActiveForm;
             <?= $form->field($model, 'min_balance')->input('number') ?>
         </div>
     </div>
-    <?= $form->field($model, 'work_mode')->dropDownList($model::getWorkModeList()) ?>
+    <div class="row">
+        <div class="col-xs-6">
+            <?= $form->field($model, 'discount')->input('number', ['value' => $model->discount * 100]) ?>
+        </div>
+        <div class="col-xs-6">
+            <?= $form->field($model, 'work_mode')->dropDownList($model::getWorkModeList()) ?>
+        </div>
+    </div>
 
     <?= $form->field($model, 'outer_id')->hiddenInput()->label(false) ?>
 

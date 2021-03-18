@@ -2,7 +2,6 @@
 
 use app\models\Buyer;
 use app\models\PriceCategory;
-use app\models\Users;
 use yii\helpers\Url;
 
 return [
@@ -41,6 +40,11 @@ return [
         'value' => function (Buyer $model) {
             return $model->pc_id ? $model->pc->name : 'По умолчанию';
         }
+    ],
+    [
+        'class' => '\kartik\grid\DataColumn',
+        'attribute' => 'discount',
+        'format' => 'percent',
     ],
     [
         'class' => '\kartik\grid\DataColumn',

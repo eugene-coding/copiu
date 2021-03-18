@@ -20,6 +20,7 @@ class BuyerSearch extends Buyer
             [['id', 'pc_id', 'user_id'], 'integer'],
             [['name', 'outer_id'], 'safe'],
             [['work_mode'], 'integer'],
+            [['min_order_cost', 'delivery_cost', 'discount', 'min_balance'], 'number'],
         ];
     }
 

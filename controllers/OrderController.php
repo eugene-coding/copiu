@@ -563,7 +563,7 @@ class OrderController extends Controller
                     $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
                     $model->step--;
                 } elseif(($to - $from) < 2) {
-                    $model->addError('error_delivery_time', 'Уведичте период доставки');
+                    $model->addError('error_delivery_time', 'Увеличте период доставки');
                     $model->step--;
                 }
             }

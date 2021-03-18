@@ -19,6 +19,7 @@ use yii\helpers\ArrayHelper;
  * @property string $min_order_cost Минимальная сумма заказа
  * @property string $delivery_cost Сумма доставки
  * @property string $work_mode Режим работы
+ * @property string $discount Скидка от ЦК
  *
  * @property PriceCategory $pc
  * @property Users $user
@@ -62,6 +63,7 @@ class Buyer extends ActiveRecord
             ],
             [['balance', 'min_balance', 'min_order_cost', 'delivery_cost'], 'number'],
             [['work_mode'], 'integer'],
+            [['discount'], 'number'],
         ];
     }
 
@@ -79,9 +81,18 @@ class Buyer extends ActiveRecord
             'balance' => 'Баланс',
             'min_balance' => 'Минимальный баланс',
             'min_order_cost' => 'Минимальный заказ',
-            'delivery_cost' => 'Сумма доставки (если сумма заказа меньше минимальной)',
+            'delivery_cost' => 'Сумма доставки',
             'work_mode' => 'Режим работы',
+            'discount' => 'Скидка от ЦК (%)',
         ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if ($this->discount > 1){
+            $this->discount = $this->discount / 100;
+        }
+        return parent::beforeSave($insert);
     }
 
     /**

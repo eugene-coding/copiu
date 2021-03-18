@@ -17,7 +17,6 @@ if ($model->step == 1) {
     $title = 'Создание заказа. Шаг 1.';
 } elseif ($model->step == 2) {
     $title = 'Создание заказа. Шаг 2. (Формируем заказ на ' . Yii::$app->formatter->asDate($model->target_date) . ')';
-
 } elseif ($model->step == 3) {
     $title = 'Создание заказа. Шаг 3. (Формируем заказ на ' . Yii::$app->formatter->asDate($model->target_date) . ')';
 } elseif ($model->step == 4) {

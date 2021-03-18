@@ -265,7 +265,7 @@ class Nomenclature extends ActiveRecord
         $pc_t_n = PriceCategoryToNomenclature::find()
             ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])->one();
 
-       return $pc_t_n->price;
+       return $pc_t_n->price * $buyer->discount;
 
     }
 
