@@ -333,6 +333,7 @@ class SiteController extends Controller
 
         $path_json = 'uploads/list_items.json';
         Yii::info('Файл найден: ' . (int)is_file($path_json), 'test');
+
         if (!is_file($path_json)) {
             return 'Файл не найден';
         } else {
@@ -343,12 +344,13 @@ class SiteController extends Controller
 
             $next_chunk = (int)Settings::getValueByKey('sync_nomenclature_next_chunk');
             $chunk_data = array_chunk($data, 500);
-            $count_chank = count($chunk_data);
-            Yii::info('Всего чанков: ' . $count_chank, 'test');
+            $count_chunk = count($chunk_data);
+            Yii::info('Всего чанков: ' . $count_chunk, 'test');
 
             if ($next_chunk === null) {
                 $next_chunk = 0;
             }
+
 
             if (!isset($chunk_data[$next_chunk]) || !$chunk_data[$next_chunk]){
                 //Если нет чанка или он пустой - значит данные все импортированы, завршаем импорт
@@ -358,11 +360,16 @@ class SiteController extends Controller
                 } catch (\Exception $e) {
                     Yii::error($e->getMessage(), '_error');
                 }
+
+                return 'Импорт номенклатуры завершен';
+            } else {
+                Yii::info('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
+                Yii::info($chunk_data[$next_chunk], 'test');
             }
 
             $result = Nomenclature::import($chunk_data[$next_chunk]);
             $chunk_num = $next_chunk + 1;
-            $result['chunk_done'] = "{$chunk_num} из {$count_chank}";
+            $result['chunk_done'] = "{$chunk_num} из {$count_chunk}";
             Settings::setValueByKey('sync_nomenclature_sync_date', date('Y-m-d H:i:s', time()));
 
             if ($result['success']){
