@@ -79,7 +79,7 @@ return [
             return Url::to([$action, 'id' => $key]);
         },
         'viewOptions' => ['role' => 'modal-remote', 'title' => 'View', 'data-toggle' => 'tooltip'],
-        'updateOptions' => ['role' => 'modal-remote', 'title' => 'Update', 'data-toggle' => 'tooltip'],
+        'updateOptions' => ['role' => 'modal-remote', 'title' => 'Редактировать', 'data-toggle' => 'tooltip'],
         'deleteOptions' => [
             'role' => 'modal-remote',
             'title' => 'Удалить',

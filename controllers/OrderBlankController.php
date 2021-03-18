@@ -84,8 +84,8 @@ class OrderBlankController extends Controller
                 'content' => $this->renderAjax('view', [
                     'model' => $this->findModel($id),
                 ]),
-                'footer' => Html::button('Close', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::a('Edit', ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                'footer' => Html::button('Закрыть', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    Html::a('Редактировать', ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
             ];
         } else {
             return $this->render('view', [
@@ -116,9 +116,9 @@ class OrderBlankController extends Controller
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button('Close',
+                    'footer' => Html::button('Закрыть',
                             ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
 
                 ];
             } else {
@@ -133,9 +133,9 @@ class OrderBlankController extends Controller
                         'content' => $this->renderAjax('create', [
                             'model' => $model,
                         ]),
-                        'footer' => Html::button('Close',
+                        'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                            Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
 
                     ];
                 }
@@ -179,9 +179,9 @@ class OrderBlankController extends Controller
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button('Close',
+                    'footer' => Html::button('Закрыть',
                             ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
                 ];
             } else {
                 if ($model->load($request->post()) && $model->save()) {
@@ -195,9 +195,9 @@ class OrderBlankController extends Controller
                         'content' => $this->renderAjax('update', [
                             'model' => $model,
                         ]),
-                        'footer' => Html::button('Close',
+                        'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                            Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
                     ];
                 }
             }

@@ -115,9 +115,9 @@ class OrderController extends Controller
                         'model' => $model,
                         'step' => 1,
                     ]),
-                    'footer' => Html::button('Close',
+                    'footer' => Html::button('Закрыть',
                             ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
 
                 ];
             } else {
@@ -126,7 +126,7 @@ class OrderController extends Controller
                         'forceReload' => '#crud-datatable-pjax',
                         'title' => "Create new Order",
                         'content' => '<span class="text-success">Create Order success</span>',
-                        'footer' => Html::button('Close',
+                        'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                             Html::a('Create More', ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
 
@@ -137,9 +137,9 @@ class OrderController extends Controller
                         'content' => $this->renderAjax('create', [
                             'model' => $model,
                         ]),
-                        'footer' => Html::button('Close',
+                        'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                            Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
 
                     ];
                 }
@@ -222,9 +222,9 @@ class OrderController extends Controller
 //                    'content' => $this->renderAjax('update', [
 //                        'model' => $model,
 //                    ]),
-//                    'footer' => Html::button('Close',
+//                    'footer' => Html::button('Закрыть',
 //                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-//                        Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+//                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
 //                ];
             } else {
                 if ($model->load($request->post()) && $model->save()) {
@@ -234,9 +234,9 @@ class OrderController extends Controller
                         'content' => $this->renderAjax('view', [
                             'model' => $model,
                         ]),
-                        'footer' => Html::button('Close',
+                        'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                            Html::a('Edit', ['update', 'id' => $id],
+                            Html::a('Редактировать', ['update', 'id' => $id],
                                 ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                     ];
                 } else {
@@ -245,9 +245,9 @@ class OrderController extends Controller
                         'content' => $this->renderAjax('update', [
                             'model' => $model,
                         ]),
-                        'footer' => Html::button('Close',
+                        'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                            Html::button('Save', ['class' => 'btn btn-primary', 'type' => "submit"])
+                            Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
                     ];
                 }
             }
