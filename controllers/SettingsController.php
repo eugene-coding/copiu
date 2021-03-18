@@ -100,8 +100,17 @@ class SettingsController extends Controller
                 }
             }
 
+            $sys_info_settings = [
+                'token',
+                'token_date',
+                'sync_nomenclature_next_chunk',
+                'sync_nomenclature_sync_date',
+                'get_nomenclature_date',
+            ];
+
             /** @var Settings $setting */
             foreach ($settings as $setting){
+                if (in_array($setting->key, $sys_info_settings)) continue;
                 if ($setting->is_system){
                     array_push($system_settings, $setting);
                 } else {
@@ -370,4 +379,38 @@ class SettingsController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+    public function actionSystemInfo()
+    {
+        $request = Yii::$app->request;
+
+        $sys_info_settings = [
+            'token',
+            'token_date',
+            'sync_nomenclature_next_chunk',
+            'sync_nomenclature_sync_date',
+            'get_nomenclature_date',
+        ];
+
+        $settings = Settings::find();
+        $sys_info = [];
+        /** @var Settings $item */
+        foreach ($settings->each() as $item){
+            if (in_array($item->key, $sys_info_settings)){
+                $sys_info[] = $item;
+            }
+        }
+
+        if ($request->isAjax){
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return [
+                'title' => 'Системная информация',
+                'content' => $this->renderAjax('_system_info', [
+                    'settings' => $sys_info,
+                ])
+            ];
+        }
+    }
+
+
 }

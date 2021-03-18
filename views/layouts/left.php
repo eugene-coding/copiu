@@ -65,6 +65,11 @@ use dmstr\widgets\Menu;
                             'items' => [
                                 ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii'],],
                                 ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug'],],
+                                [
+                                    'label' => 'System Info',
+                                    'template' => '<a href="{url}" role="modal-remote"><i class="fa fa-check-square-o"></i> {label}</a>',
+                                    'url' => ['/settings/system-info'],
+                                ],
                             ],
                             'visible' => Users::isAdmin()
                         ],

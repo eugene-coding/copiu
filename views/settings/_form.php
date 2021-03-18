@@ -36,7 +36,7 @@ use yii\widgets\ActiveForm;
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            Данные организации для работы с АПИ
+            Данные организации
         </div>
         <div class="panel-body">
             <table class="table table-hover">
@@ -45,9 +45,20 @@ use yii\widgets\ActiveForm;
                 foreach ($settings['cms'] as $model): ?>
                     <tr>
                         <td><?= $model->label; ?></td>
-                        <td><?= Html::textInput('keys[' . $model->key . ']', $model->value, [
-                                'class' => 'form-control'
-                            ]) ?></td>
+                        <td><?php
+                            if (mb_strpos($model->key, 'time')) {
+                                echo Html::input('time', 'keys[' . $model->key . ']', $model->value, [
+                                    'class' => 'form-control',
+                                    'title' => $model->description ?: '',
+                                ]);
+                            } else {
+                                echo Html::textInput('keys[' . $model->key . ']', $model->value, [
+                                    'class' => 'form-control',
+                                    'title' => $model->description ?: '',
+                                ]);
+                            }
+
+                            ?></td>
                     </tr>
 
                 <?php endforeach; ?>
