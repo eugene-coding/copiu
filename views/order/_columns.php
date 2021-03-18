@@ -1,6 +1,8 @@
 <?php
 
 use app\models\Order;
+use app\models\Users;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 return [
@@ -64,12 +66,19 @@ return [
         'attribute' => 'status',
         'filter' => Order::getStatusList(),
         'content' => function (Order $model) {
-           return Order::getStatusList()[$model->status];
+            if (Users::isAdmin()) {
+                return Html::dropDownList('statuses', $model->status ,Order::getStatusList(), [
+                    'class' => 'form-control status-dropbox',
+                    'data-id' => $model->id,
+                ]);
+            }
+            return Order::getStatusList()[$model->status];
         },
         'format' => 'raw',
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
+        'template' => '{view} {update} {delete}',
         'dropdown' => false,
         'vAlign' => 'middle',
         'urlCreator' => function ($action, $model, $key, $index) {
@@ -78,7 +87,7 @@ return [
         'buttons' => [
             'delete' => function ($url, Order $model) {
                 if ($model->status == $model::STATUS_DRAFT || $model->status == $model::STATUS_DONE) {
-                    return \yii\helpers\Html::a('<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>',
+                    return Html::a('<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>',
                         $url, [
                             'role' => 'modal-remote',
                             'title' => 'Delete',
@@ -95,7 +104,7 @@ return [
             },
             'update' => function ($url, Order $model) {
                 if ($model->status == $model::STATUS_DRAFT) {
-                    return \yii\helpers\Html::a('<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>',
+                    return Html::a('<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>',
                         $url);
                 }
             }

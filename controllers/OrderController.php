@@ -562,7 +562,7 @@ class OrderController extends Controller
                 if ($from > $to) {
                     $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
                     $model->step--;
-                } elseif(($to - $from) < 2) {
+                } elseif (($to - $from) < 2) {
                     $model->addError('error_delivery_time', 'Увеличте период доставки');
                     $model->step--;
                 }
@@ -580,9 +580,8 @@ class OrderController extends Controller
         }
     }
 
-
     /**
-     * Отссеняет (удаляет) заказ
+     * Отменяет (удаляет) заказ
      * @param int $id Идентификатор заказа
      * @return Response
      * @throws \Exception
@@ -599,4 +598,34 @@ class OrderController extends Controller
 
         return $this->redirect('index');
     }
+
+    public function actionChangeStatus()
+    {
+        $request = Yii::$app->request;
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = Order::findOne($request->post('id'));
+
+        if (!$model) {
+            return [
+                'success' => false,
+                'error' => 'Заказ не найден',
+            ];
+        }
+
+        $model->status = $request->post('status');
+
+        if (!$model->save()) {
+            Yii::error($model->errors, '_error');
+            return [
+                'success' => false,
+                'error' => json_encode($model->errors),
+            ];
+        }
+        return [
+            'success' => true,
+            'forceReload' => '#crud-datatable-pjax',
+        ];
+    }
 }
+
