@@ -279,6 +279,11 @@ class SiteController extends Controller
                 'error' => 'Ошбика синхронизации покупателей',
             ];
         }
+
+        if ($data['revenueDebitAccount']){
+            Settings::setValueByKey('revenue_debit_account', $data['revenueDebitAccount']);
+        }
+
 //        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
 
         return [

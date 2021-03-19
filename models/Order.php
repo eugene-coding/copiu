@@ -259,6 +259,7 @@ class Order extends ActiveRecord
 
         if ($xml->success == 'false'){
             Yii::error($xml->errorString, '_error');
+            return $xml->errorString;
         } else {
             $this->delivery_act_number = $xml->returnValue->documentNumber;
 

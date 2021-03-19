@@ -108,6 +108,7 @@ XML;
 
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
+        $revenueDebitAccount = null;
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
             if ($item->deleted == 'false') {
@@ -127,6 +128,11 @@ XML;
                             'name' => $item->r->name->customValue,
                         ];
                         break;
+                    case 'Account':
+                        if ($item->r->name->customValue == 'Задолженность перед поставщиками'){
+                            $revenueDebitAccount = $item->id;
+                        }
+                        break;
                 }
             }
         }
@@ -134,6 +140,7 @@ XML;
         return [
             'buyer' => $arr_buyer,
             'price_category' => $arr_price_category,
+            'revenueDebitAccount' => $revenueDebitAccount,
         ];
     }
 
@@ -286,13 +293,12 @@ XML;
      */
     public function makeActOfServices($params)
     {
-        $document_eid = $this->generateEid();
-        $item_eid = $this->generateEid();
-        $invoice_eid = $this->generateEid();
+        $document_eid = $this->getGUID();
+        $item_eid = $this->getGUID();
+        $invoice_eid = $this->getGUID();
         Yii::info($document_eid, 'test');
         Yii::info($item_eid, 'test');
         Yii::info($invoice_eid, 'test');
-
 
 
         $dom = new domDocument('1.0', 'utf-8');
@@ -331,7 +337,7 @@ XML;
         $department->appendChild($department_cls_attr);
         $document->appendChild($department);
 
-        $revenueAccount = $dom->createElement('revenueAccount',  $params['revenueAccount']);
+        $revenueAccount = $dom->createElement('revenueAccount', $params['revenueAccount']);
         $document->appendChild($revenueAccount);
 
         $supplier = $dom->createElement('supplier', $params['buyer_outer_id']);
@@ -377,31 +383,31 @@ XML;
         $discountSum = $dom->createElement('discountSum', 0);
         $i->appendChild($discountSum);
 
-        $amountUnit = $dom->createElement('amountUnit',  $params['amountUnit']);
+        $amountUnit = $dom->createElement('amountUnit', $params['amountUnit']);
         $i->appendChild($amountUnit);
 
-        $containerId = $dom->createElement('containerId',  '00000000-0000-0000-0000-000000000000');
+        $containerId = $dom->createElement('containerId', '00000000-0000-0000-0000-000000000000');
         $i->appendChild($containerId);
 
-        $num = $dom->createElement('num',  1);
+        $num = $dom->createElement('num', 1);
         $i->appendChild($num);
 
-        $product = $dom->createElement('product',  $params['product']);
+        $product = $dom->createElement('product', $params['product']);
         $i->appendChild($product);
 
-        $amount = $dom->createElement('amount',  $params['amount']);
+        $amount = $dom->createElement('amount', $params['amount']);
         $i->appendChild($amount);
 
-        $id = $dom->createElement('id',  $item_eid);
+        $id = $dom->createElement('id', $item_eid);
         $i->appendChild($id);
 
         $items->appendChild($i);
         $document->appendChild($items);
 
-        $documentNumber = $dom->createElement('documentNumber',  $params['documentNumber']);
+        $documentNumber = $dom->createElement('documentNumber', $params['documentNumber']);
         $document->appendChild($documentNumber);
 
-        $status = $dom->createElement('status',  $params['status']);
+        $status = $dom->createElement('status', $params['status']);
         $document->appendChild($status);
 
         $revision = $dom->createElement('revision', 0);
@@ -432,23 +438,20 @@ XML;
     /**
      * Генерирует идентификатор по шаблону хххххххх(8символов)-хххх-хххх-хххххххххххх(12символов)
      */
-    private function generateEid()
+    function getGUID()
     {
-        return $this->generate(8)
-            . '-' .
-            $this->generate(4)
-            . '-' .
-            $this->generate(4)
-            . '-' .
-            $this->generate(4)
-            . '-' .
-            $this->generate(12);
-    }
-
-    private function generate($length)
-    {
-        $permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
-        return substr(str_shuffle($permitted_chars), 0, $length);
-
+        if (function_exists('com_create_guid')) {
+            return com_create_guid();
+        } else {
+            mt_srand((double)microtime() * 10000);//optional for php 4.2.0 and up.
+            $charid = strtoupper(md5(uniqid(rand(), true)));
+            $hyphen = chr(45);// "-"
+            $uuid = substr($charid, 0, 8) . $hyphen
+                . substr($charid, 8, 4) . $hyphen
+                . substr($charid, 12, 4) . $hyphen
+                . substr($charid, 16, 4) . $hyphen
+                . substr($charid, 20, 12);
+            return strtolower($uuid);
+        }
     }
 }
