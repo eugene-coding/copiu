@@ -574,6 +574,15 @@ class OrderController extends Controller
                 Yii::error($model->errors, '_error');
             }
 
+            if ($model->step === 5){
+                //Формируем накладную
+                $model->makeInvoice();
+                if ($model->deliveryCost){
+                    //Формируем акт оказания услуг (доставка)
+                    $model->makeDeliveryAct();
+                }
+            }
+
             return $this->render('_form', [
                 'model' => $model,
                 'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,

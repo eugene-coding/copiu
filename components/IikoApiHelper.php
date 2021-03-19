@@ -17,7 +17,7 @@ use Yii;
  * @property string $headers заголовки
  * @property string $post_data Данные, отправляемые в POST запросе
  */
-class IkkoApiHelper
+class IikoApiHelper
 {
     protected $base_url;
     protected $request_string;
@@ -145,7 +145,6 @@ class IkkoApiHelper
 
     }
 
-
     /**
      * Получает номенклатурные группы
      * @return mixed
@@ -238,23 +237,23 @@ class IkkoApiHelper
         $root = $dom->createElement('document');
         $dom->appendChild($root);
         $number = $dom->createElement('documentNumber', $params['documentNumber']);
-        $date_incoming = $dom->createElement('dateIncoming', $this->toIikoDate($params['dateIncoming']));
+//        $date_incoming = $dom->createElement('dateIncoming', $this->toIikoDate($params['dateIncoming']));
         $counteragent_id = $dom->createElement('counteragentId', $params['counteragentId']);
         $comment = $dom
-            ->createElement('comment', "Доставка с {$params['from']} по {$params['to']} + «комментарий»");
+            ->createElement('comment', "Доставка с {$params['from']} по {$params['to']} + «{$params['comment']}»");
 
         $root->appendChild($number);
-        $root->appendChild($date_incoming);
+//        $root->appendChild($date_incoming);
         $root->appendChild($counteragent_id);
         $root->appendChild($comment);
 
         $items = $dom->createElement('items');
         foreach ($params['items'] as $item) {
             $item_element = $dom->createElement('item');
-            $product_id = $dom->createElement('productId', $item['productId']);
+            $product_id = $dom->createElement('productId', $item['outer_id']);
             $num = $dom->createElement('productArticle', $item['num']);
             $price = $dom->createElement('price', $item['price']);
-            $amount = $dom->createElement('amount', $item['amount']);
+            $amount = $dom->createElement('amount', $item['count']);
             $sum = $dom->createElement('sum', $item['sum']);
 
             $item_element->appendChild($product_id);
@@ -273,33 +272,12 @@ class IkkoApiHelper
         $this->headers = [
             'Content-Type: application/xml'
         ];
+        \Yii::info($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
         $result = $this->send('POST');
 //        Yii::info($result, 'test');
         return $result;
-    }
-
-    /**
-     * Преобразует дату в формат 2015-02-25T00:12:34
-     * @param string $datetime
-     * @return false|string
-     */
-    private function toIikoDate($datetime)
-    {
-        $time = strtotime($datetime);
-        return date('Y-m-d\TH:i:s', $time);
-    }
-
-    /**
-     * Преобразует дату в формат 25.02.2020
-     * @param string $datetime
-     * @return false|string
-     */
-    private function toRusDate($datetime)
-    {
-        $time = strtotime($datetime);
-        return date('d.m.Y', $time);
     }
 
     public function getInvoice()

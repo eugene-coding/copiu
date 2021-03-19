@@ -21,6 +21,7 @@ use yii\db\ActiveRecord;
  * @property string|null $unit_capacity Объём одной единицы
  * @property string|null $type Тип
  * @property array|null $price Цена товара
+ * @property string $main_unit Параметр, для акта услуг
  *
  * @property Measure $measure
  * @property NGroup $nGroup
@@ -28,11 +29,15 @@ use yii\db\ActiveRecord;
  * @property OrderBlank[] $orderBlanks
  * @property OrderToNomenclature[] $orderToNomenclature
  * @property double $priceForBuyer
+ * @property Order[] $orders
  */
 class Nomenclature extends ActiveRecord
 {
 
     public $count;
+
+    //TODO:добавить в базу
+    public $main_unit;
 
     /**
      * {@inheritdoc}
@@ -48,7 +53,7 @@ class Nomenclature extends ActiveRecord
     public function rules()
     {
         return [
-            [['description'], 'string'],
+            [['description', 'main_unit'], 'string'],
             [['n_group_id', 'measure_id'], 'integer'],
             [['default_price', 'unit_weight', 'unit_capacity'], 'number'],
             [['name', 'outer_id', 'num', 'type'], 'string', 'max' => 255],
@@ -294,6 +299,16 @@ class Nomenclature extends ActiveRecord
             ->one();
 
         return $query->count;
+    }
+
+    /**
+     * Заказы для позиции номенклатуры
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrders()
+    {
+        return $this->hasMany(Order::class, ['id' => 'order_id'])
+            ->via('orderToNomenclature');
     }
 
 }

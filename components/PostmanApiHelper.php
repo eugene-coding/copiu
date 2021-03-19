@@ -6,6 +6,7 @@ use app\models\Nomenclature;
 use app\models\PriceCategory;
 use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
+use DOMDocument;
 use Yii;
 
 
@@ -105,9 +106,6 @@ XML;
             ];
         }
 
-//        $json = json_encode($xml);
-//        $arr = json_decode($json, true);
-
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
 
@@ -118,8 +116,8 @@ XML;
                         if ($item->r->supplier == 'true') {
                             $arr_buyer[] = [
                                 'id' => $item->id,
-                                'name' => $item->r->name->customValue ,
-                                'price_category' =>  $item->r->priceCategory,
+                                'name' => $item->r->name->customValue,
+                                'price_category' => $item->r->priceCategory,
                             ];
                         }
                         break;
@@ -132,23 +130,6 @@ XML;
                 }
             }
         }
-
-//        foreach ($arr['entitiesUpdate']['items']['i'] as $item) {
-//            if ($item['deleted'] == 'false') {
-//                switch ($item['type']) {
-//                    case 'User':
-//                        if ($item['r']['supplier'] == 'true') {
-//                            $arr_buyer[] = $item;
-//                        }
-//                        break;
-//                    case 'ClientPriceCategory':
-//                        $arr_price_category[] = $item;
-//                        break;
-//                }
-//            }
-//        }
-//        Yii::info($arr_buyer, 'test');
-//        Yii::info($arr_price_category, 'test');
 
         return [
             'buyer' => $arr_buyer,
@@ -227,11 +208,11 @@ XML;
 
             Yii::info($product_outer_id, 'test');
             $categories_and_prices = [];
-            if ($item->i->pricesForCategories){
+            if ($item->i->pricesForCategories) {
                 $categories_and_prices = json_decode(json_encode($item->i->pricesForCategories), true);
             }
 //            $categories = isset($item['i']['pricesForCategories']['k']) ? $item['i']['pricesForCategories']['k'] : null;
-            $categories = isset($categories_and_prices['k']) ? $categories_and_prices['k']: null;
+            $categories = isset($categories_and_prices['k']) ? $categories_and_prices['k'] : null;
             if (!$categories) {
                 Yii::info('Нет категорий. Пропускаем', 'test');
                 $skipped++;
@@ -239,7 +220,7 @@ XML;
             }
 
 //            $prices = $item['i']['pricesForCategories']['v'];
-            $prices =isset($categories_and_prices['v']) ? $categories_and_prices['v']: null;;
+            $prices = isset($categories_and_prices['v']) ? $categories_and_prices['v'] : null;;
 
             for ($i = 0; $i < count($categories); $i++) {
                 $category = PriceCategory::findOne(['outer_id' => $categories[$i]]);
@@ -299,11 +280,175 @@ XML;
     }
 
     /**
-     * Создание акта оказания услуг
+     * Создание акта оказания услуг (доставка)
      * @param array $params
+     * @return mixed
      */
     public function makeActOfServices($params)
     {
+        $document_eid = $this->generateEid();
+        $item_eid = $this->generateEid();
+        $invoice_eid = $this->generateEid();
+        Yii::info($document_eid, 'test');
+        Yii::info($item_eid, 'test');
+        Yii::info($invoice_eid, 'test');
+
+
+
+        $dom = new domDocument('1.0', 'utf-8');
+        $root = $dom->createElement('args');
+        $dom->appendChild($root);
+
+        $entities_version = $dom->createElement('entities-version', '547512');
+        $root->appendChild($entities_version);
+
+        $client_type = $dom->createElement('client-type', 'BACK');
+        $root->appendChild($client_type);
+
+        $use_raw_entities = $dom->createElement('use-raw-entities', 'true');
+        $root->appendChild($use_raw_entities);
+
+        $document = $dom->createElement('document');
+        $doc_cls_attr = $dom->createAttribute('cls');
+        $doc_eid_attr = $dom->createAttribute('eid');
+        $doc_cls_attr->value = 'OutgoingService';
+        $doc_eid_attr->value = $document_eid;
+        $document->appendChild($doc_cls_attr);
+        $document->appendChild($doc_eid_attr);
+
+        $revenueDebitAccount = $dom->createElement('revenueDebitAccount', $params['revenueDebitAccount']);
+        $document->appendChild($revenueDebitAccount);
+
+        $isAutomatic = $dom->createElement('isAutomatic', 'false');
+        $document->appendChild($isAutomatic);
+
+        $editable = $dom->createElement('editable', 'true');
+        $document->appendChild($editable);
+
+        $department = $dom->createElement('department', $params['department']);
+        $department_cls_attr = $dom->createAttribute('cls');
+        $department_cls_attr->value = 'Department';
+        $department->appendChild($department_cls_attr);
+        $document->appendChild($department);
+
+        $revenueAccount = $dom->createElement('revenueAccount',  $params['revenueAccount']);
+        $document->appendChild($revenueAccount);
+
+        $supplier = $dom->createElement('supplier', $params['buyer_outer_id']);
+        $document->appendChild($supplier);
+
+        $items = $dom->createElement('items');
+
+        $i = $dom->createElement('i');
+        $i_cls_attr = $dom->createAttribute('cls');
+        $i_cls_attr->value = 'OutgoingServiceItem';
+        $i->appendChild($i_cls_attr);
+        $i_eid_attr = $dom->createAttribute('eid');
+        $i_eid_attr->value = $item_eid;
+        $i->appendChild($i_eid_attr);
+
+        $invoice = $dom->createElement('invoice');
+        $invoice_cls_attr = $dom->createAttribute('cls');
+        $invoice_cls_attr->value = 'OutgoingService';
+        $invoice->appendChild($invoice_cls_attr);
+        $invoice_eid_attr = $dom->createAttribute('eid');
+        $invoice_eid_attr->value = $invoice_eid;
+        $invoice->appendChild($invoice_eid_attr);
+        $i->appendChild($invoice);
+
+        $code = $dom->createElement('code', $params['code']);
+        $i->appendChild($code);
+
+        $price = $dom->createElement('price', 1);
+        $i->appendChild($price);
+
+        $priceWithoutNds = $dom->createElement('priceWithoutNds', 1);
+        $i->appendChild($priceWithoutNds);
+
+        $sum = $dom->createElement('sum', $params['sum']);
+        $i->appendChild($sum);
+
+        $ndsPercent = $dom->createElement('ndsPercent', 0);
+        $i->appendChild($ndsPercent);
+
+        $sumWithoutNds = $dom->createElement('sumWithoutNds', $params['sum']);
+        $i->appendChild($sumWithoutNds);
+
+        $discountSum = $dom->createElement('discountSum', 0);
+        $i->appendChild($discountSum);
+
+        $amountUnit = $dom->createElement('amountUnit',  $params['amountUnit']);
+        $i->appendChild($amountUnit);
+
+        $containerId = $dom->createElement('containerId',  '00000000-0000-0000-0000-000000000000');
+        $i->appendChild($containerId);
+
+        $num = $dom->createElement('num',  1);
+        $i->appendChild($num);
+
+        $product = $dom->createElement('product',  $params['product']);
+        $i->appendChild($product);
+
+        $amount = $dom->createElement('amount',  $params['amount']);
+        $i->appendChild($amount);
+
+        $id = $dom->createElement('id',  $item_eid);
+        $i->appendChild($id);
+
+        $items->appendChild($i);
+        $document->appendChild($items);
+
+        $documentNumber = $dom->createElement('documentNumber',  $params['documentNumber']);
+        $document->appendChild($documentNumber);
+
+        $status = $dom->createElement('status',  $params['status']);
+        $document->appendChild($status);
+
+        $revision = $dom->createElement('revision', 0);
+        $document->appendChild($revision);
+
+        $doc_id = $dom->createElement('id', $document_eid);
+        $document->appendChild($doc_id);
+
+        $root->appendChild($document);
+
+        $suppressWarnings = $dom->createElement('suppressWarnings');
+        $suppressWarnings_cls_attr = $dom->createAttribute('cls');
+        $suppressWarnings_cls_attr->value = 'java.util.ArrayList';
+        $suppressWarnings->appendChild($suppressWarnings_cls_attr);
+
+        $i2 = $dom->createElement('i', 'SUPPLIER_PRICE_DEVIATION_LIMIT_EXCEEDED');
+        $suppressWarnings->appendChild($i2);
+
+        $root->appendChild($suppressWarnings);
+
+        $this->post_data = $dom->saveXML();
+        Yii::info($this->post_data, 'test');
+
+        $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
+        return $this->send('POST');
+    }
+
+    /**
+     * Генерирует идентификатор по шаблону хххххххх(8символов)-хххх-хххх-хххххххххххх(12символов)
+     */
+    private function generateEid()
+    {
+        return $this->generate(8)
+            . '-' .
+            $this->generate(4)
+            . '-' .
+            $this->generate(4)
+            . '-' .
+            $this->generate(4)
+            . '-' .
+            $this->generate(12);
+    }
+
+    private function generate($length)
+    {
+        $permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+        return substr(str_shuffle($permitted_chars), 0, $length);
 
     }
 }

@@ -2,7 +2,10 @@
 
 namespace app\models;
 
+use app\components\IikoApiHelper;
+use app\components\PostmanApiHelper;
 use app\models\query\OrderQuery;
+use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -17,11 +20,11 @@ use yii\db\ActiveRecord;
  * @property float|null $total_price Общая сумма заказа (включая доставку)
  * @property string|null $comment Комментарий
  * @property int $status Статус
- * @property string||null $blanks Бланки заказов
+ * @property string|null $blanks Бланки заказов
  * @property double $count Кол-во продуктов
  * @property int $step Текущий шаг заказа
- * @property string||null $invoice_number Номер накладной
- * @property string||null $delivery_act_number Номер Акта оказанных услуг
+ * @property string|null $invoice_number Номер накладной
+ * @property string|null $delivery_act_number Номер Акта оказанных услуг
  *
  * @property Buyer $buyer
  * @property Nomenclature[] $products;
@@ -157,6 +160,106 @@ class Order extends ActiveRecord
         } else {
             return $this->buyer->delivery_cost;
         }
+    }
+
+    /**
+     * Формирует расходную накладную
+     * @return bool|string
+     */
+    public function makeInvoice()
+    {
+        //Пример
+//        $item = [
+//              'outer_id',
+//              'num',
+//              'price',
+//              'count',
+//              'sum',
+//        ];
+
+        $items = Nomenclature::find()
+            ->joinWith(['orders'])
+            ->select([
+                'nomenclature.outer_id',
+                'nomenclature.num',
+                'order_to_nomenclature.price',
+                'order_to_nomenclature.count',
+                '(order_to_nomenclature.price * order_to_nomenclature.count) AS sum'
+            ])
+            ->andWhere(['order.id' => $this->id])
+            ->asArray()
+            ->all();
+
+
+        $params = [
+            'documentNumber' => $this->getInvoiceNumber(),
+            'counteragentId' => $this->buyer->outer_id,
+            'from' => $this->delivery_time_from,
+            'to' => $this->delivery_time_to,
+            'comment' => $this->comment,
+            'items' => $items,
+        ];
+
+        $helper = new IikoApiHelper();
+        $result = $helper->makeExpenseInvoice($params);
+        Yii::info($result);
+
+        $xml = simplexml_load_string($result);
+
+        if ($xml) {
+            //Разбираем ответ
+            if ($xml->valid == 'true') {
+                $this->invoice_number = $xml->documentNumber;
+                if (!$this->save()) {
+                    Yii::error($this->errors, '_error');
+                }
+            }
+
+            if ($xml->errorMessage) {
+                Yii::error($xml->errorMessage, '_error');
+            }
+
+            if ($xml->additionalInfo) {
+                Yii::warning($xml->additionalInfo, 'test');
+            }
+
+            return true;
+        } else {
+            return $result;
+        }
+
+    }
+
+    /**
+     * Акт оказания услуг (доставка)
+     */
+    public function makeDeliveryAct()
+    {
+        $params = [
+            'revenueDebitAccount' => Settings::getValueByKey('revenue_debit_account'),
+            'department' => Settings::getValueByKey('department_outer_id'),
+            'revenueAccount' => Settings::getValueByKey('revenue_account'),
+            'buyer_outer_id' => $this->buyer->outer_id,
+            'code' => Settings::getValueByKey('delivery_article'),
+            'sum' => $this->deliveryCost,
+            'amountUnit' => $this->products[0]->main_unit,
+            'product' => $this->products[0]->outer_id,
+            'amount' => $this->deliveryCost,
+            'documentNumber' => str_pad($this->id, 6, '0', STR_PAD_LEFT),
+            'status' => 'PROCESSED',
+        ];
+        $helper = new PostmanApiHelper();
+        $result = $helper->makeActOfServices($params);
+
+        return $result;
+    }
+
+    /**
+     * Генерирует номер накладной. xc<id заказа>_<Unix время создания заказа>
+     */
+    public function getInvoiceNumber()
+    {
+        return 'xc' . $this->id . '_' . strtotime($this->created_at);
     }
 
 }
