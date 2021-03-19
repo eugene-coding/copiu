@@ -36,9 +36,6 @@ class Nomenclature extends ActiveRecord
 
     public $count;
 
-    //TODO:добавить в базу
-    public $main_unit;
-
     /**
      * {@inheritdoc}
      */
@@ -216,6 +213,7 @@ class Nomenclature extends ActiveRecord
             $model->unit_weight = $item['unitWeight']?:0;
             $model->unit_capacity = $item['unitCapacity']?:0;
             $model->type = $item['type'];
+            $model->main_unit = $item['mainUnit']?:null;
 
 //            Yii::info($model->attributes, 'test');
 
