@@ -251,7 +251,23 @@ class Order extends ActiveRecord
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
 
-        return $result;
+        $xml = simplexml_load_string($result);
+
+        if ($xml->returnValue->additionalInfo){
+            Yii::warning($xml->returnValue->additionalInfo, 'test');
+        }
+
+        if ($xml->success == 'false'){
+            Yii::error($xml->errorString, '_error');
+        } else {
+            $this->delivery_act_number = $xml->returnValue->documentNumber;
+
+            if (!$this->save()){
+                Yii::error($this->errors, '_error');
+            }
+        }
+
+        return true;
     }
 
     /**
