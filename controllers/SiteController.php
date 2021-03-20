@@ -455,7 +455,8 @@ class SiteController extends Controller
     public function actionTest()
     {
         $order = Order::findOne(53);
-        $result = $order->makeDeliveryAct();
+        $result = $order->makeInvoice();
+//        $result = $order->makeDeliveryAct();
         Yii::warning($result, 'test');
         Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
         VarDumper::dump($result, 10, true);

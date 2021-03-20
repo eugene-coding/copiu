@@ -168,15 +168,6 @@ class Order extends ActiveRecord
      */
     public function makeInvoice()
     {
-        //Пример
-//        $item = [
-//              'outer_id',
-//              'num',
-//              'price',
-//              'count',
-//              'sum',
-//        ];
-
         $items = Nomenclature::find()
             ->joinWith(['orders'])
             ->select([
@@ -193,6 +184,7 @@ class Order extends ActiveRecord
 
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
+            'dateIncoming' => date('Y-m-d', time()),
             'counteragentId' => $this->buyer->outer_id,
             'from' => $this->delivery_time_from,
             'to' => $this->delivery_time_to,
@@ -202,9 +194,14 @@ class Order extends ActiveRecord
 
         $helper = new IikoApiHelper();
         $result = $helper->makeExpenseInvoice($params);
-        Yii::info($result);
-
-        $xml = simplexml_load_string($result);
+        $xml = null;
+        try {
+            $xml = simplexml_load_string($result);
+        } catch (\Exception $e) {
+            Yii::error($result, '_error');
+            Yii::error($e->getMessage(), '_error');
+            return false;
+        }
 
         if ($xml) {
             //Разбираем ответ
@@ -256,17 +253,17 @@ class Order extends ActiveRecord
 
         $xml = simplexml_load_string($result);
 
-        if ($xml->returnValue->additionalInfo){
+        if ($xml->returnValue->additionalInfo) {
             Yii::warning($xml->returnValue->additionalInfo, 'test');
         }
 
-        if ($xml->success == 'false'){
+        if ($xml->success == 'false') {
             Yii::error($xml->errorString, '_error');
             return $xml->errorString;
         } else {
             $this->delivery_act_number = $xml->returnValue->documentNumber;
 
-            if (!$this->save()){
+            if (!$this->save()) {
                 Yii::error($this->errors, '_error');
             }
         }

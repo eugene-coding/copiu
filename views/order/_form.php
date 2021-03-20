@@ -80,7 +80,7 @@ $this->registerJsFile('/js/order_form.js', [
                     'class' => 'btn btn-success btn-block',
                     'id' => 'confirm-order-date',
                 ]); ?>
-<!--                <input type="text" name="selected_date" id="selected-date" class="hidden">-->
+                <!--                <input type="text" name="selected_date" id="selected-date" class="hidden">-->
             </div>
             <div class="col-xs-9" style="min-height: 300px;">
                 <div class="nomenclature-loader" style="display: none;">
@@ -149,9 +149,17 @@ $this->registerJsFile('/js/order_form.js', [
         ]) ?>
     <?php elseif ($model->step == 5): ?>
         <div class="done text-center">
-            <h4>Накладная № 1111 успешно создана</h4>
+            <?php if ($model->invoice_number): ?>
+                <h4>Накладная № <?= $model->invoice_number; ?> успешно создана</h4>
+            <?php else: ?>
+                <h4>Ошибка создания накладной</h4>
+            <?php endif; ?>
             <?php if ($model->deliveryCost): ?>
-                <h4>Акт оказания услуг (доставка) 7777 успешно создан</h4>
+                <?php if ($model->delivery_act_number): ?>
+                    <h4>Акт оказания услуг (доставка) <?= $model->delivery_act_number; ?> успешно создан</h4>
+                <?php else: ?>
+                    <h4>Ошибка создания акта оказания услуг</h4>
+                <?php endif; ?>
             <?php endif; ?>
             <?= Html::a('Завершить', ['/order'], [
                 'class' => 'btn btn-success'

@@ -237,13 +237,17 @@ class IikoApiHelper
         $root = $dom->createElement('document');
         $dom->appendChild($root);
         $number = $dom->createElement('documentNumber', $params['documentNumber']);
-//        $date_incoming = $dom->createElement('dateIncoming', $this->toIikoDate($params['dateIncoming']));
+        $date_incoming = $dom->createElement('dateIncoming',$params['dateIncoming']);
+        $useDefaultDocumentTime = $dom->createElement('useDefaultDocumentTime', 'true');
+        $revenueAccountCode = $dom->createElement('revenueAccountCode', '4.01');
         $counteragent_id = $dom->createElement('counteragentId', $params['counteragentId']);
         $comment = $dom
             ->createElement('comment', "Доставка с {$params['from']} по {$params['to']} + «{$params['comment']}»");
 
         $root->appendChild($number);
-//        $root->appendChild($date_incoming);
+        $root->appendChild($date_incoming);
+        $root->appendChild($useDefaultDocumentTime);
+        $root->appendChild($revenueAccountCode);
         $root->appendChild($counteragent_id);
         $root->appendChild($comment);
 
@@ -279,10 +283,4 @@ class IikoApiHelper
 //        Yii::info($result, 'test');
         return $result;
     }
-
-    public function getInvoice()
-    {
-
-    }
-
 }
