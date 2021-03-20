@@ -264,6 +264,8 @@ class SiteController extends Controller
 
         $data = $helper->getAll();
 
+        Settings::setValueByKey('entities_version', $data['entities_version']);
+
         Yii::info($data, 'test');
 
         if (isset($data['success']) && $data['success'] === false) {
@@ -452,10 +454,10 @@ class SiteController extends Controller
      */
     public function actionTest()
     {
-        $order = Order::findOne(50);
+        $order = Order::findOne(53);
         $result = $order->makeDeliveryAct();
         Yii::warning($result, 'test');
-        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+        Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
         VarDumper::dump($result, 10, true);
     }
 }

@@ -106,6 +106,7 @@ class SettingsController extends Controller
                 'sync_nomenclature_next_chunk',
                 'sync_nomenclature_sync_date',
                 'get_nomenclature_date',
+                'entities_version',
             ];
 
             /** @var Settings $setting */
@@ -390,6 +391,7 @@ class SettingsController extends Controller
             'sync_nomenclature_next_chunk',
             'sync_nomenclature_sync_date',
             'get_nomenclature_date',
+            'entities_version',
         ];
 
         $settings = Settings::find();

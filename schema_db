@@ -391,4 +391,38 @@
         </key>
         <comment>Связь накладных с номенклатурой</comment>
     </table>
+    <table x="346" y="601" name="department">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="name" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="outer_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+    </table>
+    <table x="885" y="559" name="account">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="outer_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="name" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="type" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="description" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+    </table>
 </sql>

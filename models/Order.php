@@ -236,17 +236,19 @@ class Order extends ActiveRecord
     public function makeDeliveryAct()
     {
         $params = [
+            'entities_version' => Settings::getValueByKey('entities_version'),
             'revenueDebitAccount' => Settings::getValueByKey('revenue_debit_account'),
             'department' => Settings::getValueByKey('department_outer_id'),
-            'revenueAccount' => Settings::getValueByKey('revenue_account'),
+            'revenueAccount' => Settings::getValueByKey('invoice_outer_id'),
             'buyer_outer_id' => $this->buyer->outer_id,
             'code' => Settings::getValueByKey('delivery_article'),
             'sum' => $this->deliveryCost,
             'amountUnit' => $this->products[0]->main_unit,
             'product' => $this->products[0]->outer_id,
             'amount' => $this->deliveryCost,
-            'documentNumber' => str_pad($this->id, 6, '0', STR_PAD_LEFT),
+            'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
+            'dateIncoming' => date('Y-m-d\TH:i:s.000+03:00', time()),
         ];
         Yii::info($params, 'test');
         $helper = new PostmanApiHelper();

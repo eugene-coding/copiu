@@ -24,7 +24,7 @@ class PostmanApiHelper
     private $request_string;
     private $login;
     private $password;
-    private $headers;
+    private $headers = [];
     private $post_data;
 
     public function __construct()
@@ -36,10 +36,11 @@ class PostmanApiHelper
 
         $this->login = Settings::getValueByKey(['ikko_server_login']);
         $this->password = Settings::getValueByKey(['ikko_server_password']);
+        $server_back_version = $this->getServerBackVersion();
 
         $this->headers = [
             'X-Resto-ServerEdition: IIKO_CHAIN',
-            'X-Resto-BackVersion: 7.5.6019.0',
+            'X-Resto-BackVersion: ' . $server_back_version,
             'X-Resto-AuthType: BACK',
             'X-Resto-LoginName: ' . $this->login,
             'X-Resto-PasswordHash: ' . sha1($this->password),
@@ -110,6 +111,7 @@ XML;
         $arr_buyer = []; //Покупатели
         $arr_department = []; //Департаменты
         $revenueDebitAccount = null;
+        $entities_version = (string)$xml->entitiesUpdate->revision;
         $arr_account = []; //Счета выручки;
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
@@ -160,6 +162,7 @@ XML;
             'revenueDebitAccount' => $revenueDebitAccount,
             'department' => $arr_department,
             'account' => $arr_account,
+            'entities_version' => $entities_version,
         ];
     }
 
@@ -324,7 +327,7 @@ XML;
         $root = $dom->createElement('args');
         $dom->appendChild($root);
 
-        $entities_version = $dom->createElement('entities-version', '547512');
+        $entities_version = $dom->createElement('entities-version', $params['entities_version']);
         $root->appendChild($entities_version);
 
         $client_type = $dom->createElement('client-type', 'BACK');
@@ -358,6 +361,9 @@ XML;
 
         $revenueAccount = $dom->createElement('revenueAccount', $params['revenueAccount']);
         $document->appendChild($revenueAccount);
+
+        $dateIncoming = $dom->createElement('dateIncoming', $params['dateIncoming']);
+        $document->appendChild($dateIncoming);
 
         $supplier = $dom->createElement('supplier', $params['buyer_outer_id']);
         $document->appendChild($supplier);
@@ -472,5 +478,21 @@ XML;
                 . substr($charid, 20, 12);
             return strtolower($uuid);
         }
+    }
+
+    public function getServerInfo()
+    {
+        $this->request_string = $this->base_url . 'resto/get_server_info.jsp?encoding=UTF-8';
+        return $this->send();
+    }
+
+    public function getServerBackVersion()
+    {
+       $info = $this->getServerInfo();
+       $info = '<?xml version="1.0" encoding="utf-8"?>' . $info;
+       $xml = simplexml_load_string($info);
+        Yii::info($xml->version, 'test');
+
+        return (string)$xml->version;
     }
 }

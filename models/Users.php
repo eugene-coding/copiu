@@ -56,7 +56,7 @@ class Users extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'fio' => 'ФИО',
+            'fio' => 'ФИО/Наименование',
             'login' => 'Логин',
             'password' => 'Пароль',
             'role' => 'Роль',

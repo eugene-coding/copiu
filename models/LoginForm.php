@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\components\IkkoApiHelper;
+use app\components\IikoApiHelper;
 use Yii;
 use yii\base\Model;
 
@@ -104,7 +104,7 @@ class LoginForm extends Model
     public function checkBalance($buyer)
     {
         if ($buyer && $buyer->work_mode === Buyer::WORK_MODE_BALANCE_LIMIT){
-            $helper = new IkkoApiHelper();
+            $helper = new IikoApiHelper();
             $buyer->balance = $helper->getBalance($buyer->outer_id);
             if (!$buyer->save()){
                 Yii::error($buyer->errors, '_error');

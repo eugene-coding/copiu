@@ -37,7 +37,13 @@ class Settings extends ActiveRecord
             [['description'], 'string'],
             [['user_id', 'is_system'], 'integer'],
             [['key', 'value', 'label'], 'string', 'max' => 255],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => Users::class, 'targetAttribute' => ['user_id' => 'id']],
+            [
+                ['user_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Users::class,
+                'targetAttribute' => ['user_id' => 'id']
+            ],
         ];
     }
 
@@ -59,7 +65,7 @@ class Settings extends ActiveRecord
 
     public function beforeSave($insert)
     {
-        if (!$this->user_id){
+        if (!$this->user_id) {
             $this->user_id = Yii::$app->user->identity->id;
         }
 
@@ -98,11 +104,14 @@ class Settings extends ActiveRecord
         /** @var Settings $setting */
         $setting = static::find()->andWhere(['key' => $key])->one();
 
-        if (!$setting) return false;
+        if (!$setting) {
+            Yii::warning('Настройка ' . $key . ' не найдена', 'test');
+            return false;
+        }
 
         $setting->value = $new_value;
 
-        if (!$setting->save()){
+        if (!$setting->save()) {
             Yii::error($setting->errors, '_error');
             return false;
         }
