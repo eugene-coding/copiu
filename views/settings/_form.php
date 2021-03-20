@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Account;
 use app\models\Department;
 use app\models\Settings;
 use yii\helpers\Html;
@@ -58,6 +59,13 @@ use yii\widgets\ActiveForm;
                                         'class' => 'form-control',
                                         'title' => $model->description ?: '',
                                         'prompt' => 'Выберите отдел',
+                                    ]);
+                            } elseif ($model->key == 'invoice_outer_id') {
+                                echo Html::dropDownList('keys[' . $model->key . ']', $model->value,
+                                    Account::getList(), [
+                                        'class' => 'form-control',
+                                        'title' => $model->description ?: '',
+                                        'prompt' => 'Выберите аккаунт',
                                     ]);
                             } else {
                                 echo Html::textInput('keys[' . $model->key . ']', $model->value, [

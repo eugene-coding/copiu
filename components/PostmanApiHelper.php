@@ -110,6 +110,7 @@ XML;
         $arr_buyer = []; //Покупатели
         $arr_department = []; //Департаменты
         $revenueDebitAccount = null;
+        $arr_account = []; //Счета выручки;
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
             if ($item->deleted == 'false') {
@@ -132,6 +133,13 @@ XML;
                     case 'Account':
                         if ($item->r->name->customValue == 'Задолженность перед поставщиками'){
                             $revenueDebitAccount = $item->id;
+                        } elseif($item->deleted == 'false') {
+                            $arr_account[] = [
+                                'outer_id' => (string)$item->id,
+                                'name' => (string)$item->r->name->customValue,
+                                'type' => (string)$item->r->type,
+                                'description' => (string)$item->r->description,
+                            ];
                         }
                         break;
                     case 'Department':
@@ -151,6 +159,7 @@ XML;
             'price_category' => $arr_price_category,
             'revenueDebitAccount' => $revenueDebitAccount,
             'department' => $arr_department,
+            'account' => $arr_account,
         ];
     }
 

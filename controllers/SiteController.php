@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\components\IikoApiHelper;
 use app\components\PostmanApiHelper;
+use app\models\Account;
 use app\models\Buyer;
 use app\models\Department;
 use app\models\NGroup;
@@ -187,7 +188,7 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $syncing_methods = [
-            '1. Синхронизация покупателей и ценовых категорий и отделов' => '/site/sync-all',
+            '1. Синхронизация покупателей, ценовых категорий, отделов, счетов' => '/site/sync-all',
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
@@ -259,6 +260,7 @@ class SiteController extends Controller
         $buyer_model = new Buyer();
         $pc_model = new PriceCategory();
         $department_model = new Department();
+        $account_model = new Account();
 
         $data = $helper->getAll();
 
@@ -293,11 +295,19 @@ class SiteController extends Controller
             ];
         }
 
+        $sync_account_result = $account_model->sync($data['account']);
+        if (!$sync_account_result['success']) {
+            return [
+                'success' => false,
+                'error' => 'Ошбика синхронизации аккаунтов',
+            ];
+        }
+
         if ($data['revenueDebitAccount']){
             Settings::setValueByKey('revenue_debit_account', (string)$data['revenueDebitAccount']);
         }
 
-//        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
 
         return [
             'success' => true,
