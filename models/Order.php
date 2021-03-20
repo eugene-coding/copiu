@@ -248,6 +248,7 @@ class Order extends ActiveRecord
             'documentNumber' => str_pad($this->id, 6, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
         ];
+        Yii::info($params, 'test');
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
 

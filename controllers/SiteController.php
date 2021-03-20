@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\components\IikoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\Buyer;
+use app\models\Department;
 use app\models\NGroup;
 use app\models\Nomenclature;
 use app\models\Order;
@@ -186,7 +187,7 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $syncing_methods = [
-            '1. Синхронизация покупателей и ценовых категорий' => '/site/sync-all',
+            '1. Синхронизация покупателей и ценовых категорий и отделов' => '/site/sync-all',
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
@@ -257,8 +258,11 @@ class SiteController extends Controller
         $helper = new PostmanApiHelper();
         $buyer_model = new Buyer();
         $pc_model = new PriceCategory();
+        $department_model = new Department();
 
         $data = $helper->getAll();
+
+        Yii::info($data, 'test');
 
         if (isset($data['success']) && $data['success'] === false) {
             return $data;
@@ -272,6 +276,7 @@ class SiteController extends Controller
                 'error' => 'Ошбика синхронизации ценовых категорий',
             ];
         }
+
         $sync_buyer_result = $buyer_model->sync($data['buyer']);
         if (!$sync_buyer_result['success']) {
             return [
@@ -280,8 +285,16 @@ class SiteController extends Controller
             ];
         }
 
+        $sync_department_result = $department_model->sync($data['department']);
+        if (!$sync_department_result['success']) {
+            return [
+                'success' => false,
+                'error' => 'Ошбика синхронизации отделов',
+            ];
+        }
+
         if ($data['revenueDebitAccount']){
-            Settings::setValueByKey('revenue_debit_account', $data['revenueDebitAccount']);
+            Settings::setValueByKey('revenue_debit_account', (string)$data['revenueDebitAccount']);
         }
 
 //        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');

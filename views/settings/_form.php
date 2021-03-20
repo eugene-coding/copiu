@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Department;
 use app\models\Settings;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -51,6 +52,13 @@ use yii\widgets\ActiveForm;
                                     'class' => 'form-control',
                                     'title' => $model->description ?: '',
                                 ]);
+                            } elseif ($model->key == 'department_outer_id') {
+                                echo Html::dropDownList('keys[' . $model->key . ']', $model->value,
+                                    Department::getList(), [
+                                        'class' => 'form-control',
+                                        'title' => $model->description ?: '',
+                                        'prompt' => 'Выберите отдел',
+                                    ]);
                             } else {
                                 echo Html::textInput('keys[' . $model->key . ']', $model->value, [
                                     'class' => 'form-control',

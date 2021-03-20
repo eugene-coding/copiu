@@ -69,7 +69,7 @@ class PriceCategory extends ActiveRecord
 
         $rows = [];
         $exist_category = PriceCategory::find()->select(['outer_id'])->column();
-        Yii::info($exist_category, 'test');
+//        Yii::info($exist_category, 'test');
         $new_categories = [];
 
         foreach ($data as $pc) {
@@ -92,7 +92,7 @@ class PriceCategory extends ActiveRecord
                 $updated++;
             }
         }
-        Yii::info($rows, 'test');
+//        Yii::info($rows, 'test');
 
         try {
             Yii::$app->db->createCommand()->batchInsert(PriceCategory::tableName(), ['name', 'outer_id'],

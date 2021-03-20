@@ -65,7 +65,7 @@ class PostmanApiHelper
         Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
         curl_close($ch);
 
-        Yii::info($response);
+//        Yii::info($response);
 
         return $response;
     }
@@ -108,6 +108,7 @@ XML;
 
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
+        $arr_department = []; //Департаменты
         $revenueDebitAccount = null;
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
@@ -133,6 +134,14 @@ XML;
                             $revenueDebitAccount = $item->id;
                         }
                         break;
+                    case 'Department':
+                       if ($item->deleted == 'false'){
+                           $arr_department[] = [
+                               'outer_id' => $item->id,
+                               'name' => $item->r->name
+                           ];
+                       }
+                        break;
                 }
             }
         }
@@ -141,6 +150,7 @@ XML;
             'buyer' => $arr_buyer,
             'price_category' => $arr_price_category,
             'revenueDebitAccount' => $revenueDebitAccount,
+            'department' => $arr_department,
         ];
     }
 
