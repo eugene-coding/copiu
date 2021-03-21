@@ -10,10 +10,10 @@ return [
         'class' => 'kartik\grid\SerialColumn',
         'width' => '30px',
     ],
-    // [
-    // 'class'=>'\kartik\grid\DataColumn',
-    // 'attribute'=>'id',
-    // ],
+//    [
+//        'class' => '\kartik\grid\DataColumn',
+//        'attribute' => 'id',
+//    ],
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'buyer_id',
@@ -72,19 +72,36 @@ return [
                     'data-id' => $model->id,
                 ]);
             }
-            return Order::getStatusList()[$model->status];
+            $status = Order::getStatusList()[$model->status];
+
+            if ($status == $model::getStatusList()[$model::STATUS_DRAFT]){
+                return $status . '<br><small class="text-warning">Для принятия заказа в работу повторите формирование документов</small>';
+            } else {
+                return $status;
+            }
         },
         'format' => 'raw',
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{copy-order} {view} {delete}',
+        'template' => '{re-make-documents} {copy-order} {view} {delete}',
         'dropdown' => false,
         'vAlign' => 'middle',
         'urlCreator' => function ($action, $model, $key, $index) {
             return Url::to([$action, 'id' => $key]);
         },
         'buttons' => [
+            're-make-documents' => function ($url, Order $model) {
+                if ($model->status == $model::STATUS_DRAFT &&
+                    ($model->invoice_number == 'error' || $model->delivery_act_number == 'error')) {
+                    return Html::a('<i class="glyphicon glyphicon-repeat text-danger"></i>',
+                        ['/order/re-make-documents', 'id' => $model->id],
+                        [
+                            'title' => 'Повторить формирование недостающих документов',
+                            'data-pjax' => 0,
+                        ]);
+                }
+            },
             'copy-order' => function ($url, Order $model) {
                 if ($model->status != $model::STATUS_DRAFT) {
                     return Html::a('<i class="glyphicon glyphicon-copy"></i>',

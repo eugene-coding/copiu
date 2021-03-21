@@ -579,10 +579,19 @@ class OrderController extends Controller
 
             if ($model->step === 5) {
                 //Формируем накладную
-                $model->makeInvoice();
+                if (!$model->makeInvoice()){
+                    $model->invoice_number = 'error';
+                    $model->status = $model::STATUS_DRAFT;
+                    $model->save();
+                }
+
                 if ($model->deliveryCost) {
                     //Формируем акт оказания услуг (доставка)
-                    $model->makeDeliveryAct();
+                    if (!$model->makeDeliveryAct()){
+                        $model->delivery_act_number = 'error';
+                        $model->status = $model::STATUS_DRAFT;
+                        $model->save();
+                    }
                 }
             }
 
@@ -651,7 +660,6 @@ class OrderController extends Controller
         $order_basis = Order::findOne($id);
         $order = new Order();
         $order->buyer_id = $order_basis->buyer_id;
-        $order->status = 1;
 
 
         //Бланки заказов
@@ -670,8 +678,9 @@ class OrderController extends Controller
             return $this->redirect('index');
         }
 
-        //Добавляем бланки заказов в новый заказ
+        $order->status = 1;
         $order->blanks = implode(',', $blank_ids);
+        $order->comment = $order_basis->comment;
 
         if (!$order->save()) {
             Yii::error($order->errors, '_error');
@@ -727,6 +736,40 @@ class OrderController extends Controller
             ]);
         }
 
+    }
+
+    /**
+     * Проверяет наличие накладной и акта услуг, при необходимости - формирует документ
+     * @param int $id Идентификатор
+     * @return Response
+     * @throws NotFoundHttpException
+     */
+    public function actionReMakeDocuments($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->invoice_number == 'error'){
+            //Если ошибка формирования накладной
+            if (!$model->makeInvoice()){
+                $model->invoice_number = 'error';
+                $model->status = $model::STATUS_DRAFT;
+                $model->save();
+            }
+        }
+
+        if ($model->deliveryCost) {
+            if ($model->invoice_number == 'error'){
+                //Если ошибка формирования Акта услуг
+                //Формируем акт оказания услуг (доставка)
+                if (!$model->makeDeliveryAct()){
+                    $model->delivery_act_number = 'error';
+                    $model->status = $model::STATUS_DRAFT;
+                    $model->save();
+                }
+            }
+        }
+
+        return $this->redirect('index');
     }
 }
 

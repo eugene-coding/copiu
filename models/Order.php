@@ -222,7 +222,8 @@ class Order extends ActiveRecord
 
             return true;
         } else {
-            return $result;
+            Yii::warning($result, 'test');
+            return false;
         }
 
     }
@@ -259,12 +260,13 @@ class Order extends ActiveRecord
 
         if ($xml->success == 'false') {
             Yii::error($xml->errorString, '_error');
-            return $xml->errorString;
+            return false;
         } else {
             $this->delivery_act_number = $xml->returnValue->documentNumber;
 
             if (!$this->save()) {
                 Yii::error($this->errors, '_error');
+                return false;
             }
         }
 

@@ -149,16 +149,16 @@ $this->registerJsFile('/js/order_form.js', [
         ]) ?>
     <?php elseif ($model->step == 5): ?>
         <div class="done text-center">
-            <?php if ($model->invoice_number): ?>
+            <?php if ($model->invoice_number && $model->invoice_number != 'error'): ?>
                 <h4>Накладная № <?= $model->invoice_number; ?> успешно создана</h4>
             <?php else: ?>
-                <h4>Ошибка создания накладной</h4>
+                <h4 class="text-danger">Ошибка создания накладной</h4>
             <?php endif; ?>
             <?php if ($model->deliveryCost): ?>
-                <?php if ($model->delivery_act_number): ?>
+                <?php if ($model->delivery_act_number && $model->delivery_act_number != 'error'): ?>
                     <h4>Акт оказания услуг (доставка) <?= $model->delivery_act_number; ?> успешно создан</h4>
                 <?php else: ?>
-                    <h4>Ошибка создания акта оказания услуг</h4>
+                    <h4 class="text-danger">Ошибка создания акта оказания услуг</h4>
                 <?php endif; ?>
             <?php endif; ?>
             <?= Html::a('Завершить', ['/order'], [
