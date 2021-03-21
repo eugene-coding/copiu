@@ -3,12 +3,15 @@
 namespace app\controllers;
 
 use app\models\Nomenclature;
+use app\models\OrderBlank;
+use app\models\OrderBlankToNomenclature;
 use app\models\OrderToNomenclature;
 use app\models\Users;
 use Yii;
 use app\models\Order;
 use app\models\search\OrderSearch;
 use yii\data\ActiveDataProvider;
+use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -574,10 +577,10 @@ class OrderController extends Controller
                 Yii::error($model->errors, '_error');
             }
 
-            if ($model->step === 5){
+            if ($model->step === 5) {
                 //Формируем накладную
                 $model->makeInvoice();
-                if ($model->deliveryCost){
+                if ($model->deliveryCost) {
                     //Формируем акт оказания услуг (доставка)
                     $model->makeDeliveryAct();
                 }
@@ -637,6 +640,93 @@ class OrderController extends Controller
             'success' => true,
             'forceReload' => '#crud-datatable-pjax',
         ];
+    }
+
+    /**
+     * @param int $id Идентификатор заказа, на основе которого будет сформирован новый заказ
+     * @return string|Response
+     */
+    public function actionCopyOrder($id)
+    {
+        $order_basis = Order::findOne($id);
+        $order = new Order();
+        $order->buyer_id = $order_basis->buyer_id;
+        $order->status = 1;
+
+
+        //Бланки заказов
+        $order_blanks = explode(',', $order_basis->blanks);
+        $blank_ids = null;
+
+        if ($order_blanks) {
+            //Заново получаем id бланков, т.к. их может уже не быть
+            $blank_ids = OrderBlank::find()->select(['id'])->andWhere(['IN', 'id', $order_blanks])->column();
+        }
+
+        if (!$blank_ids) {
+            //Бланки заказов уже удалены из системы
+            Yii::$app->session->addFlash('error',
+                'Ошибка при копировании заказа. Бланки заказов, указанные в заказе-источнике, отсутствуют');
+            return $this->redirect('index');
+        }
+
+        //Добавляем бланки заказов в новый заказ
+        $order->blanks = implode(',', $blank_ids);
+
+        if (!$order->save()) {
+            Yii::error($order->errors, '_error');
+            Yii::$app->session->addFlash('error', 'Ошибка при копировании заказа. ' . json_encode($order->errors));
+            return $this->redirect('index');
+        }
+
+        //Получаем список ID продуктов из бланков заказа-источника (удаленные бланки не попадают в выдачу)
+        $basis_product_ids = OrderBlankToNomenclature::find()->select(['n_id'])->andWhere([
+            'IN',
+            'ob_id',
+            $blank_ids
+        ])->column();
+
+        //Добавляем продукты в новый заказ
+        $rows = [];
+        $query = OrderToNomenclature::find()
+            ->andWhere(['IN', 'nomenclature_id', $basis_product_ids])
+            ->andWhere(['order_id' => $order_basis->id]);
+
+        /** @var OrderToNomenclature $item */
+        foreach ($query->each() as $item) {
+            $rows[] = [
+                $order->id,
+                $item->nomenclature_id,
+                $item->nomenclature->priceForBuyer, //Цену рассчитываем заново, т.к. скидка и цена может измениться
+                $item->count
+            ];
+
+        }
+
+        try {
+            Yii::$app->db->createCommand()->batchInsert(OrderToNomenclature::tableName(), [
+                'order_id',
+                'nomenclature_id',
+                'price',
+                'count',
+            ], $rows)->execute();
+        } catch (Exception $e) {
+            Yii::error($order->errors, '_error');
+            Yii::$app->session->addFlash('error', 'Ошибка при сохранении нового заказа. ' . json_encode($e->getMessage()));
+            return $this->redirect('index');
+        }
+
+        $request = Yii::$app->request;
+        if ($request->isPost) {
+            $order->load($request->post());
+            $order->save();
+            $this->redirect(['order-update', 'id' => $order->id]);
+        } else {
+            return $this->render('_form', [
+                'model' => $order,
+            ]);
+        }
+
     }
 }
 

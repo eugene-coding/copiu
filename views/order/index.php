@@ -1,5 +1,6 @@
 <?php
 
+use yii\base\InvalidConfigException;
 use yii\helpers\Html;
 use kartik\grid\GridView;
 
@@ -10,12 +11,16 @@ use kartik\grid\GridView;
 $this->title = 'Заказы';
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerJsFile('/js/order_form.js', [
-    'depends' => [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
-    ]
-])
+try {
+    $this->registerJsFile('/js/order_form.js', [
+        'depends' => [
+            'yii\web\YiiAsset',
+            'yii\bootstrap\BootstrapAsset',
+        ]
+    ]);
+} catch (InvalidConfigException $e) {
+    echo $e->getMessage();
+}
 
 ?>
 <div class="order-index">
@@ -33,7 +38,6 @@ $this->registerJsFile('/js/order_form.js', [
                         'content' =>
                             Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить заказ', ['order-create'],
                                 [
-//                                    'role' => 'modal-remote',
                                     'title' => 'Добавить заказ',
                                     'data-pjax' => 0,
                                     'class' => \app\models\User::isAdmin() ? 'hidden' : 'btn btn-default',

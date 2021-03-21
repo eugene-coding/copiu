@@ -67,7 +67,7 @@ return [
         'filter' => Order::getStatusList(),
         'content' => function (Order $model) {
             if (Users::isAdmin()) {
-                return Html::dropDownList('statuses', $model->status ,Order::getStatusList(), [
+                return Html::dropDownList('statuses', $model->status, Order::getStatusList(), [
                     'class' => 'form-control status-dropbox',
                     'data-id' => $model->id,
                 ]);
@@ -78,13 +78,23 @@ return [
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{view} {delete}',
+        'template' => '{copy-order} {view} {delete}',
         'dropdown' => false,
         'vAlign' => 'middle',
         'urlCreator' => function ($action, $model, $key, $index) {
             return Url::to([$action, 'id' => $key]);
         },
         'buttons' => [
+            'copy-order' => function ($url, Order $model) {
+                if ($model->status != $model::STATUS_DRAFT) {
+                    return Html::a('<i class="glyphicon glyphicon-copy"></i>',
+                        ['/order/copy-order', 'id' => $model->id],
+                        [
+                            'title' => 'Сформировать заказ на основе текущего',
+                            'data-pjax' => 0,
+                        ]);
+                }
+            },
             'delete' => function ($url, Order $model) {
                 if ($model->status == $model::STATUS_DRAFT || $model->status == $model::STATUS_DONE) {
                     return Html::a('<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>',
