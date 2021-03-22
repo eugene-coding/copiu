@@ -758,7 +758,9 @@ class OrderController extends Controller
         }
 
         if ($model->deliveryCost) {
-            if ($model->invoice_number == 'error'){
+            Yii::info('Есть доставка', 'test');
+            if ($model->delivery_act_number == 'error'){
+                Yii::info('Ошибка формирования Акта, формируем заново', 'test');
                 //Если ошибка формирования Акта услуг
                 //Формируем акт оказания услуг (доставка)
                 if (!$model->makeDeliveryAct()){

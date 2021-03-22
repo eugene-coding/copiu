@@ -184,16 +184,19 @@ class Order extends ActiveRecord
 
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
-            'dateIncoming' => date('Y-m-d', time()),
+            'dateIncoming' => date('Y-m-d\TH:i:s', time()),
             'counteragentId' => $this->buyer->outer_id,
             'from' => $this->delivery_time_from,
             'to' => $this->delivery_time_to,
             'comment' => $this->comment,
             'items' => $items,
+            'defaultStoreId' => Settings::getValueByKey('store_outer_id'),
         ];
 
         $helper = new IikoApiHelper();
         $result = $helper->makeExpenseInvoice($params);
+        Yii::info($result, 'test');
+
         $xml = null;
         try {
             $xml = simplexml_load_string($result);
@@ -206,7 +209,7 @@ class Order extends ActiveRecord
         if ($xml) {
             //Разбираем ответ
             if ($xml->valid == 'true') {
-                $this->invoice_number = $xml->documentNumber;
+                $this->invoice_number = (string)$xml->documentNumber;
                 if (!$this->save()) {
                     Yii::error($this->errors, '_error');
                 }
@@ -246,12 +249,12 @@ class Order extends ActiveRecord
             'amount' => $this->deliveryCost,
             'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
-            'dateIncoming' => date('Y-m-d\TH:i:s.000+03:00', time()),
+            'dateIncoming' => date('Y-m-d\TH:i:s', time()),
         ];
         Yii::info($params, 'test');
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
-
+        Yii::info($result, 'test');
         $xml = simplexml_load_string($result);
 
         if ($xml->returnValue->additionalInfo) {
@@ -262,7 +265,7 @@ class Order extends ActiveRecord
             Yii::error($xml->errorString, '_error');
             return false;
         } else {
-            $this->delivery_act_number = $xml->returnValue->documentNumber;
+            $this->delivery_act_number = (string)$xml->returnValue->documentNumber;
 
             if (!$this->save()) {
                 Yii::error($this->errors, '_error');

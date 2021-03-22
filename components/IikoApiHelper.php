@@ -240,6 +240,7 @@ class IikoApiHelper
         $date_incoming = $dom->createElement('dateIncoming',$params['dateIncoming']);
         $useDefaultDocumentTime = $dom->createElement('useDefaultDocumentTime', 'true');
         $revenueAccountCode = $dom->createElement('revenueAccountCode', '4.01');
+        $defaultStoreId = $dom->createElement('defaultStoreId', $params['defaultStoreId']);
         $counteragent_id = $dom->createElement('counteragentId', $params['counteragentId']);
         $comment = $dom
             ->createElement('comment', "Доставка с {$params['from']} по {$params['to']} + «{$params['comment']}»");
@@ -248,6 +249,7 @@ class IikoApiHelper
         $root->appendChild($date_incoming);
         $root->appendChild($useDefaultDocumentTime);
         $root->appendChild($revenueAccountCode);
+        $root->appendChild($defaultStoreId);
         $root->appendChild($counteragent_id);
         $root->appendChild($comment);
 
