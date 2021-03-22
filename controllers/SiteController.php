@@ -12,6 +12,7 @@ use app\models\Nomenclature;
 use app\models\Order;
 use app\models\PriceCategory;
 use app\models\Settings;
+use app\models\Store;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -261,6 +262,7 @@ class SiteController extends Controller
         $pc_model = new PriceCategory();
         $department_model = new Department();
         $account_model = new Account();
+        $store_model = new Store();
 
         $data = $helper->getAll();
 
@@ -302,6 +304,14 @@ class SiteController extends Controller
             return [
                 'success' => false,
                 'error' => 'Ошбика синхронизации аккаунтов',
+            ];
+        }
+
+        $sync_store_result = $store_model->sync($data['store']);
+        if (!$sync_store_result['success']) {
+            return [
+                'success' => false,
+                'error' => 'Ошбика синхронизации складов',
             ];
         }
 

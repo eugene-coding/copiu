@@ -113,6 +113,7 @@ XML;
         $revenueDebitAccount = null;
         $entities_version = (string)$xml->entitiesUpdate->revision;
         $arr_account = []; //Счета выручки;
+        $arr_store = []; //Склады
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
             if ($item->deleted == 'false') {
@@ -152,6 +153,16 @@ XML;
                            ];
                        }
                         break;
+                    case 'Store':
+                        if ($item->deleted == 'false'){
+                            $arr_store[] = [
+                                'outer_id' => (string)$item->id,
+                                'name' => (string)$item->r->name->customValue,
+                                'department_outer_id' => (string)$item->r->npeParent,
+                                'description' => (string)$item->r->description
+                            ];
+                        }
+                        break;
                 }
             }
         }
@@ -163,6 +174,7 @@ XML;
             'department' => $arr_department,
             'account' => $arr_account,
             'entities_version' => $entities_version,
+            'store' => $arr_store,
         ];
     }
 
