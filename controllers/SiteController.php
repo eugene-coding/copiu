@@ -189,7 +189,7 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $syncing_methods = [
-            '1. Синхронизация покупателей, ценовых категорий, отделов, счетов' => '/site/sync-all',
+            '1. Синхронизация покупателей, ценовых категорий, отделов, счетов, складов' => '/site/sync-all',
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
