@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "store".
@@ -73,5 +74,10 @@ class Store extends ActiveRecord
         return [
             'success' => true,
         ];
+    }
+
+    public static function getList()
+    {
+        return ArrayHelper::map(static::find()->all(), 'outer_id', 'name');
     }
 }

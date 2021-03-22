@@ -3,6 +3,7 @@
 use app\models\Account;
 use app\models\Department;
 use app\models\Settings;
+use app\models\Store;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -59,6 +60,13 @@ use yii\widgets\ActiveForm;
                                         'class' => 'form-control',
                                         'title' => $model->description ?: '',
                                         'prompt' => 'Выберите отдел',
+                                    ]);
+                            } elseif ($model->key == 'store_outer_id') {
+                                echo Html::dropDownList('keys[' . $model->key . ']', $model->value,
+                                    Store::getList(), [
+                                        'class' => 'form-control',
+                                        'title' => $model->description ?: '',
+                                        'prompt' => 'Выберите Склад',
                                     ]);
                             } elseif ($model->key == 'invoice_outer_id') {
                                 echo Html::dropDownList('keys[' . $model->key . ']', $model->value,
