@@ -402,10 +402,10 @@ XML;
         $code = $dom->createElement('code', $params['code']);
         $i->appendChild($code);
 
-        $price = $dom->createElement('price', 1);
+        $price = $dom->createElement('price', $params['sum']);
         $i->appendChild($price);
 
-        $priceWithoutNds = $dom->createElement('priceWithoutNds', 1);
+        $priceWithoutNds = $dom->createElement('priceWithoutNds', $params['sum']);
         $i->appendChild($priceWithoutNds);
 
         $sum = $dom->createElement('sum', $params['sum']);
@@ -432,7 +432,7 @@ XML;
         $product = $dom->createElement('product', $params['product']);
         $i->appendChild($product);
 
-        $amount = $dom->createElement('amount', $params['amount']);
+        $amount = $dom->createElement('amount', 1);
         $i->appendChild($amount);
 
         $id = $dom->createElement('id', $item_eid);

@@ -236,6 +236,9 @@ class Order extends ActiveRecord
      */
     public function makeDeliveryAct()
     {
+        $delivery_article = Settings::getValueByKey('delivery_article');
+        $delivery_eid = Nomenclature::find()->andWhere(['num' => $delivery_article])->one()->outer_id;
+
         $params = [
             'entities_version' => Settings::getValueByKey('entities_version'),
             'revenueDebitAccount' => Settings::getValueByKey('revenue_debit_account'),
@@ -245,7 +248,7 @@ class Order extends ActiveRecord
             'code' => Settings::getValueByKey('delivery_article'),
             'sum' => $this->deliveryCost,
             'amountUnit' => $this->products[0]->main_unit,
-            'product' => $this->products[0]->outer_id,
+            'product' => $delivery_eid,
             'amount' => $this->deliveryCost,
             'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
