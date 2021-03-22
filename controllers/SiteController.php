@@ -193,7 +193,7 @@ class SiteController extends Controller
 //            'Синхронизация покупателей' => '/site/sync-buyer',
 //            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
-            '3. Синхронизация номенклатуры' => '/site/get-nomenclature',
+            '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
             '4. Синхронизация цен для ценовых категорий' => '/site/sync-price-for-p-c',
         ];
 
@@ -329,19 +329,23 @@ class SiteController extends Controller
 
     /**
      * Получение и сохранение в файл номенклатуры
+     * @param bool $force Принудительная синхронизация
      * @return array|mixed
      * @throws \Exception
      */
-    public function actionGetNomenclature()
+    public function actionGetNomenclature($force = false)
     {
         set_time_limit(600);
 
-        //Проверяем период получения номенклатуры
-        $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
-        $diff_time = time() - $last_time;
-        if ($diff_time < (60 * 60 * 12)){
-            return 'Ожидание синхронизации';
+        if (!$force){
+            //Проверяем период получения номенклатуры
+            $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
+            $diff_time = time() - $last_time;
+            if ($diff_time < (60 * 60 * 12)){
+                return 'Ожидание синхронизации';
+            }
         }
+
 
 //        ini_set("memory_limit", "128M");
 

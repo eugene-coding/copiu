@@ -138,7 +138,9 @@ class IikoApiHelper
         }
 
         $path_file = 'uploads/list_items.json';
-        file_put_contents($path_file, $result);
+        $put_result = file_put_contents($path_file, $result);
+        Yii::info($put_result, 'test');
+
         return $path_file;
 //        return json_decode($result, 'true');
 
