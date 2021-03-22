@@ -315,6 +315,11 @@ class SiteController extends Controller
             ];
         }
 
+        if ($data['delivery']){
+            Settings::setValueByKey('delivery_eid', $data['delivery']['outer_id']);
+            Settings::setValueByKey('delivery_main_unit', $data['delivery']['main_unit']);
+        }
+
         if ($data['revenueDebitAccount']){
             Settings::setValueByKey('revenue_debit_account', (string)$data['revenueDebitAccount']);
         }

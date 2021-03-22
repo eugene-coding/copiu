@@ -236,8 +236,8 @@ class Order extends ActiveRecord
      */
     public function makeDeliveryAct()
     {
-        $delivery_article = Settings::getValueByKey('delivery_article');
-        $delivery_eid = Nomenclature::find()->andWhere(['num' => $delivery_article])->one()->outer_id;
+        $delivery_eid = Settings::getValueByKey('delivery_eid');
+        $delivery_main_unit = Settings::getValueByKey('delivery_main_unit');
 
         $params = [
             'entities_version' => Settings::getValueByKey('entities_version'),
@@ -247,7 +247,7 @@ class Order extends ActiveRecord
             'buyer_outer_id' => $this->buyer->outer_id,
             'code' => Settings::getValueByKey('delivery_article'),
             'sum' => $this->deliveryCost,
-            'amountUnit' => $this->products[0]->main_unit,
+            'amountUnit' => $delivery_main_unit,
             'product' => $delivery_eid,
             'amount' => $this->deliveryCost,
             'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
@@ -255,6 +255,14 @@ class Order extends ActiveRecord
             'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', time()),
         ];
         Yii::info($params, 'test');
+        //Проверяем наличие параметров
+        foreach ($params as $item) {
+            if (!$item) {
+              Yii::error('Некоторые параметры не заданы.', '_error');
+              return false;
+            }
+        }
+
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
         Yii::info($result, 'test');

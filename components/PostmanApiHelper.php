@@ -114,6 +114,8 @@ XML;
         $entities_version = (string)$xml->entitiesUpdate->revision;
         $arr_account = []; //Счета выручки;
         $arr_store = []; //Склады
+        $arr_delivery = []; //Доставка
+        $delivery_article = Settings::getValueByKey('delivery_article');
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
             if ($item->deleted == 'false') {
@@ -134,9 +136,9 @@ XML;
                         ];
                         break;
                     case 'Account':
-                        if ($item->r->name->customValue == 'Задолженность перед поставщиками'){
+                        if ($item->r->name->customValue == 'Задолженность перед поставщиками') {
                             $revenueDebitAccount = $item->id;
-                        } elseif($item->deleted == 'false') {
+                        } elseif ($item->deleted == 'false') {
                             $arr_account[] = [
                                 'outer_id' => (string)$item->id,
                                 'name' => (string)$item->r->name->customValue,
@@ -146,21 +148,29 @@ XML;
                         }
                         break;
                     case 'Department':
-                       if ($item->deleted == 'false'){
-                           $arr_department[] = [
-                               'outer_id' => $item->id,
-                               'name' => $item->r->name
-                           ];
-                       }
+                        if ($item->deleted == 'false') {
+                            $arr_department[] = [
+                                'outer_id' => $item->id,
+                                'name' => $item->r->name
+                            ];
+                        }
                         break;
                     case 'Store':
-                        if ($item->deleted == 'false'){
+                        if ($item->deleted == 'false') {
                             $arr_store[] = [
                                 'outer_id' => (string)$item->id,
                                 'name' => (string)$item->r->name->customValue,
                                 'department_outer_id' => (string)$item->r->npeParent,
                                 'description' => (string)$item->r->description
                             ];
+                        }
+                        break;
+                    case 'Product':
+                        if ($item->deleted == 'false') {
+                            if ($item->r->num == $delivery_article) {
+                                $arr_delivery['outer_id'] = (string)$item->id;
+                                $arr_delivery['main_unit'] = (string)$item->r->mainUnit;
+                            }
                         }
                         break;
                 }
@@ -175,6 +185,7 @@ XML;
             'account' => $arr_account,
             'entities_version' => $entities_version,
             'store' => $arr_store,
+            'delivery' => $arr_delivery,
         ];
     }
 
@@ -506,9 +517,9 @@ XML;
 
     public function getServerBackVersion()
     {
-       $info = $this->getServerInfo();
-       $info = '<?xml version="1.0" encoding="utf-8"?>' . $info;
-       $xml = simplexml_load_string($info);
+        $info = $this->getServerInfo();
+        $info = '<?xml version="1.0" encoding="utf-8"?>' . $info;
+        $xml = simplexml_load_string($info);
         Yii::info($xml->version, 'test');
 
         return (string)$xml->version;
