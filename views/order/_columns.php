@@ -72,6 +72,7 @@ return [
                     'data-id' => $model->id,
                 ]);
             }
+
             $status = Order::getStatusList()[$model->status];
 
             if ($status == $model::getStatusList()[$model::STATUS_DRAFT]){

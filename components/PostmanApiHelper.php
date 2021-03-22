@@ -329,10 +329,10 @@ XML;
     {
         $document_eid = $this->getGUID();
         $item_eid = $this->getGUID();
-        $invoice_eid = $this->getGUID();
+//        $invoice_eid = $this->getGUID();
         Yii::info($document_eid, 'test');
         Yii::info($item_eid, 'test');
-        Yii::info($invoice_eid, 'test');
+//        Yii::info($invoice_eid, 'test');
 
 
         $dom = new domDocument('1.0', 'utf-8');
@@ -374,7 +374,7 @@ XML;
         $revenueAccount = $dom->createElement('revenueAccount', $params['revenueAccount']);
         $document->appendChild($revenueAccount);
 
-        $dateIncoming = $dom->createElement('dateIncoming', $params['dateIncoming']);
+        $dateIncoming = $dom->createElement('incomingDate', $params['incomingDate']);
         $document->appendChild($dateIncoming);
 
         $supplier = $dom->createElement('supplier', $params['buyer_outer_id']);
@@ -395,7 +395,7 @@ XML;
         $invoice_cls_attr->value = 'OutgoingService';
         $invoice->appendChild($invoice_cls_attr);
         $invoice_eid_attr = $dom->createAttribute('eid');
-        $invoice_eid_attr->value = $invoice_eid;
+        $invoice_eid_attr->value = $document_eid;
         $invoice->appendChild($invoice_eid_attr);
         $i->appendChild($invoice);
 
@@ -440,6 +440,12 @@ XML;
 
         $items->appendChild($i);
         $document->appendChild($items);
+
+        $doc_invoice = $dom->createElement('invoice');
+        $document->appendChild($doc_invoice);
+
+        $dateIncoming = $dom->createElement('dateIncoming', $params['incomingDate']);
+        $document->appendChild($dateIncoming);
 
         $documentNumber = $dom->createElement('documentNumber', $params['documentNumber']);
         $document->appendChild($documentNumber);

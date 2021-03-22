@@ -753,8 +753,12 @@ class OrderController extends Controller
             if (!$model->makeInvoice()){
                 $model->invoice_number = 'error';
                 $model->status = $model::STATUS_DRAFT;
-                $model->save();
+            } else {
+                if ($model->deliveryCost && $model->delivery_act_number && $model->delivery_act_number != 'error'){
+                    $model->status = $model::STATUS_WORK;
+                }
             }
+            $model->save();
         }
 
         if ($model->deliveryCost) {
@@ -766,9 +770,13 @@ class OrderController extends Controller
                 if (!$model->makeDeliveryAct()){
                     $model->delivery_act_number = 'error';
                     $model->status = $model::STATUS_DRAFT;
-                    $model->save();
+                } else {
+                    if ($model->invoice_number && $model->invoice_number != 'error'){
+                        $model->status = $model::STATUS_WORK;
+                    }
                 }
             }
+            $model->save();
         }
 
         return $this->redirect('index');

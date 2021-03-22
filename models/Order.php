@@ -249,7 +249,7 @@ class Order extends ActiveRecord
             'amount' => $this->deliveryCost,
             'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
-            'dateIncoming' => date('Y-m-d\TH:i:s', time()),
+            'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', time()),
         ];
         Yii::info($params, 'test');
         $helper = new PostmanApiHelper();
