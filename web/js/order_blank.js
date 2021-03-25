@@ -1,6 +1,7 @@
 $(document).ready(function () {
-    var message_block = $('#before-panel-message');
-   $(document).on('click', '#sync-order-blank-btn', function () {
+
+   $(this).on('click', '#sync-order-blank-btn', function () {
+       var message_block = $('#before-panel-message');
        message_block.fadeOut();
        var button = $(this);
        var url = button.attr('data-url');
@@ -12,7 +13,7 @@ $(document).ready(function () {
                    message_block.html('<i class="glyphicon glyphicon-ok text-success"></i> '
                        + response.data);
                } else {
-                   message_block.html('<i class="glyphicon glyphicon-alert text-danger"></i> ' + response.error);
+                   message_block.html('<i class="glyphicon glyphicon-alert text-danger"></i> ' + response.error).fadeIn(300);
                }
            })
            .fail(function (response) {

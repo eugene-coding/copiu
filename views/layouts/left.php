@@ -77,7 +77,7 @@ use dmstr\widgets\Menu;
                             'label' => 'Заказы',
                             'icon' => 'shopping-cart',
                             'url' => ['/order'],
-//                            'visible' => Users::isBuyer()
+                            'visible' => Users::isBuyer()
                         ],
                     ],
                 ]

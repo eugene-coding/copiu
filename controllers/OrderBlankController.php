@@ -6,6 +6,7 @@ use app\models\Users;
 use Yii;
 use app\models\OrderBlank;
 use app\models\search\OrderBlankSearch;
+use yii\base\InvalidConfigException;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -66,7 +67,6 @@ class OrderBlankController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
-
 
     /**
      * Displays a single OrderBlank model.
@@ -304,7 +304,14 @@ class OrderBlankController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
-        return OrderBlank::sync();
+        try {
+            return OrderBlank::sync();
+        } catch (InvalidConfigException $e) {
+            return [
+              'success' => false,
+              'error' => $e->getMessage(),
+            ];
+        }
 //        return [
 //            'success' => true,
 //            'data' => 'Все ок',

@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\components\IkkoApiHelper;
+use app\components\IikoApiHelper;
 use app\models\query\OrderBlankQuery;
 use Yii;
 use yii\db\ActiveRecord;
@@ -73,7 +73,7 @@ class OrderBlank extends ActiveRecord
      */
     public static function sync()
     {
-        $helper = new IkkoApiHelper();
+        $helper = new IikoApiHelper();
         $result = [];
         foreach (static::find()->all() as $blank) {
             $params = [
@@ -106,7 +106,7 @@ class OrderBlank extends ActiveRecord
                     'error' => "Ошибка синхронизации. Для накладной № {$number} от {$date} не получена информация",
                 ];
             }
-            foreach ($data['document']['items'] as $item) {
+            foreach ($data['document']['items']['item'] as $item) {
                 $n_id = Nomenclature::find()->andWhere(['outer_id' => $item['productId']])->one()->id;
 
                 if ($n_id) {
@@ -123,7 +123,7 @@ class OrderBlank extends ActiveRecord
                 }
                 //Пишем время синхронизации
                 $blank_model->synced_at = date('Y-m-d H:i:s', time());
-                if ($blank_model->save()) {
+                if (!$blank_model->save()) {
                     Yii::error($blank_model->errors, '_error');
                 }
             }

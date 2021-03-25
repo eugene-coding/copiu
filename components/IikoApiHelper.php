@@ -224,8 +224,10 @@ class IikoApiHelper
         $result = $this->send();
 
         \Yii::info($result, 'test');
+        $result = simplexml_load_string($result);
+        $json = json_encode($result);
 
-        return json_decode($result, 'true');
+        return json_decode($json, 'true');
     }
 
     /**

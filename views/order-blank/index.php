@@ -10,12 +10,16 @@ use kartik\grid\GridView;
 $this->title = 'Бланки заказа';
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerJsFile('/js/order_blank.js', [
-    'depends' => [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
-    ]
-]);
+try {
+    $this->registerJsFile('/js/order_blank.js', [
+        'depends' => [
+            'yii\web\YiiAsset',
+            'yii\bootstrap\BootstrapAsset',
+        ]
+    ]);
+} catch (\yii\base\InvalidConfigException $e) {
+    echo $e->getMessage();
+}
 ?>
 <div class="order-blank-index">
     <div id="ajaxCrudDatatable">
