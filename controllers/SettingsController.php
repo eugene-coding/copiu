@@ -441,7 +441,7 @@ class SettingsController extends Controller
         } else {
             return [
                 'title' => 'Проверка настроек',
-                'content' => 'Ошибок не вывлено',
+                'content' => 'Ошибок не выявлено',
                 'footer' => Html::button('Закрыть',
                     ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
             ];

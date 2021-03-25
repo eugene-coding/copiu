@@ -63,13 +63,19 @@ $(document).ready(function() {
             } else {
                 result_block.find('.sync-result-message').html('<p class="text-danger">' + res.error + '</p>');
             }
+             if (res['settings_check'] === true){
+                 $('.settings-warning').hide()
+             } else {
+                 $('.settings-warning').show()
+             }
         })
         .fail(function() {
             result_block.find('.sync-result-message').html('<p class="text-danger">При импорте возникла ошибка.</p>');
         })
-        .always(function() {
+        .always(function(res) {
              progress_block.slideUp(300);
              result_block.slideDown(300);
+            
             //  setTimeout(function() {
             //     $('.sync-result-btn').trigger('click');
             // }, 10000);

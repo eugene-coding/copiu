@@ -159,9 +159,10 @@ class Settings extends ActiveRecord
                 if (!$setting->value) {
                     Yii::info($setting->key . ' In array: ' . (int)in_array($setting->key, $key_to_sync), 'test');
                     if (in_array($setting->key, array_keys($key_to_sync))) {
-                        $errors[$setting->key] = 'Не выполнена синхронизация (Раздел "Синхронизация"): ' . $key_to_sync[$setting->key];
+                        $errors[$setting->key] = 'Не выполнена синхронизация (Раздел "Синхронизация"): <b>'
+                            . $key_to_sync[$setting->key] . '</b>';
                     } else {
-                        $errors[$setting->key] = "Отсутсвует настройка: '{$setting->label}'";
+                        $errors[$setting->key] = "Отсутсвует настройка: <b>'{$setting->label}'</b>";
                     }
                 }
             }

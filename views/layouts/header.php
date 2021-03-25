@@ -25,7 +25,7 @@ use yii\helpers\Html;
             <div class="navbar-custom-menu">
 
                 <ul class="nav navbar-nav">
-                    <li>
+                    <li class="settings-warning">
                         <?php
                         if (Users::isAdmin() && !Settings::checkSettings()['success']) {
                             echo Html::a('<i class="fa fa-warning text-danger"></i> Отсутствуют настройки, необходимые для работы системы!',

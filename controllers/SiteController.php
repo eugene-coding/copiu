@@ -190,8 +190,6 @@ class SiteController extends Controller
 
         $syncing_methods = [
             '1. Синхронизация покупателей, ценовых категорий, отделов, счетов, складов' => '/site/sync-all',
-//            'Синхронизация покупателей' => '/site/sync-buyer',
-//            'Синхронизация ценовых категорий' => '/site/sync-price-category',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
             '4. Синхронизация цен для ценовых категорий' => '/site/sync-price-for-p-c',
@@ -212,43 +210,7 @@ class SiteController extends Controller
     }
 
     /**
-     * Синхронизация покупателей
-     */
-    public function actionSyncBuyer()
-    {
-        set_time_limit(600);
-        ini_set("memory_limit", "2000M");
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $helper = new PostmanApiHelper();
-        $buyer_model = new Buyer();
-        return $buyer_model->sync($helper->getBuyers());
-
-//        return [
-//            'success' => false,
-//            'data' => 'Синхронизация покупателей прошла успешно',
-//            'error' => 'Ошбика Синхронизации покупателей категорий',
-//        ];
-    }
-
-    /**
-     * Синхронизация ценовых категорий
-     */
-    public function actionSyncPriceCategory()
-    {
-        set_time_limit(600);
-        ini_set("memory_limit", "2000M");
-
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        return [
-            'success' => false,
-            'data' => 'Синхронизация ценовых категорий прошла успешно',
-            'error' => 'Ошибка Синхронизации ценовых категорий',
-        ];
-    }
-
-    /**
-     * Синхронизация ценовых категорий ипокупателей
+     * Синхронизация покупателей, ценовых категорий, отделов, счетов, складов
      */
     public function actionSyncAll()
     {
@@ -329,6 +291,7 @@ class SiteController extends Controller
         return [
             'success' => true,
             'data' => 'Синхронизация покупателей и ценовых категорий прошла успешно',
+            'settings_check' => Settings::checkSettings()['success'],
         ];
     }
 
@@ -364,6 +327,7 @@ class SiteController extends Controller
         return [
             'success' => true,
             'data' => 'Файл номенклатуры создан успешно. Номенклатура будет синхронизирована в течении получаса',
+            'settings_check' => Settings::checkSettings()['success'],
         ];
     }
 
@@ -448,7 +412,10 @@ class SiteController extends Controller
 
         //Импортируем Группы номенклатуры
         $n_group = new NGroup();
-        return $n_group->import($items);
+        $result = $n_group->import($items);
+
+        $result['settings_check'] = Settings::checkSettings()['success'];
+        return $result;
     }
 
     /**
@@ -463,8 +430,8 @@ class SiteController extends Controller
         $postman = new PostmanApiHelper();
 
         $result = $postman->getPriceListItems();
-        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
-
+//        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+        $result['settings_check'] = Settings::checkSettings()['success'];
         return $result;
     }
 
