@@ -39,34 +39,30 @@ $(document).ready(function () {
     });
 
     $(document).on('change', '.count-product', function () {
-        debugger;
         var count = $(this).val();
-        console.log('Count: ' + count);
         var price = $(this).parents('tr').children('.product-price').html();
-        console.log('Price: ' + price);
         $(this).parents('tr').children('.total-cost').html(count*price);
         var total = 0;
         $('.total-cost').each(function(index, value){
             total += Number(value.innerHTML);
         });
-        console.log('Total: ' + total);
         $('.total').html(Number(total) + 'р.');
     });
 
-    // $(document).on('click', '[type="submit"]', function () {
-    //     $(window).unbind('beforeunload');
-    // });
-    //
-    // $(window).bind('beforeunload', function() {
-    //     var step = $('#order-step').val();
-    //     if (step !== 'undefined' && step > 1 && step < 4){
-    //         setTimeout(function() {
-    //             setTimeout(function() {
-    //                 console.log('Отмена');
-    //             }, 1000);
-    //             console.log('Закрываем');
-    //         },1);
-    //         return 'Данные заказа не будут сохранены. Вы уверены?';
-    //     }
-    // });
+    $(document).on('click', '[type="submit"]', function () {
+        $(window).unbind('beforeunload');
+    });
+
+    $(window).bind('beforeunload', function() {
+        var step = $('#order-step').val();
+        if (step !== 'undefined' && step > 1 && step < 4){
+            setTimeout(function() {
+                setTimeout(function() {
+                    console.log('Отмена');
+                }, 1000);
+                console.log('Закрываем');
+            },1);
+            return 'Данные заказа не будут сохранены. Вы уверены?';
+        }
+    });
 });
