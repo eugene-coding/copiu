@@ -499,29 +499,17 @@ class OrderController extends Controller
         $model = Order::findOne($id);
 
         $blanks = explode(',', $model->blanks);
-        $orderToNomenclatureDataProvider = new ActiveDataProvider([
-            'query' => Nomenclature::find()
-                ->joinWith(['orderToNomenclature'])
-                ->andWhere(['order_to_nomenclature.order_id' => $model->id]),
-        ]);
-        $orderToNomenclatureDataProvider->pagination = false;
-        $products_in_order = OrderToNomenclature::find()
-            ->select(['nomenclature_id'])
-            ->andWhere(['order_id' => $model->id])
-            ->column();
 
         $productsDataProvider = new ActiveDataProvider([
             'query' => Nomenclature::find()
                 ->joinWith(['orderBlanks'])
                 ->andWhere(['IN', 'order_blank.id', $blanks])
-                ->andWhere(['NOT IN', 'nomenclature.id', $products_in_order])
         ]);
         $productsDataProvider->pagination = false;
 
         if ($request->isAjax) {
             return $this->render('_form', [
                 'model' => $model,
-                'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
                 'productsDataProvider' => $productsDataProvider,
             ]);
         }
@@ -531,7 +519,6 @@ class OrderController extends Controller
 
             return $this->render('_form', [
                 'model' => $model,
-                'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
                 'productsDataProvider' => $productsDataProvider,
             ]);
         } else {
@@ -563,8 +550,6 @@ class OrderController extends Controller
                     $model->delivery_time_to = date('H:i', strtotime($from) + (60 * 60 * 2));
                     $to = date('H', strtotime($model->delivery_time_to));
                 }
-                Yii::info('FROM: ' . $from, 'test');
-                Yii::info('TO: ' . $to, 'test');
                 if ($from > $to) {
                     $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
                     $model->step--;
@@ -578,7 +563,7 @@ class OrderController extends Controller
                 Yii::error($model->errors, '_error');
             }
 
-            if ($model->step === 5) {
+            if ($model->step === 4) {
                 //Формируем накладную
                 if (!$model->makeInvoice()) {
                     $model->invoice_number = 'error';
@@ -598,7 +583,6 @@ class OrderController extends Controller
 
             return $this->render('_form', [
                 'model' => $model,
-                'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
                 'productsDataProvider' => $productsDataProvider,
             ]);
         }

@@ -26,7 +26,7 @@ use yii\helpers\Html;
                                          aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                                     </div>
                                 </div>
-                                <div>Идет синхронизация. Ожидайте</div>
+                                <div>Идёт синхронизация. Ожидайте</div>
                             </div>
                             <div class="sync-result" style="display: none;">
                                 <div class="sync-result-message" style="margin-bottom: 5px;"></div>

@@ -95,38 +95,30 @@ $this->registerJsFile('/js/order_form.js', [
         <h4>Выберите позиции и установите количество</h4>
         <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
             будет добавлена услуга доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
+        <?php Pjax::begin([
+        'id' => 'order-pjax',
+        'enablePushState' => false,
+    ]) ?>
         <div class="row">
+            <div class="col-xs-6">
+                <?= $this->render('_order_nomenclature', [
+                    'model' => $model,
+                    'dataProvider' => $orderToNomenclatureDataProvider,
+                ]) ?>
+            </div>
             <div class="col-xs-6">
                 <?= $this->render('_nomenclature', [
                     'model' => $model,
                     'dataProvider' => $productsDataProvider,
                 ]) ?>
             </div>
-            <div class="col-xs-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Укажите временной интервал доставки
-                        <small>(Не менее двух часов)</small>
-                    </div>
-                    <div class="panel-body">
-                        <div class="time-dropdown"
-                             style="display: flex; align-items: center; justify-content: space-around;">
-                            <?= $form->field($model, 'delivery_time_from')
-                                ->dropDownList($model->buyer->getDeliveryTimeIntervals('from'))->label('С') ?>
-                            <?= $form->field($model, 'delivery_time_to')
-                                ->dropDownList($model->buyer->getDeliveryTimeIntervals('to'))->label('ДО') ?>
-                        </div>
-                        <div class="error-time text-center">
-                            <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
-                        </div>
-                    </div>
-                </div>
-                <?= $form->field($model, 'comment')->textarea(['rows' => 6]) ?>
-            </div>
         </div>
-    <?php elseif ($model->step == 333): ?>
+        <?php Pjax::end(); ?>
+
+    <?php elseif ($model->step == 3): ?>
         <div class="row">
             <div class="col-xs-6">
+
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         Укажите временной интервал доставки
@@ -150,12 +142,12 @@ $this->registerJsFile('/js/order_form.js', [
                 <?= $form->field($model, 'comment')->textarea(['rows' => 6]) ?>
             </div>
         </div>
-    <?php elseif ($model->step == 3): ?>
+    <?php elseif ($model->step == 4): ?>
         <?= $this->render('_pre_order_form', [
             'model' => $model,
             'form' => $form,
         ]) ?>
-    <?php elseif ($model->step == 4): ?>
+    <?php elseif ($model->step == 5): ?>
         <div class="done text-center">
             <?php if ($model->invoice_number && $model->invoice_number != 'error'): ?>
                 <h4>Накладная № <?= $model->invoice_number; ?> успешно создана</h4>
