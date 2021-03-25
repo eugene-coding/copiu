@@ -31,7 +31,7 @@ class SettingsController extends Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
-                        'matchCallback' => function($rule, $action){
+                        'matchCallback' => function ($rule, $action) {
                             return Users::isAdmin();
                         }
                     ],
@@ -84,17 +84,17 @@ class SettingsController extends Controller
             $cms_settings = [];
 
             $result = [];
-            if ($request->isPost){
+            if ($request->isPost) {
                 $keys = $request->post('keys');
-                foreach ($keys as $key => $value){
+                foreach ($keys as $key => $value) {
                     $model = Settings::findOne(['key' => $key]);
                     $model->value = $value;
-                    if (!$model->save()){
+                    if (!$model->save()) {
                         Yii::error($model->errors, '_error');
                         $result = ['success' => false, 'data' => 'При сохранении настроек возникла ошибка'];
                     }
                 }
-                if (!$result){
+                if (!$result) {
                     $result = ['success' => true, 'data' => 'Настройки сохранены'];
                     $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
                 }
@@ -107,12 +107,16 @@ class SettingsController extends Controller
                 'sync_nomenclature_sync_date',
                 'get_nomenclature_date',
                 'entities_version',
+                'delivery_main_unit',
+                'delivery_eid',
             ];
 
             /** @var Settings $setting */
-            foreach ($settings as $setting){
-                if (in_array($setting->key, $sys_info_settings)) continue;
-                if ($setting->is_system){
+            foreach ($settings as $setting) {
+                if (in_array($setting->key, $sys_info_settings)) {
+                    continue;
+                }
+                if ($setting->is_system) {
                     array_push($system_settings, $setting);
                 } else {
                     array_push($cms_settings, $setting);
@@ -128,7 +132,8 @@ class SettingsController extends Controller
                     ],
                     'result' => $result,
                 ]),
-                'footer' => Html::button('Закрыть', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                'footer' => Html::button('Закрыть',
+                        ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                     Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
             ];
 
@@ -156,8 +161,10 @@ class SettingsController extends Controller
                 'content' => $this->renderAjax('view', [
                     'model' => $this->findModel($id),
                 ]),
-                'footer' => Html::button('Закрыть', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::a('Редактировать', ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                'footer' => Html::button('Закрыть',
+                        ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    Html::a('Редактировать', ['update', 'id' => $id],
+                        ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
             ];
         } else {
             return $this->render('view', [
@@ -392,18 +399,20 @@ class SettingsController extends Controller
             'sync_nomenclature_sync_date',
             'get_nomenclature_date',
             'entities_version',
+            'delivery_main_unit',
+            'delivery_eid',
         ];
 
         $settings = Settings::find();
         $sys_info = [];
         /** @var Settings $item */
-        foreach ($settings->each() as $item){
-            if (in_array($item->key, $sys_info_settings)){
+        foreach ($settings->each() as $item) {
+            if (in_array($item->key, $sys_info_settings)) {
                 $sys_info[] = $item;
             }
         }
 
-        if ($request->isAjax){
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
                 'title' => 'Системная информация',
@@ -420,7 +429,7 @@ class SettingsController extends Controller
 
         $data = Settings::checkSettings();
 
-        if (!$data['success']){
+        if (!$data['success']) {
             return [
                 'title' => 'Проверка настроек',
                 'content' => $this->renderAjax('_show_errors', [
