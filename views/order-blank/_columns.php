@@ -22,6 +22,7 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'time_limit',
+        'format' => 'time'
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
@@ -30,7 +31,9 @@ return [
     [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'synced_at',
-        'format' => 'datetime'
+        'value' => function (\app\models\OrderBlank $model){
+            return date('d.m.Y H:i', strtotime($model->synced_at));
+        }
     ],
     [
         'class' => 'kartik\grid\ActionColumn',

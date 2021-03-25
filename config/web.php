@@ -21,6 +21,9 @@ $config = [
         ]
     ],
     'components' => [
+        'formatter' => [
+            'defaultTimeZone' => 'Europe/Moscow'
+        ],
         'authManager' => [
             'class' => 'yii\rbac\PhpManager',
             'defaultRoles' => ['admin', 'buyer'], // Здесь нет роли "guest", т.к. эта роль виртуальная и не присутствует в модели UserExt

@@ -132,7 +132,8 @@ class OrderBlank extends ActiveRecord
 
         return [
             'success' => true,
-            'data' => 'Синхронизация завершена'
+            'data' => 'Синхронизация завершена',
+            'date' => date('d.m.Y H:i', time()),
         ];
     }
 
