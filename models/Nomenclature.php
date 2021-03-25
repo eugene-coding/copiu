@@ -5,6 +5,7 @@ namespace app\models;
 use app\models\query\NomenclatureQuery;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "nomenclature".
@@ -176,6 +177,8 @@ class Nomenclature extends ActiveRecord
             $n_groups[$group->outer_id] = $group->id;
         }
 
+        $measures = ArrayHelper::map(Measure::find()->all(), 'outer_id', 'id');
+
         foreach ($data as $item) {
             if ($item['type'] && !in_array($item['type'], $allowed_types)) {
                 $skipped++;
@@ -203,7 +206,9 @@ class Nomenclature extends ActiveRecord
                 }
                 $message = '<b>Синхронизируйте группы номенклатуры!</b>';
             }
-
+            //Единица измерения
+            $measure_outer_id = $item['mainUnit'];
+            $model->measure_id = $measures[$measure_outer_id];
             $model->name = $item['name'];
             $model->description = $item['description']?:'';
             $model->outer_id = $item['id'];
