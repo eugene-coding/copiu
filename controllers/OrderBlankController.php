@@ -36,7 +36,7 @@ class OrderBlankController extends Controller
                     [
                         'allow' => true,
                         'roles' => ['@'],
-                        'matchCallback' => function($rule, $action){
+                        'matchCallback' => function ($rule, $action) {
                             return Users::isAdmin();
                         }
                     ],
@@ -84,8 +84,10 @@ class OrderBlankController extends Controller
                 'content' => $this->renderAjax('view', [
                     'model' => $this->findModel($id),
                 ]),
-                'footer' => Html::button('Закрыть', ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                    Html::a('Редактировать', ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                'footer' => Html::button('Закрыть',
+                        ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                    Html::a('Редактировать', ['update', 'id' => $id],
+                        ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
             ];
         } else {
             return $this->render('view', [
@@ -122,7 +124,39 @@ class OrderBlankController extends Controller
 
                 ];
             } else {
-                if ($model->load($request->post()) && $model->save()) {
+                if ($model->load($request->post())) {
+                    $exists = $model->blankExistsInIiko();
+                    Yii::info($exists, 'test');
+                    if (!$exists) {
+                        //Накладная не найдена
+                        $model->addError('number', 'Накладная с указанным номером и датой не найдена');
+                        return [
+                            'title' => "Добавление накладной",
+                            'content' => $this->renderAjax('create', [
+                                'model' => $model,
+                            ]),
+                            'footer' => Html::button('Закрыть',
+                                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
+
+                        ];
+                    }
+
+                    if (!$model->save()) {
+                        Yii::error($model->errors, '_error');
+                        //Ошибка сохранения
+                        return [
+                            'title' => "Добавление накладной",
+                            'content' => $this->renderAjax('create', [
+                                'model' => $model,
+                            ]),
+                            'footer' => Html::button('Закрыть',
+                                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                                Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
+
+                        ];
+                    }
+
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'forceClose' => true,
@@ -308,8 +342,8 @@ class OrderBlankController extends Controller
             return OrderBlank::sync();
         } catch (InvalidConfigException $e) {
             return [
-              'success' => false,
-              'error' => $e->getMessage(),
+                'success' => false,
+                'error' => $e->getMessage(),
             ];
         }
     }
@@ -342,7 +376,7 @@ class OrderBlankController extends Controller
         $model = new OrderBlank();
         $data = $model->getBlanksByDate($target_date);
 
-        if (!$data){
+        if (!$data) {
             $data = 'Бланки заказов отсуствуют';
         }
 

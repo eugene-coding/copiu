@@ -40,6 +40,7 @@ class OrderBlank extends ActiveRecord
             [['date', 'synced_at', 'time_limit'], 'safe'],
             [['day_limit'], 'integer'],
             [['number'], 'string', 'max' => 255],
+            [['number'], 'unique', 'message' => 'Накладная уже есть в базе'],
         ];
     }
 
@@ -239,5 +240,29 @@ class OrderBlank extends ActiveRecord
 
         return $table . $hidden_input;
 
+    }
+
+    /**
+     * Проверяет существование бланка в айке
+     * @return bool
+     */
+    public function blankExistsInIiko()
+    {
+        $helper = new IikoApiHelper();
+
+        $params = [
+            'from' => $this->date,
+            'to' => $this->date,
+            'number' => $this->number,
+        ];
+
+        $result = $helper->getOrderBlank($params);
+        Yii::info($result, 'test');
+
+        if ($result && isset($result['document']['id'])){
+            return true;
+        }
+
+        return false;
     }
 }
