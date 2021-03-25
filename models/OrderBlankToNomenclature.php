@@ -31,8 +31,21 @@ class OrderBlankToNomenclature extends ActiveRecord
     {
         return [
             [['ob_id', 'n_id'], 'integer'],
-            [['n_id'], 'exist', 'skipOnError' => true, 'targetClass' => Nomenclature::className(), 'targetAttribute' => ['n_id' => 'id']],
-            [['ob_id'], 'exist', 'skipOnError' => true, 'targetClass' => OrderBlank::className(), 'targetAttribute' => ['ob_id' => 'id']],
+            [
+                ['n_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Nomenclature::class,
+                'targetAttribute' => ['n_id' => 'id']
+            ],
+            [
+                ['ob_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => OrderBlank::class,
+                'targetAttribute' => ['ob_id' => 'id']
+            ],
+            [['n_id', 'ob_id'], 'unique', 'targetAttribute' => ['n_id', 'ob_id'], 'message' => 'Продукт уже присутствует в бланке'],
         ];
     }
 
