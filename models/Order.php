@@ -7,6 +7,7 @@ use app\components\PostmanApiHelper;
 use app\models\query\OrderQuery;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 
 /**
  * This is the model class for table "order".
@@ -258,8 +259,8 @@ class Order extends ActiveRecord
         //Проверяем наличие параметров
         foreach ($params as $item) {
             if (!$item) {
-              Yii::error('Некоторые параметры не заданы.', '_error');
-              return false;
+                Yii::error('Некоторые параметры не заданы.', '_error');
+                return false;
             }
         }
 
@@ -293,6 +294,33 @@ class Order extends ActiveRecord
     public function getInvoiceNumber()
     {
         return 'xc' . $this->id . '_' . strtotime($this->created_at);
+    }
+
+    /**
+     * Очищает до конца не заполненные заказы
+     * @return void
+     */
+    public static function clean()
+    {
+        $user = Users::findOne(Yii::$app->user->identity->id);
+        $buyer = $user->buyer;
+
+        $fail_orders = Order::find()
+            ->andWhere(['buyer_id' => $buyer->id])
+            ->andWhere(['IS', 'invoice_number', null])
+            ->all();
+
+        foreach ($fail_orders as $order){
+            try {
+                $order->delete();
+            } catch (StaleObjectException $e) {
+                Yii::error($e->getMessage(), 'error');
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), 'error');
+            } catch (\Throwable $e) {
+                Yii::error($e->getMessage(), 'error');
+            }
+        }
     }
 
 }
