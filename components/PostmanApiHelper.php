@@ -59,6 +59,7 @@ class PostmanApiHelper
         curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         if ($type != "GET") {
+            Yii::info($this->post_data, 'test');
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
         }
@@ -232,16 +233,18 @@ XML;
             $str = file_get_contents($path);
             $xml = simplexml_load_string($str);
         } else {
+            $entities_version = Settings::getValueByKey('entities_version');
             $this->post_data = <<<XML
-<?xml version="1.0" encoding="utf-8"?><args><entities-version>547512</entities-version><client-type>BACK</client-type><enable-warnings>false</enable-warnings><use-raw-entities>true</use-raw-entities><dateFrom>2021-02-08T13:26:43.762+03:00</dateFrom><dateTo>9999-12-31T23:59:59.999+03:00</dateTo><departments><i cls="Department">f5460b95-c588-b515-0164-21bb6182000d</i></departments><includeItemsWithSchedules>false</includeItemsWithSchedules></args>
+<?xml version="1.0" encoding="utf-8"?><args><entities-version>$entities_version</entities-version><client-type>BACK</client-type><enable-warnings>false</enable-warnings><use-raw-entities>true</use-raw-entities><dateFrom>2021-02-08T13:26:43.762+03:00</dateFrom><dateTo>9999-12-31T23:59:59.999+03:00</dateTo><departments><i cls="Department">f5460b95-c588-b515-0164-21bb6182000d</i></departments><includeItemsWithSchedules>false</includeItemsWithSchedules></args>
 XML;
 
             $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
             $str = $this->send('POST');
+            Yii::info($str, 'test');
             $xml = simplexml_load_string($str);
         }
 
-        if (strpos($xml, 'access is not allowed')) {
+        if (strpos($str, 'access is not allowed')) {
             return [
                 'success' => false,
                 'error' => 'Неавторизированные запросы запрещены',
