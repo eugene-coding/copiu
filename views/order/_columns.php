@@ -105,7 +105,7 @@ return [
                 }
             },
             'copy-order' => function ($url, Order $model) {
-                if ($model->status != $model::STATUS_DRAFT && Settings::checkSettings()['success']) {
+                if ($model->status != $model::STATUS_DRAFT && Settings::checkSettings()['success'] && Users::isBuyer()) {
                     return Html::a('<i class="glyphicon glyphicon-copy"></i>',
                         ['/order/copy-order', 'id' => $model->id],
                         [
