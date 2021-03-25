@@ -525,6 +525,7 @@ class OrderController extends Controller
             $model->load($request->post());
             if ($model->count) {
                 foreach ($model->count as $nomenclature_id => $count) {
+                    if (!$count) continue;
                     $n = Nomenclature::findOne($nomenclature_id);
 
                     $otn = OrderToNomenclature::find()
