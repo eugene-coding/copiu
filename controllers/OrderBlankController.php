@@ -312,10 +312,6 @@ class OrderBlankController extends Controller
               'error' => $e->getMessage(),
             ];
         }
-//        return [
-//            'success' => true,
-//            'data' => 'Все ок',
-//        ];
     }
 
     /**

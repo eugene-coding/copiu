@@ -5,12 +5,21 @@ $(document).ready(function () {
     $(document).on('click', '#confirm-order-date', function () {
         nom_block.hide();
         var date = $('#order-target_date').val();
+        var total_count = 0;
 
         loader.fadeIn(300);
         $.post("/order-blank/get-orders-by-date", {date: date})
             .done(function (response) {
                 if (response.success) {
                     nom_block.html(response.data);
+                    $('.count-products').each(function (index) {
+                        total_count = total_count + Number($(this).text());
+                    });
+                    if (total_count > 0){
+                        $('[type="submit"]').fadeIn(300);
+                    } else {
+                        $('[type="submit"]').fadeOut(300);
+                    }
                 } else {
                     nom_block.html('<p class="text-danger"><i class="fa fa-exclamation-circle"></i> ' + response.error + '</p>');
                 }

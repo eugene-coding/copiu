@@ -213,7 +213,8 @@ class OrderBlank extends ActiveRecord
 
             $result .= '<tr>';
             $result .= '<td>';
-            $result .= '<span class="fa fa-check text-success"></span> Бланк ' . $blank->number . ' продуктов ' . $count_products
+            $result .= '<span class="fa fa-check text-success"></span> Бланк ' . $blank->number
+                . ' продуктов <span class="count-products">' . $count_products . '</span>'
                 . ", можно оформить <b>" . date('d.m.Y', $max_order_time) . "</b> до <b>" . Yii::$app->formatter->asTime($blank->time_limit)
                 . "</b>. Заказ будет доставлен <b>" . date('d.m.Y', strtotime($target_date)) . '</b><br>';
             $result .= '</td>';
