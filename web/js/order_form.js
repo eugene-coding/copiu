@@ -53,20 +53,20 @@ $(document).ready(function () {
         $('.total').html(Number(total) + 'р.');
     });
 
-    $(document).on('click', '[type="submit"]', function () {
-        $(window).unbind('beforeunload');
-    });
-
-    $(window).bind('beforeunload', function() {
-        var step = $('#order-step').val();
-        if (step !== 'undefined' && step > 1 && step < 4){
-            setTimeout(function() {
-                setTimeout(function() {
-                    console.log('Отмена');
-                }, 1000);
-                console.log('Закрываем');
-            },1);
-            return 'Данные заказа не будут сохранены. Вы уверены?';
-        }
-    });
+    // $(document).on('click', '[type="submit"]', function () {
+    //     $(window).unbind('beforeunload');
+    // });
+    //
+    // $(window).bind('beforeunload', function() {
+    //     var step = $('#order-step').val();
+    //     if (step !== 'undefined' && step > 1 && step < 4){
+    //         setTimeout(function() {
+    //             setTimeout(function() {
+    //                 console.log('Отмена');
+    //             }, 1000);
+    //             console.log('Закрываем');
+    //         },1);
+    //         return 'Данные заказа не будут сохранены. Вы уверены?';
+    //     }
+    // });
 });
