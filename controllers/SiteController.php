@@ -7,6 +7,7 @@ use app\components\PostmanApiHelper;
 use app\models\Account;
 use app\models\Buyer;
 use app\models\Department;
+use app\models\Measure;
 use app\models\NGroup;
 use app\models\Nomenclature;
 use app\models\Order;
@@ -189,7 +190,7 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $syncing_methods = [
-            '1. Синхронизация покупателей, ценовых категорий, отделов, счетов, складов' => '/site/sync-all',
+            '1. Синхронизация покупателей, ценовых категорий, отделов и пр.' => '/site/sync-all',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
             '4. Синхронизация цен для ценовых категорий' => '/site/sync-price-for-p-c',
@@ -225,6 +226,7 @@ class SiteController extends Controller
         $department_model = new Department();
         $account_model = new Account();
         $store_model = new Store();
+        $measure_model = new Measure();
 
         $data = $helper->getAll();
 
@@ -274,6 +276,14 @@ class SiteController extends Controller
             return [
                 'success' => false,
                 'error' => 'Ошбика синхронизации складов',
+            ];
+        }
+
+        $sync_measure_result = $measure_model->sync($data['measure']);
+        if (!$sync_measure_result['success']) {
+            return [
+                'success' => false,
+                'error' => 'Ошбика синхронизации единиц измерения',
             ];
         }
 

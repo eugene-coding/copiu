@@ -115,6 +115,7 @@ XML;
         $arr_account = []; //Счета выручки;
         $arr_store = []; //Склады
         $arr_delivery = []; //Доставка
+        $arr_measure = []; //Единицы измерения
         $delivery_article = Settings::getValueByKey('delivery_article');
 
         foreach ($xml->entitiesUpdate->items->i as $item) {
@@ -173,6 +174,16 @@ XML;
                             }
                         }
                         break;
+                    case 'MeasureUnit':
+                        if ($item->deleted == 'false') {
+                            $arr_measure[] =
+                                [
+                                    'outer_id' => (string)$item->id,
+                                    'name' => (string)$item->r->name->customValue,
+                                    'full_name' => (string)$item->r->fullName->customValue,
+                                ];
+                        }
+                        break;
                 }
             }
         }
@@ -186,6 +197,7 @@ XML;
             'entities_version' => $entities_version,
             'store' => $arr_store,
             'delivery' => $arr_delivery,
+            'measure' => $arr_measure,
         ];
     }
 
