@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Settings;
 use yii\base\InvalidConfigException;
 use yii\helpers\Html;
 use kartik\grid\GridView;
@@ -7,6 +8,23 @@ use kartik\grid\GridView;
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\search\OrderSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+
+if (Settings::checkSettings()['success']) {
+    $create_order_btn = Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить заказ', ['order-create'],
+        [
+            'title' => 'Добавить заказ',
+            'data-pjax' => 0,
+            'class' => \app\models\User::isAdmin() ? 'hidden' : 'btn btn-default',
+        ]);
+} else {
+    $create_order_btn = $create_order_btn = Html::a('<i class="glyphicon glyphicon-warning-sign text-danger"></i> Добавить заказ',
+        ['/order/show-order-error-settings'],
+        [
+            'title' => 'Добавить заказ',
+            'role' => 'modal-remote',
+            'class' => \app\models\User::isAdmin() ? 'hidden' : 'btn btn-default',
+        ]);;
+}
 
 $this->title = 'Заказы';
 $this->params['breadcrumbs'][] = $this->title;
@@ -35,13 +53,7 @@ try {
                 'columns' => require(__DIR__ . '/_columns.php'),
                 'toolbar' => [
                     [
-                        'content' =>
-                            Html::a('<i class="glyphicon glyphicon-plus"></i> Добавить заказ', ['order-create'],
-                                [
-                                    'title' => 'Добавить заказ',
-                                    'data-pjax' => 0,
-                                    'class' => \app\models\User::isAdmin() ? 'hidden' : 'btn btn-default',
-                                ]) .
+                        'content' => $create_order_btn .
                             Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
                                 ['data-pjax' => 1, 'class' => 'btn btn-default', 'title' => 'Reset Grid']) .
                             '{toggleData}' .

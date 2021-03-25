@@ -118,4 +118,65 @@ class Settings extends ActiveRecord
 
         return true;
     }
+
+    /**
+     * Проверяет настройки системы
+     * @return array
+     */
+    public static function checkSettings()
+    {
+        $target_keys = [
+            'ikko_server_url',
+            'ikko_server_login',
+            'ikko_server_password',
+            'delivery_article',
+            'department_outer_id',
+            'invoice_outer_id',
+            'get_nomenclature_date',
+            'delivery_min_time',
+            'delivery_max_time',
+            'store_outer_id',
+            'entities_version',
+            'delivery_eid',
+            'delivery_main_unit',
+            'revenue_debit_account',
+        ];
+
+        /** @var array $key_to_sync Ключи, которые нужно получить через синхронизацию (номенклатуры, групп номенклатур и прочее) */
+        $key_to_sync = [
+            'get_nomenclature_date' => '3. Синхронизация номенклатуры',
+            'entities_version' => '1. Синхронизация покупателей, ценовых категорий, отделов, счетов, складов ',
+            'delivery_eid' => '1. Синхронизация покупателей, ценовых категорий, отделов, счетов, складов ',
+            'delivery_main_unit' => '1. Синхронизация покупателей, ценовых категорий, отделов, счетов, складов ',
+        ];
+
+        $settings = Settings::find()->all();
+        $errors = [];
+
+        /** @var Settings $setting */
+        foreach ($settings as $setting) {
+            if (in_array($setting->key, $target_keys)) {
+                if (!$setting->value) {
+                    Yii::info($setting->key . ' In array: ' . (int)in_array($setting->key, $key_to_sync), 'test');
+                    if (in_array($setting->key, array_keys($key_to_sync))) {
+                        $errors[$setting->key] = 'Не выполнена синхронизация (Раздел "Синхронизация"): ' . $key_to_sync[$setting->key];
+                    } else {
+                        $errors[$setting->key] = "Отсутсвует настройка: '{$setting->label}'";
+                    }
+                }
+            }
+        }
+
+//        Yii::info($errors, 'test');
+
+        if ($errors) {
+            return [
+                'success' => false,
+                'errors' => array_unique($errors),
+            ];
+        }
+        return [
+            'success' => true,
+        ];
+    }
 }

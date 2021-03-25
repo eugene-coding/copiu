@@ -100,6 +100,7 @@ class OrderController extends Controller
      */
     public function actionCreate()
     {
+
         $request = Yii::$app->request;
         $model = new Order();
         $model->buyer_id = Yii::$app->user->identity->id;
@@ -579,7 +580,7 @@ class OrderController extends Controller
 
             if ($model->step === 5) {
                 //Формируем накладную
-                if (!$model->makeInvoice()){
+                if (!$model->makeInvoice()) {
                     $model->invoice_number = 'error';
                     $model->status = $model::STATUS_DRAFT;
                     $model->save();
@@ -587,7 +588,7 @@ class OrderController extends Controller
 
                 if ($model->deliveryCost) {
                     //Формируем акт оказания услуг (доставка)
-                    if (!$model->makeDeliveryAct()){
+                    if (!$model->makeDeliveryAct()) {
                         $model->delivery_act_number = 'error';
                         $model->status = $model::STATUS_DRAFT;
                         $model->save();
@@ -721,7 +722,8 @@ class OrderController extends Controller
             ], $rows)->execute();
         } catch (Exception $e) {
             Yii::error($order->errors, '_error');
-            Yii::$app->session->addFlash('error', 'Ошибка при сохранении нового заказа. ' . json_encode($e->getMessage()));
+            Yii::$app->session->addFlash('error',
+                'Ошибка при сохранении нового заказа. ' . json_encode($e->getMessage()));
             return $this->redirect('index');
         }
 
@@ -748,13 +750,13 @@ class OrderController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->invoice_number == 'error'){
+        if ($model->invoice_number == 'error') {
             //Если ошибка формирования накладной
-            if (!$model->makeInvoice()){
+            if (!$model->makeInvoice()) {
                 $model->invoice_number = 'error';
                 $model->status = $model::STATUS_DRAFT;
             } else {
-                if ($model->deliveryCost && $model->delivery_act_number && $model->delivery_act_number != 'error'){
+                if ($model->deliveryCost && $model->delivery_act_number && $model->delivery_act_number != 'error') {
                     $model->status = $model::STATUS_WORK;
                 }
             }
@@ -763,15 +765,15 @@ class OrderController extends Controller
 
         if ($model->deliveryCost) {
             Yii::info('Есть доставка', 'test');
-            if ($model->delivery_act_number == 'error'){
+            if ($model->delivery_act_number == 'error') {
                 Yii::info('Ошибка формирования Акта, формируем заново', 'test');
                 //Если ошибка формирования Акта услуг
                 //Формируем акт оказания услуг (доставка)
-                if (!$model->makeDeliveryAct()){
+                if (!$model->makeDeliveryAct()) {
                     $model->delivery_act_number = 'error';
                     $model->status = $model::STATUS_DRAFT;
                 } else {
-                    if ($model->invoice_number && $model->invoice_number != 'error'){
+                    if ($model->invoice_number && $model->invoice_number != 'error') {
                         $model->status = $model::STATUS_WORK;
                     }
                 }
@@ -780,6 +782,19 @@ class OrderController extends Controller
         }
 
         return $this->redirect('index');
+    }
+
+    public function actionShowOrderErrorSettings()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        return [
+            'title' => 'Создание заказа',
+            'content' =>
+                '<b class="text-danger">Создание заказа невозможно, т.к. отсутствуют необходимые настройки. Обратитесь к администратору системы</b>',
+            'footer' => Html::button('Закрыть',
+                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+        ];
     }
 }
 

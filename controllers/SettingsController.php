@@ -414,5 +414,30 @@ class SettingsController extends Controller
         }
     }
 
+    public function actionShowErrors()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $data = Settings::checkSettings();
+
+        if (!$data['success']){
+            return [
+                'title' => 'Проверка настроек',
+                'content' => $this->renderAjax('_show_errors', [
+                    'data' => $data['errors'],
+                ]),
+                'footer' => Html::button('Закрыть',
+                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        } else {
+            return [
+                'title' => 'Проверка настроек',
+                'content' => 'Ошибок не вывлено',
+                'footer' => Html::button('Закрыть',
+                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+            ];
+        }
+    }
+
 
 }

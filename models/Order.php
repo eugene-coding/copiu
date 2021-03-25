@@ -21,7 +21,7 @@ use yii\db\ActiveRecord;
  * @property string|null $comment Комментарий
  * @property int $status Статус
  * @property string|null $blanks Бланки заказов
- * @property double $count Кол-во продуктов
+ * @property array $count Кол-во продуктов
  * @property int $step Текущий шаг заказа
  * @property string|null $invoice_number Номер накладной
  * @property string|null $delivery_act_number Номер Акта оказанных услуг

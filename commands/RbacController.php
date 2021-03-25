@@ -52,6 +52,8 @@ class RbacController extends Controller
         $getOrdersByDate = $authManager->createPermission('get-orders-by-date');
         $getNomenclature = $authManager->createPermission('get-nomenclature');
         $sysInfo = $authManager->createPermission('system-info');
+        $showErrors = $authManager->createPermission('show-errors');
+        $showOrderErrorSettings = $authManager->createPermission('show-order-error-settings');
 
 
         //Добавляем разрешения в AuthManager
@@ -78,6 +80,8 @@ class RbacController extends Controller
         $authManager->add($getOrdersByDate);
         $authManager->add($getNomenclature);
         $authManager->add($sysInfo);
+        $authManager->add($showErrors);
+        $authManager->add($showOrderErrorSettings);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -113,6 +117,7 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $profile);
         $authManager->addChild($buyer, $guest);
         $authManager->addChild($buyer, $getOrdersByDate);
+        $authManager->addChild($buyer, $showOrderErrorSettings);
 
         //Admin
         $authManager->addChild($admin, $delete);
@@ -125,6 +130,7 @@ class RbacController extends Controller
         $authManager->addChild($admin, $syncPriceForPC);
         $authManager->addChild($admin, $syncBuyerBalances);
         $authManager->addChild($admin, $sysInfo);
+        $authManager->addChild($admin, $showErrors);
 
         $authManager->addChild($admin, $buyer);
 

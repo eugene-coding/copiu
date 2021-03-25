@@ -1,6 +1,7 @@
 <?php
 
 use app\models\Order;
+use app\models\Settings;
 use app\models\Users;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -75,7 +76,7 @@ return [
 
             $status = Order::getStatusList()[$model->status];
 
-            if ($status == $model::getStatusList()[$model::STATUS_DRAFT]){
+            if ($status == $model::getStatusList()[$model::STATUS_DRAFT]) {
                 return $status . '<br><small class="text-warning">Для принятия заказа в работу повторите формирование документов</small>';
             } else {
                 return $status;
@@ -104,7 +105,7 @@ return [
                 }
             },
             'copy-order' => function ($url, Order $model) {
-                if ($model->status != $model::STATUS_DRAFT) {
+                if ($model->status != $model::STATUS_DRAFT && Settings::checkSettings()['success']) {
                     return Html::a('<i class="glyphicon glyphicon-copy"></i>',
                         ['/order/copy-order', 'id' => $model->id],
                         [
