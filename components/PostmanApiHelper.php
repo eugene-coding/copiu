@@ -226,16 +226,9 @@ XML;
      */
     public function getPriceListItems()
     {
-
-        $skipped = 0;
-        $added = 0;
-        $errors = 0;
-        $changed = 0;
-
         if (!$this->base_url) {
             $path = 'uploads/getPriceListItems.xml';
             $str = file_get_contents($path);
-            $xml = simplexml_load_string($str);
         } else {
             $entities_version = Settings::getValueByKey('entities_version');
             $date = date('Y-m-d\TH:i:s.000+03:00', time());
@@ -255,8 +248,6 @@ XML;
             $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
             $str = $this->send('POST');
             file_put_contents('uploads/getPriceListItems.xml', $str);
-//            Yii::info($str, 'test');
-            $xml = simplexml_load_string($str);
         }
 
         if (strpos($str, 'access is not allowed')) {
@@ -266,120 +257,9 @@ XML;
             ];
         }
 
-        $items = $xml->returnValue;
-        Yii::info($items, 'test');
-
-        $categories_in_base = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
-        $products_in_base = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
-        $base_cat_outer_ids = array_keys($categories_in_base);
-        $base_product_outer_ids = array_keys($products_in_base);
-
-        foreach ($items->v as $item) {
-            $product_outer_id = (string)$item->i->product;
-
-            if (!$product_outer_id) {
-                Yii::info('Нет ID продукта. Пропускаем', 'test');
-                $skipped++;
-                continue;
-            }
-
-            Yii::info('Product outer ID: ' . $product_outer_id, 'test');
-            $categories_and_prices = [];
-            if ($item->i->pricesForCategories) {
-                $categories_and_prices = json_decode(json_encode($item->i->pricesForCategories), true);
-            }
-//            Yii::info($categories_and_prices, 'test');
-
-            $categories_prep = isset($categories_and_prices['k']) ? $categories_and_prices['k'] : null;
-            if (!is_array($categories_prep)){
-                $categories[] = (string)$categories_prep;
-            } else {
-                $categories = $categories_prep;
-            }
-
-            if (!$categories) {
-                Yii::info('Нет категорий. Пропускаем', 'test');
-                $skipped++;
-                continue;
-            }
-            $prices_prep = isset($categories_and_prices['v']) ? $categories_and_prices['v'] : null;;
-            if (!is_array($prices_prep)){
-                $prices[] = (string)$prices_prep;
-            } else {
-                $prices = $prices_prep;
-            }
-
-
-            if ($categories){
-//                Yii::info($categories, 'test');
-                for ($i = 0; $i < count($categories); $i++) {
-//                    $category = PriceCategory::findOne(['outer_id' => $categories[$i]]);
-                    $cat_outer_id = $categories[$i];
-                    /** @var array $base_cat_outer_ids Внешине ключи категорий в базе */
-
-                    if (!in_array($cat_outer_id, $base_cat_outer_ids)) {
-                        Yii::info('Категория не найдена. Пропускаем', 'test');
-                        continue;
-                    }
-
-                    $price = $prices[$i];
-//                    $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
-
-                    if (!in_array($product_outer_id, $base_product_outer_ids)) {
-                        Yii::info('Продукт не найден. Пропускаем', 'test');
-                        continue;
-                    }
-
-                    $model = new PriceCategoryToNomenclature([
-                        'pc_id' => $categories_in_base[$cat_outer_id],
-                        'n_id' => $base_product_outer_ids[$product_outer_id],
-                    ]);
-
-                    if (!$model->validate('pc_id')) {
-                        Yii::info($model->errors, 'test');
-                        $model = PriceCategoryToNomenclature::find()
-                            ->andWhere(['pc_id' => $model->pc_id, 'n_id' => $model->n_id])->one();
-                    }
-
-                    $model->price = $price;
-
-                    if ($model->isNewRecord){
-                        $added++;
-                    } else {
-                        $changed++;
-                    }
-
-                    if (!$model->save()) {
-                        Yii::error($model->errors, '_error');
-                        $errors++;
-                    }
-                }
-            }
-
-        }
-
-        $data = 'Синхронизация цен прошла успешно<br>';
-
-        if ($errors){
-            $data .= 'Ошибок: ' . $errors . '<br>';
-        }
-        if ($skipped){
-            $data .= 'Пропущено: ' . $skipped . '<br>';
-        }
-
-        if ($added){
-            $data .= 'Добавлено: ' . $added . '<br>';
-        }
-
-        if ($changed){
-            $data .= 'Изменено: ' . $changed . '<br>';
-        }
-
         return [
             'success' => true,
-            'data' => $data
         ];
-
     }
 
     /**

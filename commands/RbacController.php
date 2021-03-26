@@ -47,7 +47,8 @@ class RbacController extends Controller
         $syncAll = $authManager->createPermission('sync-all');
         $syncNom = $authManager->createPermission('sync-nomenclature');
         $syncNomGroup = $authManager->createPermission('sync-nomenclature-group');
-        $syncPriceForPC = $authManager->createPermission('sync-price-for-p-c');
+        $getPriceForPC = $authManager->createPermission('get-price-for-price-category');
+        $syncPriceForPC = $authManager->createPermission('sync-price-for-price-category');
         $syncBuyerBalances = $authManager->createPermission('sync-buyer-balances');
         $getOrdersByDate = $authManager->createPermission('get-orders-by-date');
         $getNomenclature = $authManager->createPermission('get-nomenclature');
@@ -75,6 +76,7 @@ class RbacController extends Controller
         $authManager->add($syncAll);
         $authManager->add($syncNom);
         $authManager->add($syncNomGroup);
+        $authManager->add($getPriceForPC);
         $authManager->add($syncPriceForPC);
         $authManager->add($syncBuyerBalances);
         $authManager->add($getOrdersByDate);
@@ -109,6 +111,7 @@ class RbacController extends Controller
         $authManager->addChild($guest, $view);
         $authManager->addChild($guest, $getNomenclature);
         $authManager->addChild($guest, $syncNom);
+        $authManager->addChild($guest, $syncPriceForPC);
 
         //Покупатель
         $authManager->addChild($buyer, $update);
@@ -127,6 +130,7 @@ class RbacController extends Controller
         $authManager->addChild($admin, $syncPriceCategory);
         $authManager->addChild($admin, $syncAll);
         $authManager->addChild($admin, $syncNomGroup);
+        $authManager->addChild($admin, $getPriceForPC);
         $authManager->addChild($admin, $syncPriceForPC);
         $authManager->addChild($admin, $syncBuyerBalances);
         $authManager->addChild($admin, $sysInfo);

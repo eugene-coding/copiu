@@ -12,6 +12,7 @@ use app\models\NGroup;
 use app\models\Nomenclature;
 use app\models\Order;
 use app\models\PriceCategory;
+use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
 use app\models\Store;
 use Yii;
@@ -193,7 +194,7 @@ class SiteController extends Controller
             '1. Синхронизация покупателей, ценовых категорий, отделов и пр.' => '/site/sync-all',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
-            '4. Синхронизация цен для ценовых категорий' => '/site/sync-price-for-p-c',
+            '4. Синхронизация цен для ценовых категорий' => '/site/get-price-for-price-category',
         ];
 
         if ($request->isGet) {
@@ -317,10 +318,10 @@ class SiteController extends Controller
 
         if (!$force){
             //Проверяем период получения номенклатуры
-            $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
+            $last_time = strtotime(Settings::getValueByKey('get_nomenclature_date'));
             $diff_time = time() - $last_time;
             if ($diff_time < (60 * 60 * 12)){
-                return 'Ожидание синхронизации';
+                return 'Ожидание синхронизации номенклатуры';
             }
         }
 
@@ -429,19 +430,69 @@ class SiteController extends Controller
     }
 
     /**
-     * Синхронизация цен для ценовых категорий
+     * Сохраняет xml файл с ценовыми категориями
+     * @param bool $force
+     * @return array|string
      */
-    public function actionSyncPriceForPC()
+    public function actionGetPriceForPriceCategory($force = false)
     {
         set_time_limit(600);
-//        ini_set("memory_limit", "128M");
+
+        if (!$force){
+            //Проверяем период получения цен для категорий
+            $last_time = strtotime(Settings::getValueByKey('get_prices_date'));
+            $diff_time = time() - $last_time;
+            if ($diff_time < (60 * 60 * 12)){
+                return 'Ожидание синхронизации цен';
+            }
+        }
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $postman = new PostmanApiHelper();
+        $str = $postman->getPriceListItems();
 
-        $result = $postman->getPriceListItems();
+        file_put_contents('uploads/getPriceListItems.xml', $str);
+
+        Settings::setValueByKey('get_prices_date', date('Y-m-d H:i:s', time()));
+
+        return[
+            'success' => true,
+            'data' => 'Создан файл с данными для синхронзиации. Цены будут синхронизированы в течении 10 минут',
+        ];
+
+    }
+
+    /**
+     * Синхронизация цен для ценовых категорий
+     */
+    public function actionSyncPriceForPriceCategory()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        //Проверяем период синхронизации номенклатуры
+        $last_time = strtotime(Settings::getValueByKey('sync_price_date'));
+        $diff_time = time() - $last_time;
+        if ($diff_time < 110){
+            return 'Ожидание синхронизации цен';
+        }
+        set_time_limit(600);
+
+        $path_xml = 'uploads/getPriceListItems.xml';
+        $str = file_get_contents($path_xml);
+
+        $result = PriceCategoryToNomenclature::sync($str);
+
+        Settings::setValueByKey('sync_price_date', date('Y-m-d H:i:s', time()));
+
         Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
         $result['settings_check'] = Settings::checkSettings()['success'];
+
+        try {
+            unlink($path_xml);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), '_error');
+        }
+
         return $result;
     }
 
