@@ -247,7 +247,6 @@ XML;
 
             $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
             $str = $this->send('POST');
-            file_put_contents('uploads/getPriceListItems.xml', $str);
         }
 
         if (strpos($str, 'access is not allowed')) {
@@ -259,6 +258,7 @@ XML;
 
         return [
             'success' => true,
+            'data' => $str,
         ];
     }
 

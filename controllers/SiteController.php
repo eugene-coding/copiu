@@ -449,9 +449,13 @@ class SiteController extends Controller
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         $postman = new PostmanApiHelper();
-        $str = $postman->getPriceListItems();
+        $result = $postman->getPriceListItems();
 
-        file_put_contents('uploads/getPriceListItems.xml', $str);
+        if ($result['success']){
+            file_put_contents('uploads/getPriceListItems.xml', $result['data']);
+        } else {
+            return $result;
+        }
 
         Settings::setValueByKey('get_prices_date', date('Y-m-d H:i:s', time()));
 
