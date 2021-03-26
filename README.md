@@ -11,7 +11,6 @@ rapidly creating small projects.
 Что имеем
 -------------------
 - Оформление Admin LTE
-- Хранение пользователей в БД (Без CRUD)
 - Интегрирован RBAC ([Настройка RBAC](https://habr.com/ru/post/235485/))
 
 # RBAC
