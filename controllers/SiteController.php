@@ -194,7 +194,7 @@ class SiteController extends Controller
             '1. Синхронизация покупателей, ценовых категорий, отделов и пр.' => '/site/sync-all',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
-            '4. Синхронизация цен для ценовых категорий' => '/site/get-price-for-price-category',
+            '4. Синхронизация цен для ценовых категорий' => '/site/get-price-for-price-category?force=true',
         ];
 
         if ($request->isGet) {
@@ -471,6 +471,9 @@ class SiteController extends Controller
 
         //Проверяем период синхронизации номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_price_date'));
+        if (!$last_time){
+            $last_time = date('Y-m-d H:i:s', time());
+        }
         $diff_time = time() - $last_time;
         if ($diff_time < 110){
             return 'Ожидание синхронизации цен';
@@ -478,6 +481,11 @@ class SiteController extends Controller
         set_time_limit(600);
 
         $path_xml = 'uploads/getPriceListItems.xml';
+
+        if (!is_file($path_xml)){
+            return 'Файл не найден';
+        }
+
         $str = file_get_contents($path_xml);
 
         $result = PriceCategoryToNomenclature::sync($str);
