@@ -78,6 +78,6 @@ class Store extends ActiveRecord
 
     public static function getList()
     {
-        return ArrayHelper::map(static::find()->all(), 'outer_id', 'name');
+        return ArrayHelper::map(static::find()->orderBy(['name' => SORT_ASC])->all(), 'outer_id', 'name');
     }
 }

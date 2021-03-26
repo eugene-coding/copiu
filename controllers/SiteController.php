@@ -440,7 +440,7 @@ class SiteController extends Controller
         $postman = new PostmanApiHelper();
 
         $result = $postman->getPriceListItems();
-//        Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+        Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
         $result['settings_check'] = Settings::checkSettings()['success'];
         return $result;
     }

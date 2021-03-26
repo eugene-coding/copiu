@@ -93,7 +93,7 @@ class IikoApiHelper
     protected function send($type = 'GET')
     {
         Yii::info('Request string: ' . $this->request_string, 'test');
-//        Yii::info('Headers: ' . json_encode($this->headers), 'test');
+        Yii::info('Headers: ' . $this->headers, 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
