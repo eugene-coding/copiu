@@ -25,7 +25,7 @@ class m210326_083935_insert_row_to_settings_table extends Migration
     {
         echo "m210326_083935_insert_row_to_settings_table cannot be reverted.\n";
 
-        return false;
+        return true;
     }
 
     /*

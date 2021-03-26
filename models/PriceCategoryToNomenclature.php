@@ -212,4 +212,88 @@ class PriceCategoryToNomenclature extends ActiveRecord
             'data' => $data
         ];
     }
+
+    public static function import($data)
+    {
+        $categories_in_base = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
+        $products_in_base = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
+        $pctn_to_category = ArrayHelper::map(PriceCategoryToNomenclature::find()->all(), 'id', 'pc_id');
+        $pctn_to_nomenclature = ArrayHelper::map(PriceCategoryToNomenclature::find()->all(), 'id', 'n_id');
+
+        foreach ($data as $item) {
+            $categories = [];
+            $prices = [];
+//            Yii::info($item, 'test');
+            $info = $item['i'];
+            Yii::info($info, 'test');
+            $product_outer_id = $info['product'];
+            $prices_and_categories = $info['pricesForCategories'];
+
+            $product_id = $products_in_base[$product_outer_id];
+
+            if (!$product_id) {
+                //Продукт не найден в номенклатуре, пропускаем
+                continue;
+            }
+
+            //Категории
+            $prep_category = $prices_and_categories['k'];
+            if (!is_array($prep_category)) {
+                $categories[] = $prep_category;
+            }
+
+            //Цены
+            $prep_price = $prices_and_categories['v'];
+            if (!is_array($prep_price)) {
+                $prices[] = $prep_price;
+            }
+
+            for ($i = 0; $i < count($categories); $i++) {
+
+
+                $category_outer_id = $categories[$i];
+                $category_id = $categories_in_base[$category_outer_id];
+
+                $pctn_in_base_cat = array_values($pctn_to_category);
+                $pctn_in_base_nom = array_values($pctn_to_nomenclature);
+
+                Yii::info('Категория: ' . $category_id . ' Продукт: ' . $product_id, 'test');
+                Yii::info((int)in_array($category_id, $pctn_in_base_cat), 'test');
+                Yii::info((int)in_array($product_id, $pctn_in_base_nom), 'test');
+
+                if (!$category_id || !$product_id){
+                    continue;
+                }
+
+                if (in_array($category_id, $pctn_in_base_cat)
+                    && in_array($product_id, $pctn_in_base_nom)) {
+                    //Если комбинация продукт + категория уже есть в базе
+                    $pctn_model = PriceCategoryToNomenclature::find()
+                        ->andWhere([
+                            'pc_id' => $categories_in_base[$categories[$i]],
+                            'n_id' => $product_id,
+                        ])
+                        ->one();
+                } else {
+                    $pctn_model = new PriceCategoryToNomenclature([
+                        'pc_id' => $categories_in_base[$categories[$i]],
+                        'n_id' => $product_id,
+                    ]);
+                }
+                $pctn_model->price = $prices[$i];
+                Yii::info($pctn_model->attributes, 'test');
+
+                if (!$pctn_model->save()) {
+                    Yii::info('Ошибка сохранения', 'test');
+                    Yii::error($pctn_model->errors, '_error');
+                } else {
+                    Yii::info('Сохранено', 'test');
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+        ];
+    }
 }

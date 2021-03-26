@@ -38,7 +38,7 @@ class SiteController extends Controller
                 'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['sync-nomenclature','get-nomenclature'],
+                        'actions' => ['sync-nomenclature', 'get-nomenclature'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -288,12 +288,12 @@ class SiteController extends Controller
             ];
         }
 
-        if ($data['delivery']){
+        if ($data['delivery']) {
             Settings::setValueByKey('delivery_eid', $data['delivery']['outer_id']);
             Settings::setValueByKey('delivery_main_unit', $data['delivery']['main_unit']);
         }
 
-        if ($data['revenueDebitAccount']){
+        if ($data['revenueDebitAccount']) {
             Settings::setValueByKey('revenue_debit_account', (string)$data['revenueDebitAccount']);
         }
 
@@ -316,11 +316,11 @@ class SiteController extends Controller
     {
         set_time_limit(600);
 
-        if (!$force){
+        if (!$force) {
             //Проверяем период получения номенклатуры
             $last_time = strtotime(Settings::getValueByKey('get_nomenclature_date'));
             $diff_time = time() - $last_time;
-            if ($diff_time < (60 * 60 * 12)){
+            if ($diff_time < (60 * 60 * 12)) {
                 return 'Ожидание синхронизации номенклатуры';
             }
         }
@@ -331,9 +331,9 @@ class SiteController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $iiko = new IikoApiHelper();
 
-       $iiko->getItems();
+        $iiko->getItems();
 
-       Settings::setValueByKey('get_nomenclature_date', date('Y-m-d H:i:s', time()));
+        Settings::setValueByKey('get_nomenclature_date', date('Y-m-d H:i:s', time()));
 
         return [
             'success' => true,
@@ -351,7 +351,7 @@ class SiteController extends Controller
         //Проверяем период синхронизации номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
         $diff_time = time() - $last_time;
-        if ($diff_time < 110){
+        if ($diff_time < 110) {
             return 'Ожидание синхронизации';
         }
         set_time_limit(600);
@@ -377,7 +377,7 @@ class SiteController extends Controller
             }
 
 
-            if (!isset($chunk_data[$next_chunk]) || !$chunk_data[$next_chunk]){
+            if (!isset($chunk_data[$next_chunk]) || !$chunk_data[$next_chunk]) {
                 //Если нет чанка или он пустой - значит данные все импортированы, завршаем импорт
                 Settings::setValueByKey('sync_nomenclature_next_chunk', null);
                 try {
@@ -397,7 +397,7 @@ class SiteController extends Controller
             $result['chunk_done'] = "{$chunk_num} из {$count_chunk}";
             Settings::setValueByKey('sync_nomenclature_sync_date', date('Y-m-d H:i:s', time()));
 
-            if ($result['success']){
+            if ($result['success']) {
                 $next_chunk++;
                 Settings::setValueByKey('sync_nomenclature_next_chunk', (string)$next_chunk);
             }
@@ -438,11 +438,11 @@ class SiteController extends Controller
     {
         set_time_limit(600);
 
-        if (!$force){
+        if (!$force) {
             //Проверяем период получения цен для категорий
             $last_time = strtotime(Settings::getValueByKey('get_prices_date'));
             $diff_time = time() - $last_time;
-            if ($diff_time < (60 * 60 * 12)){
+            if ($diff_time < (60 * 60 * 12)) {
                 return 'Ожидание синхронизации цен';
             }
         }
@@ -451,7 +451,7 @@ class SiteController extends Controller
         $postman = new PostmanApiHelper();
         $result = $postman->getPriceListItems();
 
-        if ($result['success']){
+        if ($result['success']) {
             file_put_contents('uploads/getPriceListItems.xml', $result['data']);
         } else {
             return $result;
@@ -459,23 +459,20 @@ class SiteController extends Controller
 
         Settings::setValueByKey('get_prices_date', date('Y-m-d H:i:s', time()));
 
-        return[
+        return [
             'success' => true,
             'data' => 'Создан файл с данными для синхронзиации. Цены будут синхронизированы в течении 10 минут',
         ];
 
     }
 
-    /**
-     * Синхронизация цен для ценовых категорий
-     */
     public function actionSyncPriceForPriceCategory()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         //Проверяем период синхронизации номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_price_date'));
-        if (!$last_time){
+        if (!$last_time) {
             $last_time = date('Y-m-d H:i:s', time());
         }
         $diff_time = time() - $last_time;
@@ -486,7 +483,85 @@ class SiteController extends Controller
 
         $path_xml = 'uploads/getPriceListItems.xml';
 
-        if (!is_file($path_xml)){
+        if (!is_file($path_xml)) {
+            return 'Файл не найден';
+        }
+
+        $xml = simplexml_load_file($path_xml, "SimpleXMLElement", LIBXML_NOCDATA);
+        $json = json_encode($xml);
+        $data = json_decode($json, true);
+//        Yii::info($data['returnValue']['v'], 'test');
+
+        $next_chunk = (int)Settings::getValueByKey('sync_price_next_chunk');
+        $chunk_data = array_chunk($data['returnValue']['v'], 500);
+        $count_chunk = count($chunk_data);
+        Yii::info('Всего чанков: ' . $count_chunk, 'test');
+
+        if ($next_chunk === null) {
+            $next_chunk = 0;
+        }
+
+        if (!isset($chunk_data[$next_chunk]) || !$chunk_data[$next_chunk]) {
+            //Если нет чанка или он пустой - значит данные все импортированы, завршаем импорт
+            Settings::setValueByKey('sync_price_next_chunk', null);
+            try {
+                unlink($path_xml);
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), '_error');
+            }
+
+            return 'Импорт цен для ценовых категорий завершен';
+        } else {
+            Yii::info('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
+//            Yii::info($chunk_data[$next_chunk], 'test');
+        }
+
+        $result = PriceCategoryToNomenclature::import($chunk_data[$next_chunk]);
+
+        $chunk_num = $next_chunk + 1;
+        $result['chunk_done'] = "{$chunk_num} из {$count_chunk}";
+
+        Settings::setValueByKey('sync_price_date', date('Y-m-d H:i:s', time()));
+
+        if ($result['success']) {
+            $next_chunk++;
+            Settings::setValueByKey('sync_price_next_chunk', (string)$next_chunk);
+        }
+
+        Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
+        $result['settings_check'] = Settings::checkSettings()['success'];
+
+        return $result;
+    }
+
+
+    /**
+     * Синхронизация цен для ценовых категорий
+     */
+    public function actionSyncPriceForPriceCategory_v1()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $path_xml = 'uploads/getPriceListItems.xml';
+
+        if (!is_file($path_xml)) {
+            return 'Файл не найден';
+        }
+
+
+        //Проверяем период синхронизации номенклатуры
+        $last_time = strtotime(Settings::getValueByKey('sync_price_date'));
+        if (!$last_time) {
+            $last_time = date('Y-m-d H:i:s', time());
+        }
+        $diff_time = time() - $last_time;
+        if ($diff_time < 110) {
+            return 'Ожидание синхронизации цен';
+        }
+        set_time_limit(600);
+
+        $path_xml = 'uploads/getPriceListItems.xml';
+
+        if (!is_file($path_xml)) {
             return 'Файл не найден';
         }
 
