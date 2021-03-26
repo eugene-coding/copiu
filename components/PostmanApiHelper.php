@@ -8,6 +8,7 @@ use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
 use DOMDocument;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 
 /**
@@ -267,6 +268,11 @@ XML;
         $items = $xml->returnValue;
         Yii::info($items, 'test');
 
+        $categories_in_base = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
+        $products_in_base = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
+        $base_cat_outer_ids = array_keys($categories_in_base);
+        $base_product_outer_ids = array_keys($products_in_base);
+
         foreach ($items->v as $item) {
             $product_outer_id = (string)$item->i->product;
 
@@ -275,7 +281,6 @@ XML;
                 $skipped++;
                 continue;
             }
-
 
             Yii::info('Product outer ID: ' . $product_outer_id, 'test');
             $categories_and_prices = [];
@@ -303,35 +308,36 @@ XML;
                 $prices = $prices_prep;
             }
 
+
             if ($categories){
 //                Yii::info($categories, 'test');
                 for ($i = 0; $i < count($categories); $i++) {
-                    $category = PriceCategory::findOne(['outer_id' => $categories[$i]]);
+//                    $category = PriceCategory::findOne(['outer_id' => $categories[$i]]);
+                    $cat_outer_id = $categories[$i];
+                    /** @var array $base_cat_outer_ids Внешине ключи категорий в базе */
 
-                    if (!$category) {
+                    if (!in_array($cat_outer_id, $base_cat_outer_ids)) {
                         Yii::info('Категория не найдена. Пропускаем', 'test');
                         continue;
                     }
-                    Yii::info('Категория: ' . $category->name, 'test');
 
                     $price = $prices[$i];
-                    $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
+//                    $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
 
-                    if (!$product) {
+                    if (!in_array($product_outer_id, $base_product_outer_ids)) {
                         Yii::info('Продукт не найден. Пропускаем', 'test');
                         continue;
                     }
-                    Yii::info('Продукт: ' . $product->name, 'test');
 
                     $model = new PriceCategoryToNomenclature([
-                        'pc_id' => $category->id,
-                        'n_id' => $product->id,
+                        'pc_id' => $categories_in_base[$cat_outer_id],
+                        'n_id' => $base_product_outer_ids[$product_outer_id],
                     ]);
 
                     if (!$model->validate('pc_id')) {
                         Yii::info($model->errors, 'test');
                         $model = PriceCategoryToNomenclature::find()
-                            ->andWhere(['pc_id' => $category->id, 'n_id' => $product->id])->one();
+                            ->andWhere(['pc_id' => $model->pc_id, 'n_id' => $model->n_id])->one();
                     }
 
                     $model->price = $price;
