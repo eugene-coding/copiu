@@ -21,7 +21,9 @@ use yii\widgets\ActiveForm;
     </div>
     <div class="row">
         <div class="col-xs-6">
-            <?= $form->field($model, 'time_limit')->input('time') ?>
+            <?= $form->field($model, 'time_limit')->input('time', [
+                    'value' => Yii::$app->formatter->asTime($model->time_limit),
+            ]) ?>
         </div>
         <div class="col-xs-6">
             <?= $form->field($model, 'day_limit')->input('number') ?>

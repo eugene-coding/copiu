@@ -16,7 +16,7 @@ class m210310_133239_create_order_blank_table extends Migration
             'id' => $this->primaryKey(),
             'number' => $this->string()->comment('Номер накладной'),
             'date' => $this->date()->comment('Дата накладной'),
-            'time_limit' => $this->integer()->comment('Ограничение по времени'),
+            'time_limit' => $this->time(4)->comment('Ограничение по времени'),
             'day_limit' => $this->integer()->comment('Ограничение по дням'),
             'synced_at' => $this->timestamp()->defaultValue(null)->comment('Дата и время синхронизации'),
         ]);
