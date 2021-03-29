@@ -107,7 +107,8 @@ class OrderBlank extends ActiveRecord
                     'error' => "Ошибка синхронизации. Для накладной № {$number} от {$date} не получена информация",
                 ];
             }
-            foreach ($data['document']['items']['item'] as $item) {
+            foreach ($data['document']['items'] as $item) {
+                Yii::info($item, 'test');
                 $n_id = Nomenclature::find()->andWhere(['outer_id' => $item['productId']])->one()->id;
 
                 if ($n_id) {

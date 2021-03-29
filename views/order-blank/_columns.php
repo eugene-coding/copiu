@@ -32,6 +32,9 @@ return [
         'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'synced_at',
         'value' => function (\app\models\OrderBlank $model){
+            if (!$model->synced_at){
+                return '';
+            }
             return date('d.m.Y H:i', strtotime($model->synced_at));
         }
     ],
