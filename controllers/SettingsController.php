@@ -111,7 +111,7 @@ class SettingsController extends Controller
                 'delivery_eid',
                 'get_prices_date',
                 'sync_price_date',
-                'syn_price_next_chunk',
+                'sync_price_next_chunk',
             ];
 
             /** @var Settings $setting */
@@ -406,7 +406,7 @@ class SettingsController extends Controller
             'delivery_eid',
             'get_prices_date',
             'sync_price_date',
-            'syn_price_next_chunk',
+            'sync_price_next_chunk',
         ];
 
         $settings = Settings::find();
