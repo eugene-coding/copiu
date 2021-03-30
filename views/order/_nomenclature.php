@@ -1,6 +1,7 @@
 <?php
 
 use app\models\OrderToNomenclature;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /* @var $model app\models\Order */
@@ -8,7 +9,7 @@ use yii\helpers\Html;
 
 $counter = 1;
 $product_sum = OrderToNomenclature::getTotalPrice($model->id);
-$product_sum = $product_sum ? $product_sum . 'р.': '';
+$product_sum = $product_sum ? $product_sum . 'р.' : '';
 
 ?>
 <div class="panel panel-primary">
@@ -31,7 +32,9 @@ $product_sum = $product_sum ? $product_sum . 'р.': '';
             </tr>
             </thead>
             <tbody>
-            <?php Yii::info(\yii\helpers\ArrayHelper::map($dataProvider->getModels(), 'id', 'name'), 'test') ?>
+            <?php
+            $arr = ArrayHelper::map($dataProvider->getModels(), 'id', 'name');
+            Yii::info($arr, 'test') ?>
             <?php /** @var \app\models\Nomenclature $product */
             foreach ($dataProvider->getModels() as $product): ?>
             <?php

@@ -271,11 +271,23 @@ class Nomenclature extends ActiveRecord
             return $this->default_price;
         }
 
+        Yii::info('Buyer: ' . $buyer->name, 'test');
+        Yii::info('Price Category: ' . $buyer->pc_id, 'test');
+
         /** @var PriceCategoryToNomenclature $pc_t_n */
         $pc_t_n = PriceCategoryToNomenclature::find()
-            ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])->one();
+            ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])
+            ->one();
 
-        return $pc_t_n->price * $buyer->discount;
+        if (!$pc_t_n){
+            return $this->default_price;
+        }
+
+        if ($buyer->discount){
+            return $pc_t_n->price * $buyer->discount;
+        } else {
+            return $pc_t_n->price;
+        }
 
     }
 
