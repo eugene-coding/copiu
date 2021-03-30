@@ -10,7 +10,6 @@ use app\models\Department;
 use app\models\Measure;
 use app\models\NGroup;
 use app\models\Nomenclature;
-use app\models\Order;
 use app\models\PriceCategory;
 use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
@@ -568,8 +567,6 @@ class SiteController extends Controller
         $str = file_get_contents($path_xml);
 
         $result = PriceCategoryToNomenclature::sync($str);
-
-        Settings::setValueByKey('sync_price_date', date('Y-m-d H:i:s', time()));
 
         Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
         $result['settings_check'] = Settings::checkSettings()['success'];

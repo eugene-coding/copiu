@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\PostmanApiHelper;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -152,7 +153,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
 //                    $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
 
                     if (!in_array($product_outer_id, $base_product_outer_ids)) {
-                        Yii::info('Продукт не найден. Пропускаем', 'test');
+                        Yii::info("Продукт {$product_outer_id} не найден. Пропускаем", 'test');
                         continue;
                     }
 
@@ -191,7 +192,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
         }
 
         $data = 'Синхронизация цен прошла успешно<br>';
-
+        Settings::setValueByKey('sync_price_date', date('Y-m-d H:i:s', time()));
         if ($errors) {
             $data .= 'Ошибок: ' . $errors . '<br>';
         }
@@ -261,7 +262,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 Yii::info((int)in_array($category_id, $pctn_in_base_cat), 'test');
                 Yii::info((int)in_array($product_id, $pctn_in_base_nom), 'test');
 
-                if (!$category_id || !$product_id){
+                if (!$category_id || !$product_id) {
                     continue;
                 }
 
@@ -295,5 +296,81 @@ class PriceCategoryToNomenclature extends ActiveRecord
         return [
             'success' => true,
         ];
+    }
+
+    /**
+     * Синхронизация для ценовых категорий для продуктов
+     * @param array $prod_outer_ids UIID продукта
+     * @return array
+     */
+    public static function syncForProducts($prod_outer_ids)
+    {
+        $products = ArrayHelper::map(Nomenclature::find()
+            ->select(['id'])
+            ->andWhere(['IN', 'outer_id', $prod_outer_ids])
+            ->all(), 'outer_id', 'id');
+
+        $postmanApi = new PostmanApiHelper();
+
+        //Получаем продукты с ценовыми категориями и ценами для ценовых категорий
+        $data = $postmanApi->getPriceListItems();
+
+        if (!$data['success']) {
+            return $data;
+        }
+
+        $xml = simplexml_load_string($data['data']);
+
+        //Проходимся по полученным продуктам
+        foreach ($xml->returnValue->v as $item) {
+            $json = json_encode($item->i);
+            $arr = json_decode($json, true);
+
+            if (count($arr) <= 2) {
+                continue;
+            }
+            Yii::info($arr, 'test');
+
+            $product_id = $products[$arr['product']];
+
+            if (!$product_id) {
+                //Продукта нет в переданном списке продуктов
+                continue;
+            }
+
+            $p_categories = $arr['pricesForCategories']['k'];
+            $p_prices = $arr['pricesForCategories']['v'];
+
+            if (!is_array($p_categories)) {
+                $categories[] = $p_categories;
+            } else {
+                $categories = $p_categories;
+            }
+
+            if (!is_array($p_prices)) {
+                $prices[] = $p_prices;
+            } else {
+                $prices = $p_prices;
+            }
+
+            for ($i = 0; $i < count($categories); $i++) {
+                /** @var PriceCategoryToNomenclature $model */
+                $model = PriceCategoryToNomenclature::find()
+                    ->andWhere(['pc_id' => $categories[$i], 'n_id' => $product_id])
+                    ->one();
+
+                if ($model) {
+                    $model->price = $prices[$i];
+                    if (!$model->save()) {
+                        Yii::error($model->errors, '_error');
+                    }
+                } else {
+                    continue;
+                }
+            }
+        }
+
+//        Yii::info($json, 'test');
+
     }
 }

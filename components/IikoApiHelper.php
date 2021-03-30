@@ -157,7 +157,9 @@ class IikoApiHelper
         if (!$ids) return [];
 
         $str_ids = implode('&ids=', $ids);
+
         Yii::info($str_ids, 'test');
+
         $this->request_string = $this->base_url
             . 'resto/api/v2/entities/products/list?includeDeleted=false&key='
             . $this->token . '&ids=' . $str_ids;

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\IikoApiHelper;
 use app\models\query\NomenclatureQuery;
 use Yii;
 use yii\db\ActiveRecord;
@@ -210,15 +211,15 @@ class Nomenclature extends ActiveRecord
             $measure_outer_id = $item['mainUnit'];
             $model->measure_id = $measures[$measure_outer_id];
             $model->name = $item['name'];
-            $model->description = $item['description']?:'';
+            $model->description = $item['description'] ?: '';
             $model->outer_id = $item['id'];
-            $model->num = $item['num']?:0;
+            $model->num = $item['num'] ?: 0;
             $model->n_group_id = $n_group_id;
-            $model->default_price = $item['defaultSalePrice']?:0;
-            $model->unit_weight = $item['unitWeight']?:0;
-            $model->unit_capacity = $item['unitCapacity']?:0;
+            $model->default_price = $item['defaultSalePrice'] ?: 0;
+            $model->unit_weight = $item['unitWeight'] ?: 0;
+            $model->unit_capacity = $item['unitCapacity'] ?: 0;
             $model->type = $item['type'];
-            $model->main_unit = $item['mainUnit']?:null;
+            $model->main_unit = $item['mainUnit'] ?: null;
 
 //            Yii::info($model->attributes, 'test');
 
@@ -266,13 +267,15 @@ class Nomenclature extends ActiveRecord
         $user = Yii::$app->user->identity;
         $buyer = $user->buyer;
 
-        if (!$buyer || !$buyer->pc_id) return $this->default_price;
+        if (!$buyer || !$buyer->pc_id) {
+            return $this->default_price;
+        }
 
         /** @var PriceCategoryToNomenclature $pc_t_n */
         $pc_t_n = PriceCategoryToNomenclature::find()
             ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])->one();
 
-       return $pc_t_n->price * $buyer->discount;
+        return $pc_t_n->price * $buyer->discount;
 
     }
 
@@ -284,7 +287,10 @@ class Nomenclature extends ActiveRecord
     public function getPriceForOrder($order_id)
     {
         /** @var OrderToNomenclature $query */
-        $query = OrderToNomenclature::find()->andWhere(['order_id' => $order_id, 'nomenclature_id' => $this->id])->one();
+        $query = OrderToNomenclature::find()->andWhere([
+            'order_id' => $order_id,
+            'nomenclature_id' => $this->id
+        ])->one();
 
         return $query->price;
     }
@@ -312,6 +318,36 @@ class Nomenclature extends ActiveRecord
     {
         return $this->hasMany(Order::class, ['id' => 'order_id'])
             ->via('orderToNomenclature');
+    }
+
+    public static function syncByIds($ids)
+    {
+        $helper = new IikoApiHelper();
+        $outer_products = $helper->getItemsById($ids);
+//        Yii::info($outer_products, 'test');
+
+        $products = ArrayHelper::map(self::find()
+            ->andWhere(['IN', 'outer_id', $ids])->all(), 'outer_id', 'id');
+
+        foreach ($outer_products as $product) {
+            $nom_id = $products[$product['id']];
+
+            $n_position = Nomenclature::findOne($nom_id);
+            if (!$n_position) {
+                continue;
+            }
+
+            $n_position->default_price = $product['defaultSalePrice'];
+            $n_position->main_unit = $product['mainUnit'];
+
+            if (!$n_position->save()){
+                Yii::error($n_position->errors, '_error');
+            }
+        }
+        Yii::info('Обновление номенклатуры. Ок', 'test');
+
+        return true;
+
     }
 
 }

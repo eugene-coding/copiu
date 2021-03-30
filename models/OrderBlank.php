@@ -6,6 +6,7 @@ use app\components\IikoApiHelper;
 use app\models\query\OrderBlankQuery;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /**
@@ -69,13 +70,14 @@ class OrderBlank extends ActiveRecord
     }
 
     /**
-     * Синхронизация всех накладных
+     * Синхронизация всех бланков заказа
      * @throws \yii\base\InvalidConfigException
      */
     public static function sync()
     {
         $helper = new IikoApiHelper();
         $result = [];
+
         foreach (static::find()->all() as $blank) {
             $params = [
                 'number' => $blank->number,
@@ -85,16 +87,13 @@ class OrderBlank extends ActiveRecord
             $response = $helper->getOrderBlank($params);
             Yii::info($response, 'test');
 
-//            $path = 'uploads/order_blank.xml';
-//            $str1 = simplexml_load_file($path);
-//            $arr = json_decode(json_encode($str1), true);
-//
-//            \Yii::info($arr, 'test');
-
-
             $result[$blank->id] = $response;
         }
         Yii::info($result, 'test');
+
+        $ob_to_nom = ArrayHelper::map(OrderBlankToNomenclature::find()->all(), 'ob_id', 'n_id');
+        $nomenclature = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
+        $product_outer_ids_in_blanks = [];
 
         foreach ($result as $blank_id => $data) {
             $blank_model = OrderBlank::findOne($blank_id);
@@ -104,14 +103,21 @@ class OrderBlank extends ActiveRecord
             if (!$data) {
                 return [
                     'success' => false,
-                    'error' => "Ошибка синхронизации. Для накладной № {$number} от {$date} не получена информация",
+                    'error' => "Ошибка синхронизации. Для накладной № {$number} от {$date}: не получена информация",
                 ];
             }
+
             foreach ($data['document']['items'] as $item) {
                 Yii::info($item, 'test');
-                $n_id = Nomenclature::find()->andWhere(['outer_id' => $item['productId']])->one()->id;
-
+                $n_id = $nomenclature[$item['productId']];
+                Yii::info($n_id, 'test');
                 if ($n_id) {
+                    $product_outer_ids_in_blanks[] = $item['productId'];
+                    if ($ob_to_nom[$blank_id] == $n_id) {
+                        //Если комбинация бланк-номенклатура уже есть в базе
+                        Yii::info('Комбинация бланк-номенклатура уже есть в базе. Пропускаем', 'test');
+                        continue;
+                    }
                     $model = new OrderBlankToNomenclature([
                         'n_id' => $n_id,
                         'ob_id' => $blank_id,
@@ -130,6 +136,17 @@ class OrderBlank extends ActiveRecord
                 }
             }
         }
+
+        if ($product_outer_ids_in_blanks) {
+            //Обновляем продукты указанные в бланках
+            Nomenclature::syncByIds($product_outer_ids_in_blanks);
+            //Обновляем цены для ценовых категорий в которых находятся продукты бланков
+
+            PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
+
+        }
+
+        Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
 
         return [
             'success' => true,
@@ -196,20 +213,20 @@ class OrderBlank extends ActiveRecord
             }
             Yii::info('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
 
-            $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 *60 * 60));
+            $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 * 60 * 60));
             $delivery_time = strtotime($delivery_date);
 
             Yii::info('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
             Yii::info('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
             Yii::info('Расчетная дата доставки больше даты заказа: '
-                . (int)(strtotime($delivery_date) >  strtotime($target_date)), 'test');
+                . (int)(strtotime($delivery_date) > strtotime($target_date)), 'test');
 
-            if (strtotime($delivery_date) >  strtotime($target_date)){
+            if (strtotime($delivery_date) > strtotime($target_date)) {
                 //Есил расчетная дата доставки больше даты, на которую заказывается продукты
                 continue;
             }
 
-            if ($delivery_time < strtotime($target_date)){
+            if ($delivery_time < strtotime($target_date)) {
                 //Если продукты заказаны на более позднюю дату, чем расчетная
                 $max_order_time = time();
             }
@@ -218,7 +235,8 @@ class OrderBlank extends ActiveRecord
             $result .= '<td>';
             $result .= '<span class="fa fa-check text-success"></span> Бланк ' . $blank->number
                 . ' продуктов <span class="count-products">' . $count_products . '</span>'
-                . ", можно оформить <b>" . date('d.m.Y', $max_order_time) . "</b> до <b>" . Yii::$app->formatter->asTime($blank->time_limit)
+                . ", можно оформить <b>" . date('d.m.Y',
+                    $max_order_time) . "</b> до <b>" . Yii::$app->formatter->asTime($blank->time_limit)
                 . "</b>. Заказ будет доставлен <b>" . date('d.m.Y', strtotime($target_date)) . '</b><br>';
             $result .= '</td>';
             $result .= '</tr>';
@@ -261,7 +279,7 @@ class OrderBlank extends ActiveRecord
         $result = $helper->getOrderBlank($params);
         Yii::info($result, 'test');
 
-        if ($result && isset($result['document']['id'])){
+        if ($result && isset($result['document']['id'])) {
             return true;
         }
 

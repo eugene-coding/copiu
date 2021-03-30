@@ -336,10 +336,12 @@ class OrderBlankController extends Controller
      */
     public function actionSyncing()
     {
+        set_time_limit(600);
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         try {
             return OrderBlank::sync();
+
         } catch (InvalidConfigException $e) {
             return [
                 'success' => false,
