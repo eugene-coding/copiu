@@ -476,7 +476,7 @@ class SiteController extends Controller
             $last_time = date('Y-m-d H:i:s', time());
         }
         $diff_time = time() - $last_time;
-        if ($diff_time < 110){
+        if ($diff_time < 110) {
             return 'Ожидание синхронизации цен';
         }
         set_time_limit(600);
@@ -588,11 +588,12 @@ class SiteController extends Controller
      */
     public function actionTest()
     {
-        $order = Order::findOne(53);
-        $result = $order->makeInvoice();
-//        $result = $order->makeDeliveryAct();
-        Yii::warning($result, 'test');
-        Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
+        $helper = new IikoApiHelper();
+        $items = [
+            '6a7c2975-86b9-4d81-b210-d9211f530d8f',
+            'c9422351-9abf-4064-8703-8a60f256ac4d'
+        ];
+        $result = $helper->getItemsById($items);
         VarDumper::dump($result, 10, true);
     }
 }

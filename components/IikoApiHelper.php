@@ -148,6 +148,24 @@ class IikoApiHelper
     }
 
     /**
+     * Получает позиции номенклатуры по Идентификатору
+     * @param array $ids Внешние ID продуктов
+     * @return array
+     */
+    public function getItemsById($ids)
+    {
+        if (!$ids) return [];
+
+        $str_ids = implode('&ids=', $ids);
+        Yii::info($str_ids, 'test');
+        $this->request_string = $this->base_url
+            . 'resto/api/v2/entities/products/list?includeDeleted=false&key='
+            . $this->token . '&ids=' . $str_ids;
+        $result = $this->send();
+
+        return json_decode($result, true);
+    }
+    /**
      * Получает номенклатурные группы
      * @return mixed
      */
