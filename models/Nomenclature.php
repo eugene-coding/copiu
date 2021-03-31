@@ -267,10 +267,15 @@ class Nomenclature extends ActiveRecord
         $user = Yii::$app->user->identity;
         $buyer = $user->buyer;
 
-        if (!$buyer || !$buyer->pc_id) {
-            return $this->default_price;
+        if (!$buyer->pc_id) {
+            if ($buyer->discount) {
+                return $this->getPriceIncludeDiscount($this->default_price, $buyer->discount);
+            } else {
+                return $this->default_price;
+            }
         }
 
+        Yii::info('Product: ' . $this->id, 'test');
         Yii::info('Buyer: ' . $buyer->name, 'test');
         Yii::info('Price Category: ' . $buyer->pc_id, 'test');
 
@@ -279,16 +284,25 @@ class Nomenclature extends ActiveRecord
             ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])
             ->one();
 
-        if (!$pc_t_n){
-            return $this->default_price;
+        if (!$pc_t_n) {
+            if ($buyer->discount) {
+                return $this->getPriceIncludeDiscount($this->default_price, $buyer->discount);;
+            } else {
+                return $this->default_price;
+            };
         }
 
-        if ($buyer->discount){
-            return $pc_t_n->price * $buyer->discount;
+        if ($buyer->discount) {
+            return $this->getPriceIncludeDiscount($pc_t_n->price, $buyer->discount);
         } else {
             return $pc_t_n->price;
         }
+    }
 
+    private function getPriceIncludeDiscount($amount, $discount)
+    {
+        $discount_sum = $amount * $discount;
+        return $amount - $discount_sum;
     }
 
     /**
@@ -352,7 +366,7 @@ class Nomenclature extends ActiveRecord
             $n_position->default_price = $product['defaultSalePrice'];
             $n_position->main_unit = $product['mainUnit'];
 
-            if (!$n_position->save()){
+            if (!$n_position->save()) {
                 Yii::error($n_position->errors, '_error');
             }
         }
