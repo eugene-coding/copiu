@@ -10,6 +10,7 @@ $(document).ready(function () {
         loader.fadeIn(300);
         $.post("/order-blank/get-orders-by-date", {date: date})
             .done(function (response) {
+                console.log(response);
                 if (response.success) {
                     nom_block.html(response.data);
                     $('.count-products').each(function (index) {
@@ -21,7 +22,9 @@ $(document).ready(function () {
                         $('[type="submit"]').fadeOut(300);
                     }
                 } else {
+                    $('[type="submit"]').fadeOut(300);
                     nom_block.html('<p class="text-danger"><i class="fa fa-exclamation-circle"></i> ' + response.error + '</p>');
+                    nom_block.append(response.warning)
                 }
             })
             .fail(function (error) {

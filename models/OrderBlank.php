@@ -172,10 +172,9 @@ class OrderBlank extends ActiveRecord
     /**
      * Получает бланки заказов на дату
      * @param string $date Дата на которую производится заказ (Y-m-d)
-     * @return string
-     * @throws \yii\base\InvalidConfigException
+     * @return OrderBlank[]
      */
-    public function getBlanksByDate($date)
+    public static function getBlanksByDate($date)
     {
         $date = date('Y-m-d 00:00:00', strtotime($date));
         $target_date = date('Y-m-d 23:59:59');
@@ -189,7 +188,7 @@ class OrderBlank extends ActiveRecord
             ->andWhere(['<=', 'day_limit', $diff_days])
             ->all();
 
-        return $this->blanksToTable($blanks, $date);
+        return $blanks;
     }
 
     /**
@@ -198,7 +197,7 @@ class OrderBlank extends ActiveRecord
      * @return string
      * @throws \yii\base\InvalidConfigException
      */
-    private function blanksToTable($blanks, $target_date)
+    public static function blanksToTable($blanks, $target_date)
     {
         $result = '';
         $blank_ids = [];
@@ -284,5 +283,48 @@ class OrderBlank extends ActiveRecord
         }
 
         return false;
+    }
+
+    /**
+     * Информация по всем бланкам заказа, с выводом минимаальной даты заказа для каждого бланка
+     */
+    public function getAllBlanksInfo()
+    {
+        $blanks = self::find()->allowed()->all();
+        $result = '';
+
+        foreach ($blanks as $blank){
+            $count_products = OrderBlankToNomenclature::find()->andWhere(['ob_id' => $blank->id])->count();
+
+            /** @var int $max_order_time Максимальная дата доставки для продукта */
+            $max_order_time = strtotime($blank->time_limit); //Максимальное дата и время, до которого можно совершить заказ
+            if ($max_order_time < time()) {
+                $max_order_time = $max_order_time + (60 * 60 * 24);
+            }
+            Yii::info('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
+            $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 * 60 * 60));
+            $delivery_time = strtotime($delivery_date);
+
+            Yii::info('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+
+            $result .= '<tr>';
+            $result .= '<td>';
+            $result .= '<span class="fa fa-check text-success"></span> Бланк ' . $blank->number
+                . ' продуктов <span class="count-products">' . $count_products . '</span>'
+                . ", можно оформить <b>" . date('d.m.Y',
+                    $max_order_time) . "</b> до <b>" . Yii::$app->formatter->asTime($blank->time_limit)
+                . "</b>. Заказ будет доставлен <b>" . date('d.m.Y', strtotime($delivery_date)) . '</b><br>';
+            $result .= '</td>';
+            $result .= '</tr>';
+            $blank_ids[] = $blank->id;
+        }
+
+        $table = '<table class="table table-bordered table-hover">';
+        $table .= '<tbody>';
+        $table .= $result;
+        $table .= '</tbody>';
+        $table .= '</table>';
+
+        return $table;
     }
 }

@@ -358,6 +358,7 @@ class OrderBlankController extends Controller
     public function actionGetOrdersByDate()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+        $model = new OrderBlank();
 
 
         if (!$_POST['date']) {
@@ -366,22 +367,24 @@ class OrderBlankController extends Controller
                 'error' => 'Не выбрана дата',
             ];
         }
+
         if (strtotime($_POST['date']) < time()) {
+            $data = $model->getAllBlanksInfo();
             return [
                 'success' => false,
                 'error' => 'Дата заказа уже наступила. Заказ невозможен',
+                'warning' => $data
             ];
         }
 
         $target_date = date('Y-m-d', strtotime($_POST['date']));
 
-        $model = new OrderBlank();
-        $data = $model->getBlanksByDate($target_date);
+        $blanks = $model->getBlanksByDate($target_date);
+        $data = $model->blanksToTable($blanks, $target_date);
 
         if (!$data) {
             $data = 'Бланки заказов отсуствуют';
         }
-
 
         return [
             'success' => true,
