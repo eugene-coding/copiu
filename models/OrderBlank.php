@@ -71,7 +71,11 @@ class OrderBlank extends ActiveRecord
 
     /**
      * Синхронизация всех бланков заказа
+     * @return array
+     * @throws \Exception
+     * @throws \Throwable
      * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\StaleObjectException
      */
     public static function sync()
     {
@@ -107,10 +111,13 @@ class OrderBlank extends ActiveRecord
                 ];
             }
 
+            $exists_relations = ArrayHelper::map(OrderBlankToNomenclature::find()->all(), 'n_id', 'ob_id');
+            $inserted_relations = [];
+
             foreach ($data['document']['items'] as $item) {
                 Yii::info($item, 'test');
                 $n_id = $nomenclature[$item['productId']];
-                Yii::info($n_id, 'test');
+//                Yii::info($n_id, 'test');
                 if ($n_id) {
                     $product_outer_ids_in_blanks[] = $item['productId'];
                     if ($ob_to_nom[$blank_id] == $n_id) {
@@ -122,12 +129,13 @@ class OrderBlank extends ActiveRecord
                         'n_id' => $n_id,
                         'ob_id' => $blank_id,
                     ]);
+                    $inserted_relations[$model->n_id] = $model->ob_id;
 
                     if (!$model->save()) {
-                        Yii::error($model->errors, '_error');
+                        Yii::info($model->errors, 'test');
                     }
                 } else {
-                    Yii::warning('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
+                    Yii::info('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
                 }
                 //Пишем время синхронизации
                 $blank_model->synced_at = date('Y-m-d H:i:s', time());
@@ -135,15 +143,25 @@ class OrderBlank extends ActiveRecord
                     Yii::error($blank_model->errors, '_error');
                 }
             }
+            $relation_to_remove = array_diff_assoc($exists_relations, $inserted_relations);
+            Yii::warning($relation_to_remove, 'test');
+
+            //Удаляем устаревшие связи
+            foreach ($relation_to_remove as $nomenclature_id => $order_blank_id){
+                $obtn_model = OrderBlankToNomenclature::find()
+                    ->andWhere(['n_id' => $nomenclature_id, 'ob_id' => $order_blank_id])
+                    ->one();
+                $obtn_model->delete();
+            }
         }
+        Yii::info($product_outer_ids_in_blanks, 'test');
 
         if ($product_outer_ids_in_blanks) {
             //Обновляем продукты указанные в бланках
             Nomenclature::syncByIds($product_outer_ids_in_blanks);
+
             //Обновляем цены для ценовых категорий в которых находятся продукты бланков
-
             PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
-
         }
 
         Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
