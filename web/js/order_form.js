@@ -49,7 +49,7 @@ $(document).ready(function () {
         $('.total').html(Number(total) + 'р.');
     });
 
-    $(document).on('click', '[type="submit"]', function () {
+    $(document).on('click', '[type="submit"], .to-back', function () {
         $(window).unbind('beforeunload');
     });
 
