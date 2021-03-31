@@ -7,6 +7,7 @@ use Yii;
 use app\models\OrderBlank;
 use app\models\search\OrderBlankSearch;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -341,8 +342,22 @@ class OrderBlankController extends Controller
 
         try {
             return OrderBlank::sync();
-
         } catch (InvalidConfigException $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        } catch (StaleObjectException $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        } catch (\Throwable $e) {
             return [
                 'success' => false,
                 'error' => $e->getMessage(),

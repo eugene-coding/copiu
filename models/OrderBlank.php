@@ -143,6 +143,7 @@ class OrderBlank extends ActiveRecord
                     Yii::error($blank_model->errors, '_error');
                 }
             }
+
             $relation_to_remove = array_diff_assoc($exists_relations, $inserted_relations);
             Yii::warning($relation_to_remove, 'test');
 

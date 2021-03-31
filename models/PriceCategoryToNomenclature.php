@@ -309,16 +309,22 @@ class PriceCategoryToNomenclature extends ActiveRecord
     }
 
     /**
-     * Синхронизация для ценовых категорий для продуктов
+     * Синхронизация цен для ценовых категорий продуктов
      * @param array $prod_outer_ids UIID продукта
      * @return array
      */
     public static function syncForProducts($prod_outer_ids)
     {
+//        Yii::warning('syncForProducts', 'test');
+
         $products = ArrayHelper::map(Nomenclature::find()
-            ->select(['id'])
+            ->select(['id', 'outer_id'])
             ->andWhere(['IN', 'outer_id', $prod_outer_ids])
             ->all(), 'outer_id', 'id');
+
+//        Yii::info($products, 'test');
+
+        $price_categories = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
 
         $postmanApi = new PostmanApiHelper();
 
@@ -335,16 +341,18 @@ class PriceCategoryToNomenclature extends ActiveRecord
         foreach ($xml->returnValue->v as $item) {
             $json = json_encode($item->i);
             $arr = json_decode($json, true);
+//            Yii::info($arr['product'], 'test');
 
             if (count($arr) <= 2) {
                 continue;
             }
-            Yii::info($arr, 'test');
 
             $product_id = $products[$arr['product']];
+//            Yii::info($product_id, 'test');
 
             if (!$product_id) {
                 //Продукта нет в переданном списке продуктов
+//                Yii::info('Продукта нет в переданном списке продуктов', 'test');
                 continue;
             }
 
@@ -363,10 +371,15 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 $prices = $p_prices;
             }
 
+//            Yii::info($categories, 'test');
+//            Yii::info($prices, 'test');
+
+
+
             for ($i = 0; $i < count($categories); $i++) {
                 /** @var PriceCategoryToNomenclature $model */
                 $model = PriceCategoryToNomenclature::find()
-                    ->andWhere(['pc_id' => $categories[$i], 'n_id' => $product_id])
+                    ->andWhere(['pc_id' => $price_categories[$categories[$i]], 'n_id' => $product_id])
                     ->one();
 
                 if ($model) {
