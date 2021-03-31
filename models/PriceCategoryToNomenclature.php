@@ -230,7 +230,12 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $product_outer_id = $info['product'];
             $prices_and_categories = $info['pricesForCategories'];
 
+//            if ($product_outer_id == '1b50bdf6-9214-44b1-9b16-ed1fabaf6cc9'){
+//                Yii::warning('Gotcha! Булочка бриошь 80г', 'test');
+//            }
+
             $product_id = $products_in_base[$product_outer_id];
+//            Yii::info('Product ID: ' . $product_id, 'test');
 
             if (!$product_id) {
                 //Продукт не найден в номенклатуре, пропускаем
@@ -241,13 +246,20 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $prep_category = $prices_and_categories['k'];
             if (!is_array($prep_category)) {
                 $categories[] = $prep_category;
+            } else {
+                $categories = $prep_category;
             }
 
             //Цены
             $prep_price = $prices_and_categories['v'];
             if (!is_array($prep_price)) {
                 $prices[] = $prep_price;
+            } else {
+                $prices = $prep_price;
             }
+//            Yii::info($prices_and_categories, 'test');
+//            Yii::info($categories, 'test');
+//            Yii::info($prices, 'test');
 
             for ($i = 0; $i < count($categories); $i++) {
 
@@ -258,9 +270,9 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 $pctn_in_base_cat = array_values($pctn_to_category);
                 $pctn_in_base_nom = array_values($pctn_to_nomenclature);
 
-                Yii::info('Категория: ' . $category_id . ' Продукт: ' . $product_id, 'test');
-                Yii::info((int)in_array($category_id, $pctn_in_base_cat), 'test');
-                Yii::info((int)in_array($product_id, $pctn_in_base_nom), 'test');
+//                Yii::info('Категория: ' . $category_id . ' Продукт: ' . $product_id, 'test');
+//                Yii::info((int)in_array($category_id, $pctn_in_base_cat), 'test');
+//                Yii::info((int)in_array($product_id, $pctn_in_base_nom), 'test');
 
                 if (!$category_id || !$product_id) {
                     continue;
@@ -282,13 +294,11 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     ]);
                 }
                 $pctn_model->price = $prices[$i];
-                Yii::info($pctn_model->attributes, 'test');
+//                Yii::info($pctn_model->attributes, 'test');
 
                 if (!$pctn_model->save()) {
                     Yii::info('Ошибка сохранения', 'test');
                     Yii::error($pctn_model->errors, '_error');
-                } else {
-                    Yii::info('Сохранено', 'test');
                 }
             }
         }

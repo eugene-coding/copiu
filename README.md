@@ -59,7 +59,7 @@ public function beforeAction($action)
 ```
     https://mysite.ru/site/sync-nomenclature
   ```
-  ####Получение и сохранение цен для ценовых групп
+  ####Получение и сохранение цен для ценовых категорий
    Добавить на выполнение с периодичностью раз в сутки:
  ```
     https://mysite.ru/site/get-price-for-price-category'

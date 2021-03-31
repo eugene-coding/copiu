@@ -533,7 +533,6 @@ class SiteController extends Controller
         return $result;
     }
 
-
     /**
      * Синхронизация цен для ценовых категорий
      */
