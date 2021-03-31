@@ -44,7 +44,10 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'discount',
-        'format' => 'percent',
+        'content' => function (Buyer $model){
+            return Yii::$app->formatter->asPercent($model->discount, 2);
+        }
+//        'format' => 'percent',
     ],
     [
         'class' => '\kartik\grid\DataColumn',
