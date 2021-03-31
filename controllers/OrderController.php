@@ -525,9 +525,14 @@ class OrderController extends Controller
             ]);
         } else {
             $model->load($request->post());
+
             if ($model->count) {
+                $total_count = 0;
                 foreach ($model->count as $nomenclature_id => $count) {
-                    if (!$count) continue;
+                    if (!$count) {
+                        continue;
+                    }
+                    $total_count++;
                     $n = Nomenclature::findOne($nomenclature_id);
 
                     $otn = OrderToNomenclature::find()
@@ -542,8 +547,13 @@ class OrderController extends Controller
 
                     if (!$otn->save()) {
                         Yii::error($otn->errors, '_error');
-                        $model->step--;
+                        $model->step = 1;
                     }
+                }
+                if ($total_count == 0) {
+                    $model->step = 1;
+                    $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
+                    Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
                 }
             }
             if ($model->delivery_time_from) {
@@ -554,11 +564,13 @@ class OrderController extends Controller
                     $to = date('H', strtotime($model->delivery_time_to));
                 }
                 if ($from > $to) {
+                    Yii::$app->session->setFlash('warning', 'Конечное время доставки должно быть больше начального');
                     $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
-                    $model->step--;
+                    $model->step = 1;
                 } elseif (($to - $from) < 2) {
+                    Yii::$app->session->setFlash('warning', 'Увеличте период доставки');
                     $model->addError('error_delivery_time', 'Увеличте период доставки');
-                    $model->step--;
+                    $model->step = 1;
                 }
             }
             $model->step++;
@@ -780,7 +792,7 @@ class OrderController extends Controller
             'content' =>
                 '<b class="text-danger">Создание заказа невозможно, т.к. отсутствуют необходимые настройки. Обратитесь к администратору системы</b>',
             'footer' => Html::button('Закрыть',
-                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
         ];
     }
 }
