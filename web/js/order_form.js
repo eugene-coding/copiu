@@ -44,12 +44,12 @@ $(document).ready(function () {
     $(document).on('change', '.count-product', function () {
         var count = $(this).val();
         var price = $(this).parents('tr').children('.product-price').html();
-        $(this).parents('tr').children('.total-cost').html(count*price);
+        $(this).parents('tr').children('.total-cost').html((count*price).toFixed(2));
         var total = 0;
         $('.total-cost').each(function(index, value){
             total += Number(value.innerHTML);
         });
-        $('.total').html(Number(total) + 'р.');
+        $('.total').html(total.toFixed(2) + 'р.');
     });
 
     $(document).on('click', '[type="submit"], .to-back', function () {
