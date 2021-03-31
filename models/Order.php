@@ -185,7 +185,7 @@ class Order extends ActiveRecord
 
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
-            'dateIncoming' => date('Y-m-d\TH:i:s', time()),
+            'dateIncoming' => date('Y-m-d\TH:i:s', strtotime($this->target_date)),
             'counteragentId' => $this->buyer->outer_id,
             'from' => $this->delivery_time_from,
             'to' => $this->delivery_time_to,
@@ -253,7 +253,7 @@ class Order extends ActiveRecord
             'amount' => $this->deliveryCost,
             'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
-            'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', time()),
+            'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', strtotime($this->target_date)),
         ];
         Yii::info($params, 'test');
         //Проверяем наличие параметров
