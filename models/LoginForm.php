@@ -143,7 +143,6 @@ class LoginForm extends Model
             ];
         }
 
-
         return [
             'success' => true,
         ];

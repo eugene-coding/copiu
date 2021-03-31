@@ -154,7 +154,9 @@ class IikoApiHelper
      */
     public function getItemsById($ids)
     {
-        if (!$ids) return [];
+        if (!$ids) {
+            return [];
+        }
 
         $str_ids = implode('&ids=', $ids);
 
@@ -167,6 +169,7 @@ class IikoApiHelper
 
         return json_decode($result, true);
     }
+
     /**
      * Получает номенклатурные группы
      * @return mixed
@@ -212,7 +215,11 @@ class IikoApiHelper
         $info = json_decode($result, 'true');
         Yii::info($info, 'test');
 
-        $sum = isset($info[0]['sum']) ? $info[0]['sum'] : 0;
+        $sum = 0;
+        foreach ($info as $item) {
+            $sum += isset($item['sum']) ? $item['sum'] : 0;
+        }
+
         return $sum;
     }
 
@@ -261,7 +268,7 @@ class IikoApiHelper
         $root = $dom->createElement('document');
         $dom->appendChild($root);
         $number = $dom->createElement('documentNumber', $params['documentNumber']);
-        $date_incoming = $dom->createElement('dateIncoming',$params['dateIncoming']);
+        $date_incoming = $dom->createElement('dateIncoming', $params['dateIncoming']);
         $useDefaultDocumentTime = $dom->createElement('useDefaultDocumentTime', 'true');
         $revenueAccountCode = $dom->createElement('revenueAccountCode', '4.01');
         $defaultStoreId = $dom->createElement('defaultStoreId', $params['defaultStoreId']);
