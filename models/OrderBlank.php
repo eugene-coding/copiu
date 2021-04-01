@@ -72,10 +72,8 @@ class OrderBlank extends ActiveRecord
     /**
      * Синхронизация всех бланков заказа
      * @return array
-     * @throws \Exception
-     * @throws \Throwable
      * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\StaleObjectException
+     * @throws \yii\db\Exception
      */
     public static function sync()
     {
@@ -89,15 +87,16 @@ class OrderBlank extends ActiveRecord
                 'to' => $blank->date,
             ];
             $response = $helper->getOrderBlank($params);
-            Yii::info($response, 'test');
-
             $result[$blank->id] = $response;
         }
-        Yii::info($result, 'test');
+        //Очищаем таблицу связей бланка с номенклатурой
+        Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=0;')->execute();
+        Yii::$app->db->createCommand('TRUNCATE TABLE `order_blank_to_nomenclature`;')->execute();
+        Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=1;')->execute();
 
-        $ob_to_nom = ArrayHelper::map(OrderBlankToNomenclature::find()->all(), 'ob_id', 'n_id');
         $nomenclature = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
         $product_outer_ids_in_blanks = [];
+        $rows = [];
 
         foreach ($result as $blank_id => $data) {
             $blank_model = OrderBlank::findOne($blank_id);
@@ -111,51 +110,34 @@ class OrderBlank extends ActiveRecord
                 ];
             }
 
-            $exists_relations = ArrayHelper::map(OrderBlankToNomenclature::find()->all(), 'n_id', 'ob_id');
-            $inserted_relations = [];
+            if (isset($data['document']['items']['item']['productId'])) {
+                //Если один продукт в накладной
+                $data['document']['items']['item'] = [$data['document']['items']['item']];
+            }
 
-            foreach ($data['document']['items'] as $item) {
-                Yii::info($item, 'test');
+            foreach ($data['document']['items']['item'] as $item) {
                 $n_id = $nomenclature[$item['productId']];
-//                Yii::info($n_id, 'test');
                 if ($n_id) {
                     $product_outer_ids_in_blanks[] = $item['productId'];
-                    if ($ob_to_nom[$blank_id] == $n_id) {
-                        //Если комбинация бланк-номенклатура уже есть в базе
-                        Yii::info('Комбинация бланк-номенклатура уже есть в базе. Пропускаем', 'test');
-                        continue;
-                    }
-                    $model = new OrderBlankToNomenclature([
-                        'n_id' => $n_id,
-                        'ob_id' => $blank_id,
-                    ]);
-                    $inserted_relations[$model->n_id] = $model->ob_id;
-
-                    if (!$model->save()) {
-                        Yii::info($model->errors, 'test');
-                    }
+                    $rows[] = [$n_id, $blank_id];
                 } else {
                     Yii::info('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
                 }
-                //Пишем время синхронизации
-                $blank_model->synced_at = date('Y-m-d H:i:s', time());
-                if (!$blank_model->save()) {
-                    Yii::error($blank_model->errors, '_error');
-                }
+
             }
 
-            $relation_to_remove = array_diff_assoc($exists_relations, $inserted_relations);
-            Yii::warning($relation_to_remove, 'test');
-
-            //Удаляем устаревшие связи
-            foreach ($relation_to_remove as $nomenclature_id => $order_blank_id){
-                $obtn_model = OrderBlankToNomenclature::find()
-                    ->andWhere(['n_id' => $nomenclature_id, 'ob_id' => $order_blank_id])
-                    ->one();
-                $obtn_model->delete();
+            //Пишем время синхронизации
+            $blank_model->synced_at = date('Y-m-d H:i:s', time());
+            if (!$blank_model->save()) {
+                Yii::error($blank_model->errors, '_error');
             }
         }
         Yii::info($product_outer_ids_in_blanks, 'test');
+        Yii::info($rows, 'test');
+
+        //Сохраняем всё
+        Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(), ['n_id', 'ob_id'], $rows)->execute();
+
 
         if ($product_outer_ids_in_blanks) {
             //Обновляем продукты указанные в бланках
@@ -312,7 +294,7 @@ class OrderBlank extends ActiveRecord
         $blanks = self::find()->allowed()->all();
         $result = '';
 
-        foreach ($blanks as $blank){
+        foreach ($blanks as $blank) {
             $count_products = OrderBlankToNomenclature::find()->andWhere(['ob_id' => $blank->id])->count();
 
             /** @var int $max_order_time Максимальная дата доставки для продукта */
