@@ -347,11 +347,6 @@ class OrderBlankController extends Controller
                 'success' => false,
                 'error' => $e->getMessage(),
             ];
-        } catch (StaleObjectException $e) {
-            return [
-                'success' => false,
-                'error' => $e->getMessage(),
-            ];
         } catch (\Exception $e) {
             return [
                 'success' => false,

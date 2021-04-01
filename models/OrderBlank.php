@@ -95,6 +95,7 @@ class OrderBlank extends ActiveRecord
         Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=1;')->execute();
 
         $nomenclature = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
+        $containers = Container::find()->select(['id'])->column();
         $product_outer_ids_in_blanks = [];
         $rows = [];
 
@@ -117,7 +118,24 @@ class OrderBlank extends ActiveRecord
 
             foreach ($data['document']['items']['item'] as $item) {
                 $n_id = $nomenclature[$item['productId']];
-                $container_id = $item['containerId']?:null;
+                $container_id = $item['containerId'] ?: null;
+                if ($container_id) {
+                    if (!in_array($container_id, $containers)) {
+                        //Синхронизируем позицию номенкалтуры
+                        Nomenclature::syncByIds([$item['productId']]);
+                        //Обновляем список контейнеров
+                        $containers = Container::find()->select(['id'])->column();
+                        if (!in_array($container_id, $containers)) {
+                            Yii::error('Ошибка синхронизации, необходимо обновление номенклатуры', '_error');
+                            return [
+                                'success' => false,
+                                'error' => 'Ошибка синхронизации, необходимо обновление номенклатуры',
+                                'date' => date('d.m.Y H:i', time()),
+                            ];
+                        }
+                    }
+                }
+
                 if ($n_id) {
                     $product_outer_ids_in_blanks[] = $item['productId'];
                     $rows[] = [$n_id, $blank_id, $container_id];
@@ -137,7 +155,8 @@ class OrderBlank extends ActiveRecord
         Yii::info($rows, 'test');
 
         //Сохраняем всё
-        Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(), ['n_id', 'ob_id', 'container_id'], $rows)->execute();
+        Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(),
+            ['n_id', 'ob_id', 'container_id'], $rows)->execute();
 
 
         if ($product_outer_ids_in_blanks) {

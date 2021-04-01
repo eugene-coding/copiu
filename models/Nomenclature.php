@@ -357,6 +357,10 @@ class Nomenclature extends ActiveRecord
             ->via('orderToNomenclature');
     }
 
+    /**
+     * @param array $ids массив UIID продуктов
+     * @return bool
+     */
     public static function syncByIds($ids)
     {
         $helper = new IikoApiHelper();
