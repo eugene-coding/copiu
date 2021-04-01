@@ -117,9 +117,10 @@ class OrderBlank extends ActiveRecord
 
             foreach ($data['document']['items']['item'] as $item) {
                 $n_id = $nomenclature[$item['productId']];
+                $container_id = $item['containerId']?:null;
                 if ($n_id) {
                     $product_outer_ids_in_blanks[] = $item['productId'];
-                    $rows[] = [$n_id, $blank_id];
+                    $rows[] = [$n_id, $blank_id, $container_id];
                 } else {
                     Yii::info('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
                 }
@@ -136,7 +137,7 @@ class OrderBlank extends ActiveRecord
         Yii::info($rows, 'test');
 
         //Сохраняем всё
-        Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(), ['n_id', 'ob_id'], $rows)->execute();
+        Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(), ['n_id', 'ob_id', 'container_id'], $rows)->execute();
 
 
         if ($product_outer_ids_in_blanks) {

@@ -32,6 +32,7 @@ use yii\helpers\ArrayHelper;
  * @property OrderToNomenclature[] $orderToNomenclature
  * @property double $priceForBuyer
  * @property Order[] $orders
+ * @property Container[] $containers
  */
 class Nomenclature extends ActiveRecord
 {
@@ -103,7 +104,17 @@ class Nomenclature extends ActiveRecord
      */
     public function getMeasure()
     {
-        return $this->hasOne(Measure::className(), ['id' => 'measure_id']);
+        return $this->hasOne(Measure::class, ['id' => 'measure_id']);
+    }
+
+    /**
+     * Gets query for [[Container]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContainers()
+    {
+        return $this->hasMany(Container::class, ['nomenclature_id' => 'id']);
     }
 
     /**
@@ -382,6 +393,16 @@ class Nomenclature extends ActiveRecord
         Yii::info('Обновление номенклатуры. Ок', 'test');
 
         return true;
+    }
+
+    /**
+     * Возвращает модель контейнера по UIID
+     * @param string $container_id UIID контейнера
+     * @return array|ActiveRecord
+     */
+    public function getContainerById($container_id)
+    {
+        return $this->getContainers()->andWhere(['id' => $container_id])->one();
     }
 
 }

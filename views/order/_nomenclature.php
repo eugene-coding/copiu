@@ -38,8 +38,16 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
             <?php /** @var \app\models\Nomenclature $product */
             foreach ($dataProvider->getModels() as $product): ?>
             <?php
+            if ($product->containers){
+                $container_id = '063ecc2c-b260-4e4d-a42a-c6007005eafe';
+                $measure = $product->getContainerById($container_id)->name;
+            } else {
+                $measure = $product->measure->name;
+            }
             $count_product = $product->getCount($model->id);
             $priceForBuyer = $product->priceForBuyer;
+
+
             Yii::info($product->attributes, 'test')
             ?>
             <tr>
@@ -48,7 +56,7 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
                 <td><?= Html::input('number', 'Order[count][' . $product->id . ']', $count_product, [
                         'class' => 'form-control count-product',
                     ]) ?></td>
-                <td><?= $product->measure->name ?></td>
+                <td><?= $measure ?></td>
                 <td class="product-price"><?= $priceForBuyer ?></td>
                 <td class="total-cost"><?= $count_product * $priceForBuyer ?></td>
                 <?php $counter++; ?>

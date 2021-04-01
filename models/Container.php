@@ -30,6 +30,14 @@ class Container extends ActiveRecord
     }
 
     /**
+     * @inheritdoc $primaryKey
+     */
+    public static function primaryKey()
+    {
+        return ["id"];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function rules()
