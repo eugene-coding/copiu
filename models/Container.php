@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\models\query\ContainerQuery;
+use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -36,7 +37,7 @@ class Container extends ActiveRecord
         return [
             [['nomenclature_id'], 'integer'],
             [['id'], 'string', 'max' => 50],
-            [['name', 'count', 'weight', 'full_weight', 'deleted'], 'string', 'max' => 255],
+            [['name'], 'string', 'max' => 255],
             [['id'], 'unique'],
             [
                 ['nomenclature_id'],
@@ -45,6 +46,8 @@ class Container extends ActiveRecord
                 'targetClass' => Nomenclature::class,
                 'targetAttribute' => ['nomenclature_id' => 'id']
             ],
+            [['count', 'weight', 'full_weight'], 'number'],
+            ['deleted', 'boolean']
         ];
     }
 
@@ -81,5 +84,38 @@ class Container extends ActiveRecord
     public static function find()
     {
         return new ContainerQuery(get_called_class());
+    }
+
+    /**
+     * Синхронизация
+     * @param array $containers Массив контейнеров для позиции номенклатуры
+     * @param int $nomenclature_id Позиция номенклатуры (продукт)
+     * @return bool
+     */
+    public static function sync($containers, $nomenclature_id)
+    {
+        $exists_containers = Container::find()->select(['id'])->column();
+        foreach ($containers as $container) {
+            $container_id = $container['id'];
+
+            if (in_array($container_id, $exists_containers)) {
+                $container_model = Container::findOne($container_id);
+            } else {
+                $container_model = new Container([
+                    'id' => $container_id,
+                    'nomenclature_id' => $nomenclature_id,
+                ]);
+            }
+            $container_model->name = $container['name'];
+            $container_model->count = $container['count'];
+            $container_model->weight = $container['containerWeight'];
+            $container_model->full_weight = $container['fullContainerWeight'];
+            $container_model->deleted = $container['deleted'];
+
+            if (!$container_model->save()) {
+                Yii::error($container_model->errors, '_error');
+            }
+        }
+        return true;
     }
 }

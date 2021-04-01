@@ -160,7 +160,7 @@ class IikoApiHelper
 
         $str_ids = implode('&ids=', $ids);
 
-        Yii::info($str_ids, 'test');
+//        Yii::info($str_ids, 'test');
 
         $this->request_string = $this->base_url
             . 'resto/api/v2/entities/products/list?includeDeleted=false&key='

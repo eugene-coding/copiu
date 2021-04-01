@@ -16,10 +16,10 @@ class m210401_070045_create_container_table extends Migration
             'id' => $this->string(50)->unique()->comment('UIID контейнера'),
             'nomenclature_id' => $this->integer()->comment('Позиция номенклатуры'),
             'name' => $this->string()->comment('Наименование'),
-            'count' => $this->string()->comment('Количество'),
-            'weight' => $this->string()->comment('Вес'),
-            'full_weight' => $this->string()->comment('Обший вес'),
-            'deleted' => $this->string()->comment('Удалён'),
+            'count' => $this->double()->comment('Количество'),
+            'weight' => $this->double()->comment('Вес'),
+            'full_weight' => $this->double()->comment('Обший вес'),
+            'deleted' => $this->boolean()->comment('Удалён'),
         ]);
 
         $this->addCommentOnTable('{{%container}}', 'Контенер для продукта');

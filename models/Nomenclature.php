@@ -286,10 +286,10 @@ class Nomenclature extends ActiveRecord
 
         if (!$pc_t_n) {
             if ($buyer->discount) {
-                return $this->getPriceIncludeDiscount($this->default_price, $buyer->discount);;
+                return $this->getPriceIncludeDiscount($this->default_price, $buyer->discount);
             } else {
                 return $this->default_price;
-            };
+            }
         }
 
         if ($buyer->discount) {
@@ -369,11 +369,19 @@ class Nomenclature extends ActiveRecord
             if (!$n_position->save()) {
                 Yii::error($n_position->errors, '_error');
             }
+
+            $containers = isset($product['containers']) ? $product['containers'] : null;
+            if ($containers) {
+                //Обновляем контейнер(ы)
+                Container::sync($containers, $nom_id);
+            } else {
+                //Удаляем все контейнеры для продукта
+                Container::deleteAll(['nomenclature_id' => $nom_id]);
+            }
         }
         Yii::info('Обновление номенклатуры. Ок', 'test');
 
         return true;
-
     }
 
 }

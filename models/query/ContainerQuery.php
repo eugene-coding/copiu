@@ -2,17 +2,19 @@
 
 namespace app\models\query;
 
+use yii\db\ActiveQuery;
+
 /**
  * This is the ActiveQuery class for [[\app\models\Container]].
  *
  * @see \app\models\Container
  */
-class ContainerQuery extends \yii\db\ActiveQuery
+class ContainerQuery extends ActiveQuery
 {
-    /*public function active()
+    public function forProduct($id)
     {
-        return $this->andWhere('[[status]]=1');
-    }*/
+        return $this->andWhere(['nomenclature_id' => $id]);
+    }
 
     /**
      * {@inheritdoc}
