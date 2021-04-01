@@ -280,15 +280,15 @@ class Nomenclature extends ActiveRecord
 
         if (!$buyer->pc_id) {
             if ($buyer->discount) {
-                return $this->getPriceIncludeDiscount($this->default_price, $buyer->discount);
+                return round($this->getPriceIncludeDiscount($this->default_price, $buyer->discount), 2);
             } else {
                 return $this->default_price;
             }
         }
 
-        Yii::info('Product: ' . $this->id, 'test');
-        Yii::info('Buyer: ' . $buyer->name, 'test');
-        Yii::info('Price Category: ' . $buyer->pc_id, 'test');
+//        Yii::info('Product: ' . $this->id, 'test');
+//        Yii::info('Buyer: ' . $buyer->name, 'test');
+//        Yii::info('Price Category: ' . $buyer->pc_id, 'test');
 
         /** @var PriceCategoryToNomenclature $pc_t_n */
         $pc_t_n = PriceCategoryToNomenclature::find()
@@ -297,14 +297,14 @@ class Nomenclature extends ActiveRecord
 
         if (!$pc_t_n) {
             if ($buyer->discount) {
-                return $this->getPriceIncludeDiscount($this->default_price, $buyer->discount);
+                return round($this->getPriceIncludeDiscount($this->default_price, $buyer->discount),2);
             } else {
                 return $this->default_price;
             }
         }
 
         if ($buyer->discount) {
-            return $this->getPriceIncludeDiscount($pc_t_n->price, $buyer->discount);
+            return round($this->getPriceIncludeDiscount($pc_t_n->price, $buyer->discount), 2);
         } else {
             return $pc_t_n->price;
         }
