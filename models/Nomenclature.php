@@ -6,6 +6,7 @@ use app\components\IikoApiHelper;
 use app\models\query\NomenclatureQuery;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -183,6 +184,8 @@ class Nomenclature extends ActiveRecord
         $updated_items = 0;
         $skipped = 0;
         $message = '';
+        /** @var array $containers [<UIID> => [[<Контайнер1>], [<Контайнер 2>]] */
+        $containers = [];
 
         /** @var NGroup $group */
         foreach (NGroup::find()->each() as $group) {
@@ -231,12 +234,49 @@ class Nomenclature extends ActiveRecord
             $model->unit_capacity = $item['unitCapacity'] ?: 0;
             $model->type = $item['type'];
             $model->main_unit = $item['mainUnit'] ?: null;
-
 //            Yii::info($model->attributes, 'test');
 
             if (!$model->save()) {
                 Yii::error($model->errors, '_error');
+            } else {
+                if ($item['containers']) {
+                    $containers[$model->id] = $item['containers'];
+                }
             }
+        }
+        Yii::info($containers, 'test');
+
+        //Удвляем все контейнеры для выбранных продуктов
+        Container::deleteAll(['IN', 'nomenclature_id', array_keys($containers)]);
+
+        //Обновляем контейнеры
+        $rows = [];
+        foreach ($containers as $id => $items) {
+            foreach ($items as $item) {
+                $rows[] = [
+                    $item['id'],
+                    $id,
+                    $item['name'],
+                    $item['count'],
+                    $item['containerWeight'],
+                    $item['fullContainerWeight'],
+                    $item['deleted'],
+                ];
+            }
+        }
+
+        try {
+            Yii::$app->db->createCommand()->batchInsert(Container::tableName(), [
+                'id',
+                'nomenclature_id',
+                'name',
+                'count',
+                'weight',
+                'full_weight',
+                'deleted',
+            ], $rows)->execute();
+        } catch (Exception $e) {
+            Yii::error($e->getMessage(), '_error');
         }
 
         return [
@@ -297,7 +337,7 @@ class Nomenclature extends ActiveRecord
 
         if (!$pc_t_n) {
             if ($buyer->discount) {
-                return round($this->getPriceIncludeDiscount($this->default_price, $buyer->discount),2);
+                return round($this->getPriceIncludeDiscount($this->default_price, $buyer->discount), 2);
             } else {
                 return $this->default_price;
             }

@@ -6,6 +6,7 @@ use app\components\IikoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\Account;
 use app\models\Buyer;
+use app\models\Container;
 use app\models\Department;
 use app\models\Measure;
 use app\models\NGroup;
@@ -400,7 +401,7 @@ class SiteController extends Controller
                 $next_chunk++;
                 Settings::setValueByKey('sync_nomenclature_next_chunk', (string)$next_chunk);
             }
-            Yii::warning('Всего памяти ' . memory_get_usage(true), 'test');
+            Yii::warning('Всего памяти ' .( memory_get_usage(true) / 1048576) . 'M', 'test');
             VarDumper::dump($result, 10, true);
         }
 
@@ -584,12 +585,7 @@ class SiteController extends Controller
      */
     public function actionTest()
     {
-        $helper = new IikoApiHelper();
-        $items = [
-            '6a7c2975-86b9-4d81-b210-d9211f530d8f',
-            'c9422351-9abf-4064-8703-8a60f256ac4d'
-        ];
-        $result = $helper->getItemsById($items);
+       $result = Container::find()->asArray()->all();
         VarDumper::dump($result, 10, true);
     }
 }

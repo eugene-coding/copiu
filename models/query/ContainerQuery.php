@@ -11,10 +11,25 @@ use yii\db\ActiveQuery;
  */
 class ContainerQuery extends ActiveQuery
 {
+    /**
+     * Все контейнеры для продукта
+     * @param $id
+     * @return $this
+     */
     public function forProduct($id)
     {
         return $this->andWhere(['nomenclature_id' => $id]);
     }
+
+    /**
+     * Все контейнеры для продукта
+     * @return $this
+     */
+    public function actual()
+    {
+        return $this->andWhere(['deleted' => 0]);
+    }
+
 
     /**
      * {@inheritdoc}
@@ -22,6 +37,7 @@ class ContainerQuery extends ActiveQuery
      */
     public function all($db = null)
     {
+        $this->actual();
         return parent::all($db);
     }
 
@@ -31,6 +47,7 @@ class ContainerQuery extends ActiveQuery
      */
     public function one($db = null)
     {
+        $this->actual();
         return parent::one($db);
     }
 }
