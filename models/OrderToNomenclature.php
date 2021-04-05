@@ -12,6 +12,7 @@ use yii\db\ActiveRecord;
  * @property int|null $nomenclature_id Продукт
  * @property float|null $price Цена за единицу
  * @property float|null $count Количество
+ * @property float|null $order_blank_id Идентификатор бланка заказа
  *
  * @property Nomenclature $nomenclature
  * @property Order $order
@@ -49,7 +50,7 @@ class OrderToNomenclature extends ActiveRecord
                 'targetClass' => Order::class,
                 'targetAttribute' => ['order_id' => 'id']
             ],
-            [['order_id', 'nomenclature_id'], 'unique', 'targetAttribute' => ['order_id', 'nomenclature_id']],
+            [['order_id', 'nomenclature_id', 'order_blank_id'], 'unique', 'targetAttribute' => ['order_id', 'nomenclature_id','order_blank_id']],
 
         ];
     }

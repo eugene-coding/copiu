@@ -500,14 +500,7 @@ class OrderController extends Controller
         $request = Yii::$app->request;
         $model = Order::findOne($id);
 
-        $blanks = explode(',', $model->blanks);
-
-        $productsDataProvider = new ActiveDataProvider([
-            'query' => Nomenclature::find()
-                ->joinWith(['orderBlanks'])
-                ->andWhere(['IN', 'order_blank.id', $blanks])
-        ]);
-        $productsDataProvider->pagination = false;
+        $productsDataProvider = $model->getProductDataProvider();
 
         if ($request->isAjax) {
             return $this->render('_form', [
@@ -526,36 +519,9 @@ class OrderController extends Controller
         } else {
             $model->load($request->post());
 
-            if ($model->count) {
-                $total_count = 0;
-                foreach ($model->count as $nomenclature_id => $count) {
-                    if (!$count) {
-                        continue;
-                    }
-                    $total_count++;
-                    $n = Nomenclature::findOne($nomenclature_id);
+            $model->orderProcessing();
 
-                    $otn = OrderToNomenclature::find()
-                        ->andWhere(['order_id' => $model->id, 'nomenclature_id' => $nomenclature_id])->one();
-                    if (!$otn) {
-                        $otn = new OrderToNomenclature();
-                        $otn->order_id = $model->id;
-                        $otn->nomenclature_id = $nomenclature_id;
-                    }
-                    $otn->price = $n->getPriceForBuyer();
-                    $otn->count = $count;
-
-                    if (!$otn->save()) {
-                        Yii::error($otn->errors, '_error');
-                        $model->step = 1;
-                    }
-                }
-                if ($total_count == 0) {
-                    $model->step = 1;
-                    $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
-                    Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
-                }
-            }
+            //Проверяем время доставки
             if ($model->delivery_time_from) {
                 $from = date('H', strtotime($model->delivery_time_from));
                 $to = date('H', strtotime($model->delivery_time_to));
@@ -574,8 +540,17 @@ class OrderController extends Controller
                 }
             }
             $model->step++;
+
+            Yii::info('Шаг перед сохранением: '. $model->step, 'test');
             if (!$model->hasErrors() && !$model->save()) {
                 Yii::error($model->errors, '_error');
+
+            }
+
+            if ($model->step == 2){
+                //Обрабатываем заказ на основе кол-ва заказанных продуктов
+                $model->orderProcessing();
+                $productsDataProvider = $model->getProductDataProvider();
             }
 
             if ($model->step === 4) {

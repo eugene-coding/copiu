@@ -6,6 +6,7 @@ use app\components\IikoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\query\OrderQuery;
 use Yii;
+use yii\data\ArrayDataProvider;
 use yii\db\ActiveRecord;
 use yii\db\StaleObjectException;
 
@@ -310,7 +311,7 @@ class Order extends ActiveRecord
             ->andWhere(['IS', 'invoice_number', null])
             ->all();
 
-        foreach ($fail_orders as $order){
+        foreach ($fail_orders as $order) {
             try {
                 $order->delete();
             } catch (StaleObjectException $e) {
@@ -323,4 +324,114 @@ class Order extends ActiveRecord
         }
     }
 
+    /**
+     * Обработка заказа
+     */
+    public function orderProcessing()
+    {
+        if (isset($this->count) && is_array($this->count)) {
+            foreach ($this->count as $n_id_and_blank_id => $count) {
+                if (!$count) {
+                    continue;
+                }
+                $nomenclature_id = explode('-', $n_id_and_blank_id)[0];
+                $blank_id = explode('-', $n_id_and_blank_id)[1];
+
+                $n = Nomenclature::findOne($nomenclature_id);
+
+                $otn = OrderToNomenclature::find()
+                    ->andWhere([
+                        'order_id' => $this->id,
+                        'nomenclature_id' => $nomenclature_id,
+                        'order_blank_id' => $blank_id
+                    ])->one();
+                if (!$otn) {
+                    $otn = new OrderToNomenclature();
+                    $otn->order_id = $this->id;
+                    $otn->nomenclature_id = $nomenclature_id;
+                }
+                $otn->price = $n->getPriceForBuyer();
+                $otn->count = $count;
+                $otn->order_blank_id = $blank_id;
+
+                if (!$otn->save()) {
+                    Yii::error($otn->errors, '_error');
+                    $this->step = 1;
+                }
+            }
+        }
+        $total_count = $this->getTotalCountProducts();
+
+        if ($total_count == 0) {
+            $this->step = 2;
+            $this->addError('blanks', 'Не выбрано количество ни для одной позиции');
+            Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
+        }
+    }
+
+    /**
+     * Получает общее кол-во продуктов в заказе
+     * @return int
+     */
+    private function getTotalCountProducts()
+    {
+        $total_count = 0;
+        if (!isset($this->count) || !is_array($this->count)) {
+            return 0;
+        }
+        foreach ($this->count as $count) {
+            if (!$count) {
+                continue;
+            }
+            $total_count++;
+        }
+
+        return $total_count;
+    }
+
+    /**
+     * Создает провайдер для таблицы с продуктами
+     * @return ArrayDataProvider
+     */
+    public function getProductDataProvider()
+    {
+        $blanks = explode(',', $this->blanks);
+        $data = [];
+
+        $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $blanks])->all();
+
+        /** @var OrderBlankToNomenclature $obtn */
+        foreach ($order_blanks_to_nomenclatures as $obtn) {
+            /** @var OrderBlank $blank */
+            $blank = $obtn->ob;
+            /** @var Nomenclature $product */
+            $product = $obtn->n;
+
+            /** @var OrderToNomenclature $order_to_nomenclature */
+            $order_to_nomenclature = OrderToNomenclature::findOne([
+                'order_id' => $this->id,
+                'nomenclature_id' => $product->id,
+                'order_blank_id' => $blank->id
+            ]);
+
+            $data[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'count' => $order_to_nomenclature->count,
+                'order_blank_id' => $blank->id,
+                'price' => $product->getPriceForBuyer(),
+                'measure' => 'test Шт'
+            ];
+        }
+
+        $productsDataProvider = new ArrayDataProvider([
+            'allModels' => $data,
+            'pagination' => false,
+            'sort' => [
+                'attributes' => ['name'],
+            ],
+        ]);
+
+        return $productsDataProvider;
+    }
 }

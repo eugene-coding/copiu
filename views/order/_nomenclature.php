@@ -35,30 +35,22 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
             <?php
             $arr = ArrayHelper::map($dataProvider->getModels(), 'id', 'name');
             Yii::info($arr, 'test') ?>
-            <?php /** @var \app\models\Nomenclature $product */
+            <?php /** @var \yii\data\ArrayDataProvider $product */
             foreach ($dataProvider->getModels() as $product): ?>
             <?php
-            if ($product->containers){
-                $container_id = '063ecc2c-b260-4e4d-a42a-c6007005eafe';
-                $measure = $product->getContainerById($container_id)->name;
-            } else {
-                $measure = $product->measure->name;
-            }
-            $count_product = $product->getCount($model->id);
-            $priceForBuyer = $product->priceForBuyer;
 
-
-            Yii::info($product->attributes, 'test')
+            Yii::warning($product, 'test');
+            $product = (object)$product;
             ?>
             <tr>
                 <td><?= $counter ?></td>
                 <td><?= $product->name ?></td>
-                <td><?= Html::input('number', 'Order[count][' . $product->id . ']', $count_product, [
+                <td><?= Html::input('number', "Order[count][{$product->id}-{$product->order_blank_id}]", $product->count, [
                         'class' => 'form-control count-product',
                     ]) ?></td>
-                <td><?= $measure ?></td>
-                <td class="product-price"><?= $priceForBuyer ?></td>
-                <td class="total-cost"><?= $count_product * $priceForBuyer ?></td>
+                <td><?= $product->measure ?></td>
+                <td class="product-price"><?= $product->price ?></td>
+                <td class="total-cost"><?= $product->count * $product->price ?></td>
                 <?php $counter++; ?>
                 <?php endforeach; ?>
             </tr>
