@@ -59,7 +59,7 @@
     </key>
     <comment>Пользователи</comment>
 </table>
-    <table x="621" y="520" name="price_category">
+    <table x="641" y="550" name="price_category">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -110,6 +110,17 @@
         <row name="status" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default><comment>Статус заказа (черновик, в работе, выполнен)</comment>
+        </row>
+        <row name="blanks" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="invoice_number" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Номер накладной</comment>
+        </row>
+        <row name="delivery_act_number" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Номер акта оказанных услуг (доставка)</comment>
         </row>
         <key type="PRIMARY" name="">
             <part>id</part>
@@ -232,7 +243,7 @@
         </key>
         <comment>Покупатели</comment>
     </table>
-    <table x="992" y="215" name="order_to_nomenclature">
+    <table x="1028" y="198" name="order_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -250,6 +261,10 @@
         <row name="count" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
+        <row name="order_blank_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="order_blank" row="id" />
+        </row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
@@ -330,7 +345,7 @@
         </key>
         <comment>Единицы измерения</comment>
     </table>
-    <table x="834" y="381" name="price_category_to_nomenclature">
+    <table x="874" y="416" name="price_category_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -375,7 +390,7 @@
         </key>
         <comment>Бланки заказов (накладные)</comment>
     </table>
-    <table x="1107" y="65" name="order_blank_to_nomenclature">
+    <table x="1110" y="71" name="order_blank_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -452,7 +467,7 @@
             <part>id</part>
         </key>
     </table>
-    <table x="1481" y="76.33332824707031" name="container">
+    <table x="1481" y="76" name="container">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default><comment>UIID контейнера</comment>

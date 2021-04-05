@@ -10,9 +10,11 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int|null $ob_id Бланк заказа
  * @property int|null $n_id Продукт
+ * @property string|null $container_id Идентификатор контейнера
  *
  * @property Nomenclature $n
  * @property OrderBlank $ob
+ * @property Container $container
  */
 class OrderBlankToNomenclature extends ActiveRecord
 {
@@ -62,7 +64,7 @@ class OrderBlankToNomenclature extends ActiveRecord
     }
 
     /**
-     * Gets query for [[N]].
+     * Gets query for [[Nomenclature]].
      *
      * @return \yii\db\ActiveQuery
      */
@@ -72,12 +74,22 @@ class OrderBlankToNomenclature extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Ob]].
+     * Gets query for [[OrderBlank]].
      *
      * @return \yii\db\ActiveQuery
      */
     public function getOb()
     {
         return $this->hasOne(OrderBlank::className(), ['id' => 'ob_id']);
+    }
+
+    /**
+     * Gets query for [[Container]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContainer()
+    {
+        return $this->hasOne(Container::class, ['id' => 'container_id']);
     }
 }

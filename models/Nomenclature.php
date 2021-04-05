@@ -449,4 +449,19 @@ class Nomenclature extends ActiveRecord
         return $this->getContainers()->andWhere(['id' => $container_id])->one();
     }
 
+    /**
+     * Получает единицу измерения или название контейнера (при наличии) для продукта
+     * @param OrderBlankToNomenclature $order_blank_to_nomenclature Связ бланка с продуктом
+     * @return null|string
+     */
+    public function findMeasure(OrderBlankToNomenclature $order_blank_to_nomenclature)
+    {
+        $container = $order_blank_to_nomenclature->container;
+
+        if ($container){
+            return $container->name;
+        } else {
+            return $this->measure->name;
+        }
+    }
 }

@@ -32,6 +32,7 @@ use yii\db\StaleObjectException;
  * @property Nomenclature[] $products;
  * @property OrderToNomenclature[] $orderToNomenclature;
  * @property double $deliveryCost;
+ * @property OrderBlankToNomenclature[] $orderBlankToNomenclature;
  */
 class Order extends ActiveRecord
 {
@@ -420,7 +421,7 @@ class Order extends ActiveRecord
                 'count' => $order_to_nomenclature->count,
                 'order_blank_id' => $blank->id,
                 'price' => $product->getPriceForBuyer(),
-                'measure' => 'test Шт'
+                'measure' => $product->findMeasure($obtn)
             ];
         }
 
@@ -434,4 +435,6 @@ class Order extends ActiveRecord
 
         return $productsDataProvider;
     }
+
+
 }
