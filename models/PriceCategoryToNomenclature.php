@@ -403,6 +403,10 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     ->andWhere(['pc_id' => $price_category_id, 'n_id' => $product_id])
                     ->one();
 
+                if (!$price_category_id){
+                    Yii::info("Категория {$categories[$i]} не найдена в базе", 'test');
+                }
+
                 if (!$model && $price_category_id) {
                     $model = new PriceCategoryToNomenclature([
                         'pc_id' => $price_category_id,
@@ -410,10 +414,14 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     ]);
                 }
 
-                $model->price = $prices[$i];
-                if (!$model->save()) {
-                    Yii::error($model->errors, '_error');
+                if ($model){
+                    $model->price = $prices[$i];
+                    Yii::info($model->attributes, 'test');
+                    if (!$model->save()) {
+                        Yii::error($model->errors, '_error');
+                    }
                 }
+
             }
         }
 
