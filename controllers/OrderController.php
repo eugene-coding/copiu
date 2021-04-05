@@ -534,8 +534,8 @@ class OrderController extends Controller
                     $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
                     $model->step = 1;
                 } elseif (($to - $from) < 2) {
-                    Yii::$app->session->setFlash('warning', 'Увеличте период доставки');
-                    $model->addError('error_delivery_time', 'Увеличте период доставки');
+                    Yii::$app->session->setFlash('warning', 'Увеличьте период доставки');
+                    $model->addError('error_delivery_time', 'Увеличьте период доставки');
                     $model->step = 1;
                 }
             }

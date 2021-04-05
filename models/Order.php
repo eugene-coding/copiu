@@ -420,7 +420,7 @@ class Order extends ActiveRecord
                 'name' => $product->name,
                 'count' => $order_to_nomenclature->count,
                 'order_blank_id' => $blank->id,
-                'price' => $product->getPriceForBuyer(),
+                'price' => $product->getPriceForBuyer($obtn->container_id),
                 'measure' => $product->findMeasure($obtn)
             ];
         }

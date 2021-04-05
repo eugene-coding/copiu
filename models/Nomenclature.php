@@ -310,51 +310,41 @@ class Nomenclature extends ActiveRecord
     }
 
     /**
-     * Получает цену продукта для покупателя
+     * Получает цену за единицу продукта для покупателя
+     * @param string|null $container_id Контейнер
+     * @return float
      */
-    public function getPriceForBuyer()
+    public function getPriceForBuyer($container_id = null)
     {
         /** @var Users $user */
         $user = Yii::$app->user->identity;
         $buyer = $user->buyer;
+        /** @var double $count Кол-во продукта (для контейнера) */
+        $count = 1;
 
-        if (!$buyer->pc_id) {
-            if ($buyer->discount) {
-                return round($this->getPriceIncludeDiscount($this->default_price, $buyer->discount), 2);
-            } else {
-                return $this->default_price;
-            }
+        //Проверяем кол-во (если контейнер)
+        if ($container_id){
+            $container = Container::findOne($container_id);
+            $count = $container->count;
         }
 
-//        Yii::info('Product: ' . $this->id, 'test');
-//        Yii::info('Buyer: ' . $buyer->name, 'test');
-//        Yii::info('Price Category: ' . $buyer->pc_id, 'test');
+        if (!$buyer->pc_id) {
+            return $buyer->calcOnDiscount($this->default_price) * $count;
+        }
 
+        //Проверяем цену ценовой категории
         /** @var PriceCategoryToNomenclature $pc_t_n */
         $pc_t_n = PriceCategoryToNomenclature::find()
             ->andWhere(['pc_id' => $buyer->pc_id, 'n_id' => $this->id])
             ->one();
 
         if (!$pc_t_n) {
-            if ($buyer->discount) {
-                return round($this->getPriceIncludeDiscount($this->default_price, $buyer->discount), 2);
-            } else {
-                return $this->default_price;
-            }
+            return $buyer->calcOnDiscount($this->default_price) * $count;
         }
 
-        if ($buyer->discount) {
-            return round($this->getPriceIncludeDiscount($pc_t_n->price, $buyer->discount), 2);
-        } else {
-            return $pc_t_n->price;
-        }
+        return $buyer->calcOnDiscount($pc_t_n->price) * $count;
     }
 
-    private function getPriceIncludeDiscount($amount, $discount)
-    {
-        $discount_sum = $amount * $discount;
-        return $amount - $discount_sum;
-    }
 
     /**
      * Цена продукта для заказа
@@ -464,4 +454,5 @@ class Nomenclature extends ActiveRecord
             return $this->measure->name;
         }
     }
+
 }

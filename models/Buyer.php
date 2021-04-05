@@ -225,4 +225,21 @@ class Buyer extends ActiveRecord
 
         return $result_arr;
     }
+
+    /**
+     * Расчитыват скидку для суммы
+     * @param float $sum Сумма для которой будет расчитываться скидка
+     * @return float Возвращает сумму с учетом скидки
+     */
+    public function calcOnDiscount($sum)
+    {
+        $discount = $this->discount;
+        if (!$discount){
+            return $sum;
+        }
+
+        $discount_sum = $sum * $discount;
+
+        return round($sum - $discount_sum, 2);
+    }
 }
