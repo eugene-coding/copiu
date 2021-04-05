@@ -397,18 +397,22 @@ class PriceCategoryToNomenclature extends ActiveRecord
 
 
             for ($i = 0; $i < count($categories); $i++) {
+                $price_category_id = $price_categories[$categories[$i]];
                 /** @var PriceCategoryToNomenclature $model */
                 $model = PriceCategoryToNomenclature::find()
-                    ->andWhere(['pc_id' => $price_categories[$categories[$i]], 'n_id' => $product_id])
+                    ->andWhere(['pc_id' => $price_category_id, 'n_id' => $product_id])
                     ->one();
 
-                if ($model) {
-                    $model->price = $prices[$i];
-                    if (!$model->save()) {
-                        Yii::error($model->errors, '_error');
-                    }
-                } else {
-                    continue;
+                if (!$model && $price_category_id) {
+                    $model = new PriceCategoryToNomenclature([
+                        'pc_id' => $price_category_id,
+                        'n_id' => $product_id
+                    ]);
+                }
+
+                $model->price = $prices[$i];
+                if (!$model->save()) {
+                    Yii::error($model->errors, '_error');
                 }
             }
         }

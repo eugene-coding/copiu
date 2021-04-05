@@ -354,7 +354,7 @@ class OrderBlank extends ActiveRecord
     }
 
     /**
-     * Синхронизация цен для ценовых категорий продуктов всех бланков заказа
+     * Синхронизация цен для ценовых категорий тех продуктов которые есть в бланках заказа
      */
     public static function syncPriceForPriceCategory()
     {
