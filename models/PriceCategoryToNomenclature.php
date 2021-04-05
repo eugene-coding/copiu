@@ -224,22 +224,36 @@ class PriceCategoryToNomenclature extends ActiveRecord
         foreach ($data as $item) {
             $categories = [];
             $prices = [];
-//            Yii::info($item, 'test');
             $info = $item['i'];
             Yii::info($info, 'test');
             $product_outer_id = $info['product'];
             $prices_and_categories = $info['pricesForCategories'];
 
-            if ($product_outer_id == '62690614-bc0e-4da9-b4e9-68d752d4c190'){
-                Yii::warning('Gotcha! Хлеб тостовый (Ф)', 'test');
-            }
+//            if ($product_outer_id == '62690614-bc0e-4da9-b4e9-68d752d4c190'){
+//                Yii::warning('Gotcha! Хлеб тостовый (Ф)', 'test');
+//            }
 
             $product_id = $products_in_base[$product_outer_id];
-            Yii::info('Product ID: ' . $product_id, 'test');
+//            Yii::info('Product ID: ' . $product_id, 'test');
 
             if (!$product_id) {
                 //Продукт не найден в номенклатуре, пропускаем
                 Yii::info('Продукт не найден в номенклатуре, пропускаем', 'test');
+                continue;
+            }
+
+            if (!$prices_and_categories){
+                //Если нет ни категорий ни цен
+                $price = $item['price'];
+                if ($price){
+                    Yii::warning('!!!!', 'test');
+                    //Пишем цену в цену по умолчанию для продукта
+                    $target_product = Nomenclature::find()->andWhere(['outer_id' => $product_outer_id])->one();
+                    $target_product->default_price = $price;
+                    if (!$target_product->save()){
+                        Yii::error($target_product->errors, '_error');
+                    }
+                }
                 continue;
             }
 
