@@ -34,6 +34,7 @@ use yii\helpers\ArrayHelper;
  * @property double $priceForBuyer
  * @property Order[] $orders
  * @property Container[] $containers
+ * @property OrderBlankToNomenclature[] $orderBlanksToNomenclatures
  */
 class Nomenclature extends ActiveRecord
 {
@@ -144,6 +145,14 @@ class Nomenclature extends ActiveRecord
     public function getOrderToNomenclature()
     {
         return $this->hasMany(OrderToNomenclature::class, ['nomenclature_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderBlanksToNomenclatures()
+    {
+        return $this->hasMany(OrderBlankToNomenclature::class, ['n_id' => 'id']);
     }
 
     /**

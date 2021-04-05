@@ -214,6 +214,11 @@ class PriceCategoryToNomenclature extends ActiveRecord
         ];
     }
 
+    /**
+     * Синхронизирует цены для ценовых категорий
+     * @param array $data Данные для импорта
+     * @return array
+     */
     public static function import($data)
     {
         $categories_in_base = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
@@ -409,6 +414,8 @@ class PriceCategoryToNomenclature extends ActiveRecord
         }
 
 //        Yii::info($json, 'test');
-
+        return [
+            'success' => true,
+        ];
     }
 }

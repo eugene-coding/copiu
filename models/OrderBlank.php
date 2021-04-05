@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\components\IikoApiHelper;
+use app\components\PostmanApiHelper;
 use app\models\query\OrderBlankQuery;
 use Yii;
 use yii\db\ActiveRecord;
@@ -144,6 +145,9 @@ class OrderBlank extends ActiveRecord
                 }
 
             }
+
+            //Синхронизируем цены для ценовых категорий товаров из бланка
+            static::syncPriceForPriceCategory();
 
             //Пишем время синхронизации
             $blank_model->synced_at = date('Y-m-d H:i:s', time());
@@ -347,5 +351,34 @@ class OrderBlank extends ActiveRecord
         $table .= '</table>';
 
         return $table;
+    }
+
+    /**
+     * Синхронизация цен для ценовых категорий продуктов всех бланков заказа
+     */
+    public static function syncPriceForPriceCategory()
+    {
+        $target_product_outer_ids = Nomenclature::find()
+            ->joinWith(['orderBlanksToNomenclatures'])
+            ->select('outer_id')
+            ->column();
+
+        $helper = new PostmanApiHelper();
+        $response = $helper->getPriceListItems();
+
+        if (!$response['success']) return $response;
+
+        $xml = simplexml_load_string($response['data']);
+
+        foreach ($xml->returnValue->v as $item){
+            if (in_array($item->product, $target_product_outer_ids)){
+                $json = json_encode($item);
+                $data = json_decode($json, true);
+                $result_import = PriceCategoryToNomenclature::import($data);
+                Yii::info($result_import, 'test');
+            }
+        }
+        return true;
+
     }
 }
