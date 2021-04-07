@@ -47,6 +47,9 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
                 <td><?= $product->name ?></td>
                 <td><?= Html::input('number', "Order[count][{$product->id}-{$product->order_blank_id}]", $product->count, [
                         'class' => 'form-control count-product',
+                        'min' => 0,
+                        'step' => 1,
+                        'onkeypress' => 'return event.charCode >= 48'
                     ]) ?></td>
                 <td><?= $product->measure ?></td>
                 <td class="product-price"><?= $product->price ?></td>
