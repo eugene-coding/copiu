@@ -2,7 +2,10 @@
 
 namespace app\models;
 
+use app\models\query\BuyerToOrderBlankQuery;
+use http\Exception;
 use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "buyer_to_order_blank".
@@ -14,7 +17,7 @@ use Yii;
  * @property Buyer $buyer
  * @property OrderBlank $orderBlank
  */
-class BuyerToOrderBlank extends \yii\db\ActiveRecord
+class BuyerToOrderBlank extends ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -51,7 +54,7 @@ class BuyerToOrderBlank extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Buyer]].
      *
-     * @return \yii\db\ActiveQuery|\app\models\query\BuyerQuery
+     * @return \yii\db\ActiveQuery|
      */
     public function getBuyer()
     {
@@ -70,10 +73,41 @@ class BuyerToOrderBlank extends \yii\db\ActiveRecord
 
     /**
      * {@inheritdoc}
-     * @return \app\models\query\BuyerToOrderBlankQuery the active query used by this AR class.
+     * @return BuyerToOrderBlankQuery the active query used by this AR class.
      */
     public static function find()
     {
-        return new \app\models\query\BuyerToOrderBlankQuery(get_called_class());
+        return new BuyerToOrderBlankQuery(get_called_class());
+    }
+
+    /**
+     * Сохраняет видимость бланка для клиентов
+     * @param OrderBlank $order_blank
+     * @throws \yii\db\Exception
+     */
+    public static function insertBuyers($order_blank)
+    {
+        if ($order_blank->buyers) {
+            $rows = [];
+            foreach ($order_blank->buyers as $buyer_id) {
+                $rows[] = [
+                    $order_blank->id,
+                    $buyer_id
+                ];
+            }
+
+            try {
+                Yii::$app->db->createCommand()
+                    ->batchInsert(BuyerToOrderBlank::tableName(), ['order_blank_id', 'buyer_id'], $rows)
+                    ->execute();
+
+                $order_blank->show_to_all = 0;
+                if (!$order_blank->save()) {
+                    Yii::error($order_blank->errors, '_error');
+                }
+            } catch (Exception $e) {
+                Yii::error($e->getMessage(), '_error');
+            }
+        }
     }
 }

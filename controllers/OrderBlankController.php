@@ -123,6 +123,7 @@ class OrderBlankController extends Controller
      * For ajax request will return json object
      * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws Exception
      */
     public function actionCreate()
     {
@@ -178,6 +179,8 @@ class OrderBlankController extends Controller
 
                         ];
                     }
+                    BuyerToOrderBlank::deleteAll(['order_blank_id' => $model->id]);
+                    BuyerToOrderBlank::insertBuyers($model);
 
                     return [
                         'forceReload' => '#crud-datatable-pjax',
@@ -217,15 +220,17 @@ class OrderBlankController extends Controller
      * and for non-ajax request if update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
+     * @throws Exception
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
         $request = Yii::$app->request;
         $model = $this->findModel($id);
-        $model->buyers = ArrayHelper::map($model->buyerToOrderBlanks, 'id', 'name');
+        $model->buyers = ArrayHelper::map($model->buyerToOrderBlanks, 'buyer_id', 'name');
         $model->buyers = array_keys($model->buyers);
 
+        Yii::info($model->buyers, 'test');
         if ($request->isAjax) {
             /*
             *   Process for ajax request
@@ -243,32 +248,8 @@ class OrderBlankController extends Controller
                 ];
             } else {
                 if ($model->load($request->post()) && $model->save()) {
-                    if ($model->buyers) {
-                        $rows = [];
-                        foreach ($model->buyers as $buyer_id) {
-                            $rows[] = [
-                                $model->id,
-                                $buyer_id
-                            ];
-                        }
-
-                        try {
-                            Yii::$app->db->createCommand()
-                                ->batchInsert(BuyerToOrderBlank::tableName(), ['order_blank_id', 'buyer_id'], $rows)
-                                ->execute();
-
-                            $model->show_to_all = 0;
-                            if (!$model->save()) {
-                                Yii::error($model->errors, '_error');
-                            }
-                        } catch (Exception $e) {
-                            Yii::error($e->getMessage(), '_error');
-                        }
-
-
-                    } else {
-                        BuyerToOrderBlank::deleteAll(['order_blank_id' => $model->id]);
-                    }
+                    BuyerToOrderBlank::deleteAll(['order_blank_id' => $model->id]);
+                    BuyerToOrderBlank::insertBuyers($model);
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'forceClose' => true,
