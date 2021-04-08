@@ -519,13 +519,17 @@ class OrderController extends Controller
 
         if ($request->isPost) {
             $model->load($request->post());
-            $model->save();
-            $this->redirect(['order-update', 'id' => $model->id]);
-        } else {
-            return $this->render('_form', [
-                'model' => $model,
-            ]);
+            if (!$model->target_date){
+                Yii::$app->session->setFlash('warning', 'Не выбрана дата заказа');
+            } else {
+                $model->save();
+                $this->redirect(['order-update', 'id' => $model->id]);
+            }
         }
+
+        return $this->render('_form', [
+            'model' => $model,
+        ]);
 
     }
 
