@@ -637,8 +637,12 @@ class OrderController extends Controller
     {
         $model = Order::findOne($id);
 
-        if (!$model->delete()) {
-            \Yii::error($model->errors, '_error');
+        try {
+            if (!$model->delete()) {
+                \Yii::error($model->errors, '_error');
+            }
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), '_error');
         }
 
         return $this->redirect('index');
