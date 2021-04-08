@@ -135,32 +135,6 @@ $this->registerJsFile('/js/order_form.js', [
                     <?= $form->field($model, 'comment')->textarea(['rows' => 6]) ?>
                 </div>
             </div>
-        <?php elseif ($model->step == 333): ?>
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Укажите временной интервал доставки
-                            <small>(Не менее двух часов)</small>
-                        </div>
-                        <div class="panel-body">
-                            <div class="time-dropdown"
-                                 style="display: flex; align-items: center; justify-content: space-around;">
-                                <?= $form->field($model, 'delivery_time_from')
-                                    ->dropDownList($model->buyer->getDeliveryTimeIntervals('from'))->label('С') ?>
-                                <?= $form->field($model, 'delivery_time_to')
-                                    ->dropDownList($model->buyer->getDeliveryTimeIntervals('to'))->label('ДО') ?>
-                            </div>
-                            <div class="error-time text-center">
-                                <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-6">
-                    <?= $form->field($model, 'comment')->textarea(['rows' => 6]) ?>
-                </div>
-            </div>
         <?php elseif ($model->step == 3): ?>
             <?= $this->render('_pre_order_form', [
                 'model' => $model,

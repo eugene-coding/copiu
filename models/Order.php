@@ -351,7 +351,12 @@ class Order extends ActiveRecord
                     $otn->order_id = $this->id;
                     $otn->nomenclature_id = $nomenclature_id;
                 }
-                $otn->price = $n->getPriceForBuyer();
+                /** @var OrderBlankToNomenclature $obtn */
+                $obtn = OrderBlankToNomenclature::find()
+                    ->andWhere(['ob_id' => $blank_id, 'n_id' => $nomenclature_id])
+                    ->one();
+
+                $otn->price = $n->getPriceForBuyer($obtn->container_id);
                 $otn->count = $count;
                 $otn->order_blank_id = $blank_id;
 
