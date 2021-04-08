@@ -57,6 +57,13 @@ class RbacController extends Controller
         $showOrderErrorSettings = $authManager->createPermission('show-order-error-settings');
         $checkActivity = $authManager->createPermission('check-activity');
 
+        $orderCreate = $authManager->createPermission('order-create');
+        $orderUpdate = $authManager->createPermission('order-update');
+        $cancel = $authManager->createPermission('cancel');
+        $changeStatus = $authManager->createPermission('change-status');
+        $copyOrder = $authManager->createPermission('copy-order');
+        $reMakeDocuments = $authManager->createPermission('re-make-documents');
+
 
         //Добавляем разрешения в AuthManager
 
@@ -86,6 +93,12 @@ class RbacController extends Controller
         $authManager->add($showErrors);
         $authManager->add($showOrderErrorSettings);
         $authManager->add($checkActivity);
+        $authManager->add($orderCreate);
+        $authManager->add($orderUpdate);
+        $authManager->add($cancel);
+        $authManager->add($changeStatus);
+        $authManager->add($copyOrder);
+        $authManager->add($reMakeDocuments);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -123,7 +136,12 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $profile);
         $authManager->addChild($buyer, $guest);
         $authManager->addChild($buyer, $getOrdersByDate);
-        $authManager->addChild($buyer, $showOrderErrorSettings);
+        $authManager->addChild($buyer, $orderCreate);
+        $authManager->addChild($buyer, $orderUpdate);
+        $authManager->addChild($buyer, $cancel);
+        $authManager->addChild($buyer, $changeStatus);
+        $authManager->addChild($buyer, $copyOrder);
+        $authManager->addChild($buyer, $reMakeDocuments);
 
         //Admin
         $authManager->addChild($admin, $delete);
