@@ -6,3 +6,7 @@
     position: absolute;
     width: 100%;
 }
+
+.select2-search__field {
+    width: inherit !important;
+}

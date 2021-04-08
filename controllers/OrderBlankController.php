@@ -2,12 +2,15 @@
 
 namespace app\controllers;
 
+use app\models\BuyerToOrderBlank;
 use app\models\Users;
 use Yii;
 use app\models\OrderBlank;
 use app\models\search\OrderBlankSearch;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -220,6 +223,8 @@ class OrderBlankController extends Controller
     {
         $request = Yii::$app->request;
         $model = $this->findModel($id);
+        $model->buyers = ArrayHelper::map($model->buyerToOrderBlanks, 'id', 'name');
+        $model->buyers = array_keys($model->buyers);
 
         if ($request->isAjax) {
             /*
@@ -238,6 +243,32 @@ class OrderBlankController extends Controller
                 ];
             } else {
                 if ($model->load($request->post()) && $model->save()) {
+                    if ($model->buyers) {
+                        $rows = [];
+                        foreach ($model->buyers as $buyer_id) {
+                            $rows[] = [
+                                $model->id,
+                                $buyer_id
+                            ];
+                        }
+
+                        try {
+                            Yii::$app->db->createCommand()
+                                ->batchInsert(BuyerToOrderBlank::tableName(), ['order_blank_id', 'buyer_id'], $rows)
+                                ->execute();
+
+                            $model->show_to_all = 0;
+                            if (!$model->save()) {
+                                Yii::error($model->errors, '_error');
+                            }
+                        } catch (Exception $e) {
+                            Yii::error($e->getMessage(), '_error');
+                        }
+
+
+                    } else {
+                        BuyerToOrderBlank::deleteAll(['order_blank_id' => $model->id]);
+                    }
                     return [
                         'forceReload' => '#crud-datatable-pjax',
                         'forceClose' => true,

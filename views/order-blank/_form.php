@@ -1,4 +1,7 @@
 <?php
+
+use app\models\Buyer;
+use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -22,24 +25,36 @@ use yii\widgets\ActiveForm;
     <div class="row">
         <div class="col-xs-6">
             <?= $form->field($model, 'time_limit')->input('time', [
-                    'value' => Yii::$app->formatter->asTime($model->time_limit),
+                'value' => Yii::$app->formatter->asTime($model->time_limit),
             ]) ?>
         </div>
         <div class="col-xs-6">
             <?= $form->field($model, 'day_limit')->input('number') ?>
         </div>
     </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <?= $form->field($model, 'buyers')->widget(Select2::class, [
+                'data' => Buyer::getList(),
+                'showToggleAll' => false,
+                'theme' => Select2::THEME_CLASSIC,
+                'options' => [
+                    'placeholder' => 'Выберите заказчиков',
+                    'multiple' => true,
+                    'autocomplete' => 'off'
+                ]
+            ])->hint('Выбранные заказчики будут видеть бланк , для остальных бланк будет скрыт. Пустое поле означает, что бланк видят все') ?>
+        </div>
+    </div>
 
 
-
-
-
-	<?php if (!Yii::$app->request->isAjax){ ?>
-	  	<div class="form-group">
-	        <?= Html::submitButton($model->isNewRecord ? 'Создать' : 'Редактировать', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-	    </div>
-	<?php } ?>
+    <?php if (!Yii::$app->request->isAjax) { ?>
+        <div class="form-group">
+            <?= Html::submitButton($model->isNewRecord ? 'Создать' : 'Редактировать',
+                ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        </div>
+    <?php } ?>
 
     <?php ActiveForm::end(); ?>
-    
+
 </div>

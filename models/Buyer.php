@@ -24,6 +24,7 @@ use yii\helpers\ArrayHelper;
  * @property PriceCategory $pc
  * @property Users $user
  * @property string $workModeLabel
+ * @property BuyerToOrderBlank[] $buyerToOrderBlanks Видимиость бланков для покупателя
  */
 class Buyer extends ActiveRecord
 {
@@ -241,5 +242,22 @@ class Buyer extends ActiveRecord
         $discount_sum = $sum * $discount;
 
         return round($sum - $discount_sum, 2);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBuyerToOrderBlanks()
+    {
+        return $this->hasMany(BuyerToOrderBlank::class, ['buyer_id' => 'id']);
+    }
+
+    /**
+     * Список покупателей
+     * @return array
+     */
+    public static function getList()
+    {
+        return ArrayHelper::map(Buyer::find()->all(), 'id', 'name');
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+use app\models\OrderBlank;
 use yii\helpers\Url;
 
 return [
@@ -30,8 +32,16 @@ return [
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
+        'attribute'=>'show_to_all',
+        'filter' => [1 => 'Виден всем', 0 => 'Только выбранным'],
+        'content' => function (OrderBlank $model){
+            return $model->show_to_all ? 'Виден всем' : 'Только выбранным';
+        }
+    ],
+    [
+        'class'=>'\kartik\grid\DataColumn',
         'attribute'=>'synced_at',
-        'value' => function (\app\models\OrderBlank $model){
+        'value' => function (OrderBlank $model){
             if (!$model->synced_at){
                 return '';
             }

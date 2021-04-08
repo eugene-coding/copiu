@@ -19,12 +19,17 @@ use yii\helpers\Html;
  * @property int|null $time_limit Ограничение по времени
  * @property int|null $day_limit Ограничение по дням
  * @property string|null $synced_at Дата и время синхронизации
+ * @property string|null $show_to_all Виден всем покупателям
+ * @property string|null $buyers Заказчики
  *
  * @property Nomenclature[] $products Продукты в из накладной
  * @property OrderBlankToNomenclature[] $orderBlankToNomenclature
+ * @property OrderBlankToNomenclature[] $buyerToOrderBlanks Видимость бланков для покупателей
  */
 class OrderBlank extends ActiveRecord
 {
+    public $buyers;
+
     /**
      * {@inheritdoc}
      */
@@ -40,9 +45,10 @@ class OrderBlank extends ActiveRecord
     {
         return [
             [['date', 'synced_at', 'time_limit'], 'safe'],
-            [['day_limit'], 'integer'],
+            [['day_limit', 'show_to_all'], 'integer'],
             [['number'], 'string', 'max' => 255],
             [['number'], 'unique', 'message' => 'Накладная уже есть в базе'],
+            ['buyers', 'safe'],
         ];
     }
 
@@ -58,6 +64,8 @@ class OrderBlank extends ActiveRecord
             'time_limit' => 'Ограничение по времени',
             'day_limit' => 'Ограничение по дням',
             'synced_at' => 'Дата и время синхронизации',
+            'show_to_all' => 'Видимость',
+            'buyers' => 'Заказчики',
         ];
     }
 
@@ -380,5 +388,13 @@ class OrderBlank extends ActiveRecord
         }
         return true;
 
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBuyerToOrderBlanks()
+    {
+        return $this->hasMany(BuyerToOrderBlank::class, ['order_blank_id' => 'id']);
     }
 }

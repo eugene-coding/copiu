@@ -18,7 +18,7 @@ class OrderBlankSearch extends OrderBlank
     public function rules()
     {
         return [
-            [['id', 'time_limit', 'day_limit'], 'integer'],
+            [['id', 'time_limit', 'day_limit', 'show_to_all'], 'integer'],
             [['number', 'date', 'synced_at'], 'safe'],
         ];
     }
@@ -61,6 +61,7 @@ class OrderBlankSearch extends OrderBlank
             'time_limit' => $this->time_limit,
             'day_limit' => $this->day_limit,
             'synced_at' => $this->synced_at,
+            'show_to_all' => $this->show_to_all,
         ]);
 
         $query->andFilterWhere(['like', 'number', $this->number]);
