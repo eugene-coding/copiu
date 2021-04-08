@@ -22,6 +22,9 @@ use yii\helpers\Url;
  * @property string $email Email
  * @property string $avatar Путь к аватару пользователя
  * @property string $open_pass Пароль
+ * @property string $last_activity Последняя активность
+ * @property string $is_active Активен ли пользователь
+ * @property string $activity_ip IP активного пользоватлея
  *
  * @property string $roleDescription Описание роли
  * @property Buyer $buyer Покупатель
@@ -49,6 +52,8 @@ class Users extends ActiveRecord
             [['avatar', 'open_pass'], 'string'],
             [['fio', 'login', 'password', 'new_password', 'phone', 'email', 'role'], 'string', 'max' => 255],
             [['open_pass'], 'string'],
+            [['last_activity', 'activity_ip'], 'safe'],
+            [['is_active'], 'integer'],
         ];
     }
 
@@ -90,7 +95,7 @@ class Users extends ActiveRecord
 
     public function beforeDelete()
     {
-        if ($this->id == 1){
+        if ($this->id == 1) {
             return false;
         }
         return parent::beforeDelete();
@@ -144,7 +149,7 @@ class Users extends ActiveRecord
 
     public function getRoleDescription($role_name = null)
     {
-        if (!$role_name){
+        if (!$role_name) {
             return $this->getRoles()[Yii::$app->user->identity->role];
         } else {
             return $this->getRoles()[$role_name];
@@ -157,13 +162,80 @@ class Users extends ActiveRecord
      */
     public function getRoles()
     {
-        return ArrayHelper::map(Yii::$app->authManager->roles,'name','description');
+        return ArrayHelper::map(Yii::$app->authManager->roles, 'name', 'description');
 
     }
 
     public function getBuyer()
     {
         return $this->hasOne(Buyer::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * Записывает последнее время активности пользователя
+     * @return void
+     */
+    public static function setActivity()
+    {
+        $model = Users::findOne(Yii::$app->user->identity->id);
+
+        $model->last_activity = date('Y-m-d H:i:s', time());
+        $model->activity_ip = $_SERVER['REMOTE_ADDR'];
+        $model->is_active = 1;
+        if (!$model->save()) {
+            Yii::error($model->errors, '_error');
+        }
+    }
+
+    /**
+     * Проверяем сессию пользователя на активность
+     * @return int
+     */
+    public static function sessionIsActive()
+    {
+        Yii::info('sessionIsActive()', 'test');
+       $user = Users::findOne(Yii::$app->user->identity->id);
+       return $user->is_active;
+    }
+
+    /**
+     * Активна ли сессия по времени
+     * @return bool
+     */
+    public function sessionIsActiveByTime()
+    {
+        Yii::info('sessionIsActiveByTime()', 'test');
+        /** @var int $max_non_activity Максимальное время неактивности, секунд */
+        $max_non_activity = 10 * 60;
+        Yii::info($this->attributes, 'test');
+        Yii::info("Максимальное время неактивности: 10 минут", 'test');
+        Yii::info("С момента полседней активности прошло: " . (time() - strtotime($this->last_activity))/60 . ' мин.', 'test');
+
+        if ((time() - strtotime($this->last_activity)) > $max_non_activity) {
+            //Прошло больше максимально возможного времени неактивности
+           return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Сверяет IP в базе с текущим IP
+     * @return bool
+     */
+    public function matchingIp()
+    {
+        $ip = $this->getUser()->activity_ip;
+        Yii::info("IP в базе: " . $ip, 'test');
+        Yii::info("IP: " . $_SERVER['REMOTE_ADDR'], 'test');
+
+
+        return $ip == $_SERVER['REMOTE_ADDR'];
+    }
+
+    public function getUser()
+    {
+        return Users::findOne(Yii::$app->user->identity->id);
     }
 
 

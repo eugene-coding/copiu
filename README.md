@@ -59,3 +59,8 @@ public function beforeAction($action)
 ```
     https://mysite.ru/site/sync-nomenclature
   ```
+   #### Проверка периода неактивности пользователя
+   Добавить на выполнение  с периодичностью каждые 10 минут адрес:
+ ```
+     https://mysite.ru/site/check-activity
+   ```

@@ -15,6 +15,7 @@ use app\models\PriceCategory;
 use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
 use app\models\Store;
+use app\models\Users;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\VarDumper;
@@ -84,6 +85,7 @@ class SiteController extends Controller
     public function beforeAction($action)
     {
         if (parent::beforeAction($action)) {
+            //Проверяем доступ
             if (!Yii::$app->user->can($action->id)) {
                 throw new ForbiddenHttpException('Доступ запрещен!');
             }
@@ -148,6 +150,14 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
+        $user = Users::findOne(Yii::$app->user->id);
+        $user->is_active = 0;
+        $user->activity_ip = null;
+        $user->last_activity = null;
+        if (!$user->save()){
+            Yii::error($user->errors, '_error');
+        }
+
         Yii::$app->user->logout();
 
         return $this->goHome();
@@ -401,7 +411,7 @@ class SiteController extends Controller
                 $next_chunk++;
                 Settings::setValueByKey('sync_nomenclature_next_chunk', (string)$next_chunk);
             }
-            Yii::warning('Всего памяти ' .( memory_get_usage(true) / 1048576) . 'M', 'test');
+            Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
             VarDumper::dump($result, 10, true);
         }
 
@@ -585,7 +595,7 @@ class SiteController extends Controller
      */
     public function actionTest()
     {
-       $result = Container::find()->asArray()->all();
+        $result = Container::find()->asArray()->all();
         VarDumper::dump($result, 10, true);
     }
 }

@@ -14,6 +14,7 @@ use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
@@ -50,11 +51,42 @@ class OrderController extends Controller
     }
 
     /**
+     * @param $action
+     * @return bool
+     * @throws ForbiddenHttpException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action)) {
+            if (!Yii::$app->user->can($action->id)) {
+                throw new ForbiddenHttpException('Доступ запрещен!');
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function afterAction($action, $result)
+    {
+        Users::setActivity();
+        return parent::afterAction($action, $result);
+    }
+
+    /**
      * Lists all Order models.
      * @return mixed
      */
     public function actionIndex()
     {
+        $user = (new Users())->getUser();
+        //Проверяем IP пользователя
+        if (!$user->matchingIp()){
+            //Уже залогинен другой пользователь
+            Yii::$app->user->logout();
+            return $this->goHome();
+        }
         $searchModel = new OrderSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -102,7 +134,6 @@ class OrderController extends Controller
      */
     public function actionCreate()
     {
-
         $request = Yii::$app->request;
         $model = new Order();
         $model->buyer_id = Yii::$app->user->identity->id;
@@ -472,6 +503,14 @@ class OrderController extends Controller
 
     public function actionOrderCreate()
     {
+        $user = (new Users())->getUser();
+        //Проверяем IP пользователя
+        if (!$user->matchingIp()){
+            //Уже залогинен другой пользователь
+            Yii::$app->user->logout();
+            return $this->goHome();
+        }
+
         $request = Yii::$app->request;
         $model = new Order();
         $user = Users::findOne(Yii::$app->user->identity->id);
@@ -497,6 +536,14 @@ class OrderController extends Controller
      */
     public function actionOrderUpdate($id)
     {
+        $user = (new Users())->getUser();
+        //Проверяем IP пользователя
+        if (!$user->matchingIp()){
+            //Уже залогинен другой пользователь
+            Yii::$app->user->logout();
+            return $this->goHome();
+        }
+
         $request = Yii::$app->request;
         $model = Order::findOne($id);
 

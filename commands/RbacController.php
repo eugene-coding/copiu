@@ -55,6 +55,7 @@ class RbacController extends Controller
         $sysInfo = $authManager->createPermission('system-info');
         $showErrors = $authManager->createPermission('show-errors');
         $showOrderErrorSettings = $authManager->createPermission('show-order-error-settings');
+        $checkActivity = $authManager->createPermission('check-activity');
 
 
         //Добавляем разрешения в AuthManager
@@ -84,6 +85,7 @@ class RbacController extends Controller
         $authManager->add($sysInfo);
         $authManager->add($showErrors);
         $authManager->add($showOrderErrorSettings);
+        $authManager->add($checkActivity);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -112,6 +114,7 @@ class RbacController extends Controller
         $authManager->addChild($guest, $getNomenclature);
         $authManager->addChild($guest, $syncNom);
         $authManager->addChild($guest, $syncPriceForPC);
+        $authManager->addChild($guest, $checkActivity);
 
         //Покупатель
         $authManager->addChild($buyer, $update);

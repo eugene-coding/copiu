@@ -7,9 +7,9 @@ use Yii;
 use app\models\OrderBlank;
 use app\models\search\OrderBlankSearch;
 use yii\base\InvalidConfigException;
-use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
@@ -52,6 +52,24 @@ class OrderBlankController extends Controller
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param $action
+     * @return bool
+     * @throws ForbiddenHttpException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action)) {
+            if (!Yii::$app->user->can($action->id)) {
+                throw new ForbiddenHttpException('Доступ запрещен!');
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
