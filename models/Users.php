@@ -179,11 +179,13 @@ class Users extends ActiveRecord
     {
         $model = Users::findOne(Yii::$app->user->identity->id);
 
-        $model->last_activity = date('Y-m-d H:i:s', time());
-        $model->activity_ip = $_SERVER['REMOTE_ADDR'];
-        $model->is_active = 1;
-        if (!$model->save()) {
-            Yii::error($model->errors, '_error');
+        if ($model){
+            $model->last_activity = date('Y-m-d H:i:s', time());
+            $model->activity_ip = $_SERVER['REMOTE_ADDR'];
+            $model->is_active = 1;
+            if (!$model->save()) {
+                Yii::error($model->errors, '_error');
+            }
         }
     }
 
@@ -225,6 +227,9 @@ class Users extends ActiveRecord
      */
     public function matchingIp()
     {
+        if (Users::isAdmin()){
+            return true;
+        }
         $ip = $this->getUser()->activity_ip;
         Yii::info("IP в базе: " . $ip, 'test');
         Yii::info("IP: " . $_SERVER['REMOTE_ADDR'], 'test');
