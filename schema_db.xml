@@ -37,7 +37,7 @@
             <type label="SET" length="1" sql="SET" quote=""/>
             <type label="Bit" length="0" sql="bit" quote=""/>
         </group>
-    </datatypes><table x="308" y="347" name="users">
+    </datatypes><table x="309" y="413" name="users">
     <row name="id" null="1" autoincrement="1">
         <datatype>INTEGER</datatype>
         <default>NULL</default></row>
@@ -127,7 +127,7 @@
         </key>
         <comment>Заказы</comment>
     </table>
-    <table x="465" y="31" name="invoice">
+    <table x="259" y="72" name="invoice">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -204,7 +204,7 @@
         </key>
         <comment>Номенклатура товаров</comment>
     </table>
-    <table x="459" y="214" name="buyer">
+    <table x="475" y="361" name="buyer">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -269,7 +269,7 @@
             <part>id</part>
         </key>
     </table>
-    <table x="299" y="74" name="settings">
+    <table x="56" y="190" name="settings">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -385,6 +385,9 @@
         <row name="synced_at" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
+        <row name="view_all" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
@@ -413,7 +416,7 @@
         </key>
         <comment>Связь накладных с номенклатурой</comment>
     </table>
-    <table x="346" y="601" name="department">
+    <table x="114" y="621" name="department">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -494,5 +497,22 @@
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
+    </table>
+    <table x="526" y="25" name="buyer_to_order_blank">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="buyer_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="buyer" row="id" />
+        </row>
+        <row name="order_blank_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="order_blank" row="id" />
+        </row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Видимость бланков для покупателей</comment>
     </table>
 </sql>

@@ -16,10 +16,14 @@ class OrderBlankQuery extends ActiveQuery
         return $this->andWhere('[[status]]=1');
     }*/
 
-    public function allowed()
-    {
-       return $this;
-    }
+//    /**
+//     * Только доступные бланки
+//     */
+//    public function allowed()
+//    {
+//       return $this->joinWith(['buyerToOrderBlanks'])
+//           ->andWhere([]);
+//    }
 
     /**
      * {@inheritdoc}

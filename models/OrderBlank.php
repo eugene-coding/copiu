@@ -236,6 +236,15 @@ class OrderBlank extends ActiveRecord
         $blank_ids = [];
         /** @var OrderBlank $blank */
         foreach ($blanks as $blank) {
+            $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
+            $user = Users::getUser();
+            Yii::info($buyers, 'test');
+            Yii::info('Buyer ID: ' . $user->buyer->id, 'test');
+            if ($buyers && !in_array($user->buyer->id, $buyers)){
+                //Если для бланка видимость только выбранным и покупателя нет в списке видимости
+                continue;
+            }
+
             $count_products = OrderBlankToNomenclature::find()->andWhere(['ob_id' => $blank->id])->count();
 
             /** @var int $max_order_time Максимальная дата доставки для продукта */
@@ -323,10 +332,19 @@ class OrderBlank extends ActiveRecord
      */
     public function getAllBlanksInfo()
     {
-        $blanks = self::find()->allowed()->all();
+        $blanks = self::find()->all();
         $result = '';
 
         foreach ($blanks as $blank) {
+            $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
+            $user = Users::getUser();
+            Yii::info($buyers, 'test');
+            Yii::info('Buyer ID: ' . $user->buyer->id, 'test');
+            if ($buyers && !in_array($user->buyer->id, $buyers)){
+                //Если для бланка видимость только выбранным и покупателя нет в списке видимости
+                continue;
+            }
+
             $count_products = OrderBlankToNomenclature::find()->andWhere(['ob_id' => $blank->id])->count();
 
             /** @var int $max_order_time Максимальная дата доставки для продукта */

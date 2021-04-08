@@ -238,7 +238,7 @@ class Users extends ActiveRecord
         return $ip == $_SERVER['REMOTE_ADDR'];
     }
 
-    public function getUser()
+    public static function getUser()
     {
         return Users::findOne(Yii::$app->user->identity->id);
     }
