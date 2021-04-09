@@ -49,11 +49,12 @@ $this->registerJsFile('/js/order_form.js', [
                     'title' => 'Отменить формирование закзаза',
                 ]) ?>
             </div>
-            <?php if ($model->step == 3): ?>
+            <?php if ($model->step == 2 || $model->step == 3): ?>
             <div class="col-xs-2">
-                <?= Html::a('Назад', ['/order/order-update', 'id' => $model->id, 'step' => 2], [
+                <?= Html::button('Назад', [
                     'class' => 'btn btn-info btn-block to-back',
-                    'title' => 'Вернуться ко второму шагу',
+                    'title' => 'Вернуться к предыдущему шагу',
+                    'onClick' => 'history.go(-1);'
                 ]) ?>
             </div>
             <div class="col-xs-6">

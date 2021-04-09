@@ -550,7 +550,6 @@ class OrderController extends Controller
 
         $request = Yii::$app->request;
         $model = Order::findOne($id);
-
         $productsDataProvider = $model->getProductDataProvider();
 
         if ($request->isAjax) {
