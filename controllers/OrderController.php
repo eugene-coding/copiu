@@ -570,7 +570,21 @@ class OrderController extends Controller
         } else {
             $model->load($request->post());
 
+            Yii::info($model->attributes, 'test');
+
+
             $model->orderProcessing();
+
+            if ($model->step == 2){
+                $total_count = $model->getTotalCountProducts();
+
+                if ($total_count == 0) {
+                    $model->step = 2;
+                    $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
+                    Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
+
+                }
+            }
 
             //Проверяем время доставки
             if ($model->delivery_time_from) {
@@ -583,14 +597,15 @@ class OrderController extends Controller
                 if ($from > $to) {
                     Yii::$app->session->setFlash('warning', 'Конечное время доставки должно быть больше начального');
                     $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
-                    $model->step = 1;
                 } elseif (($to - $from) < 2) {
                     Yii::$app->session->setFlash('warning', 'Увеличьте период доставки');
                     $model->addError('error_delivery_time', 'Увеличьте период доставки');
-                    $model->step = 1;
                 }
             }
-            $model->step++;
+
+            if (!$model->hasErrors()){
+                $model->step++;
+            }
 
             Yii::info('Шаг перед сохранением: '. $model->step, 'test');
             if (!$model->hasErrors() && !$model->save()) {

@@ -366,20 +366,13 @@ class Order extends ActiveRecord
                 }
             }
         }
-        $total_count = $this->getTotalCountProducts();
-
-        if ($total_count == 0) {
-            $this->step = 2;
-            $this->addError('blanks', 'Не выбрано количество ни для одной позиции');
-            Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
-        }
     }
 
     /**
      * Получает общее кол-во продуктов в заказе
      * @return int
      */
-    private function getTotalCountProducts()
+    public function getTotalCountProducts()
     {
         $total_count = 0;
         if (!isset($this->count) || !is_array($this->count)) {
