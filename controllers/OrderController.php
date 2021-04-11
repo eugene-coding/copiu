@@ -696,12 +696,12 @@ class OrderController extends Controller
     }
 
     /**
-     * @param int $id Идентификатор заказа, на основе которого будет сформирован новый заказ
+     * @param int $basis_order_id Идентификатор заказа, на основе которого будет сформирован новый заказ
      * @return string|Response
      */
-    public function actionCopyOrder($id)
+    public function actionCopyOrder($basis_order_id)
     {
-        $order_basis = Order::findOne($id);
+        $order_basis = Order::findOne($basis_order_id);
         $order = new Order();
         $order->buyer_id = $order_basis->buyer_id;
 

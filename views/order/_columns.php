@@ -107,7 +107,7 @@ return [
             'copy-order' => function ($url, Order $model) {
                 if ($model->status != $model::STATUS_DRAFT && Settings::checkSettings()['success'] && Users::isBuyer()) {
                     return Html::a('<i class="glyphicon glyphicon-copy"></i>',
-                        ['/order/copy-order', 'id' => $model->id],
+                        ['/order/copy-order', 'basis_order_id' => $model->id],
                         [
                             'title' => 'Сформировать заказ на основе текущего',
                             'data-pjax' => 0,
