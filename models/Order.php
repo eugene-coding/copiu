@@ -171,18 +171,54 @@ class Order extends ActiveRecord
      */
     public function makeInvoice()
     {
-        $items = Nomenclature::find()
-            ->joinWith(['orders'])
-            ->select([
-                'nomenclature.outer_id',
-                'nomenclature.num',
-                'order_to_nomenclature.price',
-                'order_to_nomenclature.count',
-                '(order_to_nomenclature.price * order_to_nomenclature.count) AS sum'
-            ])
-            ->andWhere(['order.id' => $this->id])
-            ->asArray()
+        $items = [];
+//        $nomenclatures = Nomenclature::find()
+//            ->joinWith(['orders'])
+//            ->select([
+//                'nomenclature.outer_id',
+//                'nomenclature.num',
+//                'order_to_nomenclature.price',
+//                'order_to_nomenclature.count',
+//                '(order_to_nomenclature.price * order_to_nomenclature.count) AS sum'
+//            ])
+//            ->andWhere(['order.id' => $this->id])
+//            ->asArray()
+//            ->all();
+
+        $otn = OrderToNomenclature::find()
+            ->andWhere(['IN', 'order_blank_id', $this->blanks])
+            ->andWhere(['order_id' => $this->id])
             ->all();
+
+        /** @var OrderToNomenclature $order_to_nomenclature */
+        foreach ($otn as $order_to_nomenclature) {
+            /** @var OrderBlankToNomenclature $obtn */
+            $obtn = OrderBlankToNomenclature::find()
+                ->andWhere(['ob_id' => $order_to_nomenclature->order_blank_id])
+                ->andWhere(['n_id' => $order_to_nomenclature->nomenclature_id])
+                ->one();
+            if ($obtn->container_id) {
+                $container_id = $obtn->container_id;
+            } else {
+                $container_id = '';
+            }
+
+
+            $product = Nomenclature::find()
+                ->andWhere(['id' => $order_to_nomenclature->nomenclature_id])
+                ->one();
+
+            $price = $product->getPriceForBuyer($container_id);
+
+            $items[] = [
+                'outer_id' => $product->outer_id,
+                'num' => $product->num,
+                'price' => $price,
+                'count' => $order_to_nomenclature->count,
+                'sum' => round($order_to_nomenclature->count * $price, 2),
+                'container_id' => $container_id,
+            ];
+        }
 
 
         $params = [
