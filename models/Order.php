@@ -191,7 +191,7 @@ class Order extends ActiveRecord
             'counteragentId' => $this->buyer->outer_id,
             'from' => $this->delivery_time_from,
             'to' => $this->delivery_time_to,
-            'comment' => $this->comment,
+            'comment' => 'ТОРГ12 ' . $this->comment,
             'items' => $items,
             'defaultStoreId' => Settings::getValueByKey('store_outer_id'),
         ];
