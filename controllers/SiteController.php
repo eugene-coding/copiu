@@ -11,6 +11,7 @@ use app\models\Department;
 use app\models\Measure;
 use app\models\NGroup;
 use app\models\Nomenclature;
+use app\models\OrderBlank;
 use app\models\PriceCategory;
 use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
@@ -39,7 +40,7 @@ class SiteController extends Controller
                 'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['sync-nomenclature', 'get-nomenclature'],
+                        'actions' => ['sync-nomenclature', 'get-nomenclature', 'sync'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -226,7 +227,7 @@ class SiteController extends Controller
      */
     public function actionSyncAll()
     {
-        set_time_limit(600);
+        set_time_limit(1200);
 //        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -324,7 +325,7 @@ class SiteController extends Controller
      */
     public function actionGetNomenclature($force = false)
     {
-        set_time_limit(600);
+        set_time_limit(1200);
 
         if (!$force) {
             //Проверяем период получения номенклатуры
@@ -419,7 +420,7 @@ class SiteController extends Controller
 
     public function actionSyncNomenclatureGroup()
     {
-        set_time_limit(300);
+        set_time_limit(1200);
 //        ini_set("memory_limit", "128M");
 
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -597,5 +598,22 @@ class SiteController extends Controller
     {
         $result = Container::find()->asArray()->all();
         VarDumper::dump($result, 10, true);
+    }
+
+    /**
+     * Синхронизация покупателей, ценовых категорий, отделов, групп номенклатуры, бланков заказа
+     * @return string
+     * @throws \Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function actionSync()
+    {
+        set_time_limit(1200);
+        $this->actionSyncAll();
+        $this->actionSyncNomenclatureGroup();
+        $this->actionGetNomenclature();
+        OrderBlank::sync();
+        return 'Готово';
     }
 }
