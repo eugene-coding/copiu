@@ -82,7 +82,7 @@ class OrderController extends Controller
     {
         $user = (new Users())->getUser();
         //Проверяем IP пользователя
-        if (!$user->matchingIp()){
+        if (!$user->matchingIp()) {
             //Уже залогинен другой пользователь
             Yii::$app->user->logout();
             return $this->goHome();
@@ -505,7 +505,7 @@ class OrderController extends Controller
     {
         $user = (new Users())->getUser();
         //Проверяем IP пользователя
-        if (!$user->matchingIp()){
+        if (!$user->matchingIp()) {
             //Уже залогинен другой пользователь
             Yii::$app->user->logout();
             return $this->goHome();
@@ -519,7 +519,7 @@ class OrderController extends Controller
 
         if ($request->isPost) {
             $model->load($request->post());
-            if (!$model->target_date){
+            if (!$model->target_date) {
                 Yii::$app->session->setFlash('warning', 'Не выбрана дата заказа');
             } else {
                 $model->save();
@@ -542,7 +542,7 @@ class OrderController extends Controller
     {
         $user = (new Users())->getUser();
         //Проверяем IP пользователя
-        if (!$user->matchingIp()){
+        if (!$user->matchingIp()) {
             //Уже залогинен другой пользователь
             Yii::$app->user->logout();
             return $this->goHome();
@@ -574,7 +574,7 @@ class OrderController extends Controller
 
             $model->orderProcessing();
 
-            if ($model->step == 2){
+            if ($model->step == 2) {
                 $total_count = $model->getTotalCountProducts();
 
                 if ($total_count == 0) {
@@ -602,17 +602,17 @@ class OrderController extends Controller
                 }
             }
 
-            if (!$model->hasErrors()){
+            if (!$model->hasErrors()) {
                 $model->step++;
             }
 
-            Yii::info('Шаг перед сохранением: '. $model->step, 'test');
+            Yii::info('Шаг перед сохранением: ' . $model->step, 'test');
             if (!$model->hasErrors() && !$model->save()) {
                 Yii::error($model->errors, '_error');
 
             }
 
-            if ($model->step == 2){
+            if ($model->step == 2) {
                 //Обрабатываем заказ на основе кол-ва заказанных продуктов
                 $model->orderProcessing();
                 $productsDataProvider = $model->getProductDataProvider();
@@ -733,11 +733,13 @@ class OrderController extends Controller
         }
 
         //Получаем список ID продуктов из бланков заказа-источника (удаленные бланки не попадают в выдачу)
-        $basis_product_ids = OrderBlankToNomenclature::find()->select(['n_id'])->andWhere([
-            'IN',
-            'ob_id',
-            $blank_ids
-        ])->column();
+        $basis_product_ids = OrderBlankToNomenclature::find()
+            ->select(['n_id'])
+            ->andWhere([
+                'IN',
+                'ob_id',
+                $blank_ids
+            ])->column();
 
         //Добавляем продукты в новый заказ
         $rows = [];
@@ -751,7 +753,8 @@ class OrderController extends Controller
                 $order->id,
                 $item->nomenclature_id,
                 $item->nomenclature->priceForBuyer, //Цену рассчитываем заново, т.к. скидка и цена может измениться
-                $item->count
+                $item->count,
+                $item->order_blank_id,
             ];
 
         }
@@ -762,6 +765,7 @@ class OrderController extends Controller
                 'nomenclature_id',
                 'price',
                 'count',
+                'order_blank_id',
             ], $rows)->execute();
         } catch (Exception $e) {
             Yii::error($order->errors, '_error');
