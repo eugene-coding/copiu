@@ -102,12 +102,16 @@ class BuyerToOrderBlank extends ActiveRecord
                     ->execute();
 
                 $order_blank->show_to_all = 0;
-                if (!$order_blank->save()) {
-                    Yii::error($order_blank->errors, '_error');
-                }
+
             } catch (Exception $e) {
                 Yii::error($e->getMessage(), '_error');
             }
+        } else {
+            $order_blank->show_to_all = 1;
+        }
+
+        if (!$order_blank->save()) {
+            Yii::error($order_blank->errors, '_error');
         }
     }
 }
