@@ -131,9 +131,11 @@ class Buyer extends ActiveRecord
 
         foreach ($data as $buyer) {
             $outer_id = (string)$buyer['id'];
+            $outer_price_category = (string)$buyer['price_category'];
+
             if (!in_array($outer_id, $exists_buyer)) {
+                //Покупатель не найден в базе
                 $name = (string)$buyer['name'];
-                $outer_price_category = (string)$buyer['price_category'];
                 if ($outer_price_category) {
                     $price_category = $price_categories[$outer_price_category];
                 } else {
@@ -141,7 +143,15 @@ class Buyer extends ActiveRecord
                 }
                 $rows[] = [$name, $price_category, $outer_id];
             } else {
-//                Yii::info($buyer['name'] . ' уже есть в базе. Пропускаем', 'test');
+                //Обновление покупателя
+                $buyer = Buyer::findOne(['outer_id' => $buyer]);
+                $buyer->pc_id = PriceCategory::findOne(['outer_id' => $outer_price_category])->id;
+                $buyer->name = (string)$buyer['name'];
+
+                if (!$buyer->save()){
+                    Yii::error($buyer->errors, '_error');
+                }
+
             }
         }
 //        Yii::info('Строки для добавления покупателей', 'test');
