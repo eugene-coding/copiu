@@ -47,7 +47,12 @@ class OrderBlankToNomenclature extends ActiveRecord
                 'targetClass' => OrderBlank::class,
                 'targetAttribute' => ['ob_id' => 'id']
             ],
-            [['n_id', 'ob_id'], 'unique', 'targetAttribute' => ['n_id', 'ob_id'], 'message' => 'Продукт уже присутствует в бланке'],
+            [
+                ['n_id', 'ob_id'],
+                'unique',
+                'targetAttribute' => ['n_id', 'ob_id'],
+                'message' => 'Продукт уже присутствует в бланке'
+            ],
         ];
     }
 
@@ -91,5 +96,18 @@ class OrderBlankToNomenclature extends ActiveRecord
     public function getContainer()
     {
         return $this->hasOne(Container::class, ['id' => 'container_id']);
+    }
+
+    /**
+     * Находит единицу измерения (ед измерения или фасовка)
+     * @return string
+     */
+    public function findMeasure()
+    {
+        if ($this->container_id) {
+            return $this->container->name;
+        } else {
+            return $this->n->measure->name;
+        }
     }
 }

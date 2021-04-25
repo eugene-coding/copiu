@@ -99,12 +99,16 @@ class OrderBlankController extends Controller
     public function actionView($id)
     {
         $request = Yii::$app->request;
+        $model = $this->findModel($id);
+        $productsDataProvider = $model->getProductDataProvider();
+
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'title' => "OrderBlank #" . $id,
+                'title' => "Бланк заказа #" . $id,
                 'content' => $this->renderAjax('view', [
-                    'model' => $this->findModel($id),
+                    'model' => $model,
+                    'productsDataProvider' => $productsDataProvider,
                 ]),
                 'footer' => Html::button('Закрыть',
                         ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -113,7 +117,8 @@ class OrderBlankController extends Controller
             ];
         } else {
             return $this->render('view', [
-                'model' => $this->findModel($id),
+                'model' => $model,
+                'productsDataProvider' => $productsDataProvider,
             ]);
         }
     }

@@ -415,4 +415,24 @@ class OrderBlank extends ActiveRecord
     {
         return $this->hasMany(BuyerToOrderBlank::class, ['order_blank_id' => 'id']);
     }
+
+    /**
+     * @return array
+     */
+    public function getProductDataProvider()
+    {
+        $obtns = $this->orderBlankToNomenclature;
+
+        $products = [];
+
+        /** @var OrderBlankToNomenclature $item */
+        foreach ($obtns as $item) {
+            $products[] = [
+                'name' => $item->n->name,
+                'measure' => $item->findMeasure(),
+            ];
+        }
+
+        return $products;
+    }
 }
