@@ -143,6 +143,15 @@ class Order extends ActiveRecord
     }
 
     /**
+     * Получает все товары из бланков заказа
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderBlankToNomenclature()
+    {
+        return OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $this->blanks]);
+    }
+
+    /**
      * Продукты в заказе
      * @return \yii\db\ActiveQuery
      */

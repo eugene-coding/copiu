@@ -19,9 +19,9 @@ $counter = 1;
                 [
                     'attribute' => 'delivery_time_from',
                     'value' => 'с '
-                        . Yii::$app->formatter->asTime($model->delivery_time_from )
+                        . Yii::$app->formatter->asTime($model->delivery_time_from)
                         . ' до '
-                        . Yii::$app->formatter->asTime($model->delivery_time_to ),
+                        . Yii::$app->formatter->asTime($model->delivery_time_to),
                     'label' => 'Время доставки',
                 ],
                 'total_price:currency',
@@ -45,32 +45,38 @@ $counter = 1;
         </div>
         <div class="panel-body">
             <table class="table table-hover">
-               <thead>
-               <tr>
-                   <th>#</th>
-                   <th>Наименование</th>
-                   <th>Цена</th>
-                   <th>Кол-во</th>
-                   <th>Сумма</th>
-               </tr>
-               </thead>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Наименование</th>
+                    <th>Ед. изм.</th>
+                    <th>Цена</th>
+                    <th>Кол-во</th>
+                    <th>Сумма</th>
+                </tr>
+                </thead>
                 <tbody>
-                <?php foreach($model->products as $product):?>
-                <?php
+                <?php foreach ($model->orderToNomenclature as $item): ?>
+                    <?php
+                    $product = $item->nomenclature;
                     $count = $product->getCount($model->id);
                     $price = $product->getPriceForOrder($model->id);
+                    $obtn = \app\models\OrderBlankToNomenclature::find()
+                        ->andWhere(['ob_id' => $item->order_blank_id, 'n_id' => $product->id,])
+                        ->one();
                     ?>
-                <tr>
-                    <td><?= $counter; ?></td>
-                    <td><?= $product->name ?></td>
-                    <td><?= $price ?></td>
-                    <td><?= $count ?></td>
-                    <td><?=  $count * $price ; ?></td>
-                </tr>
-                <?php
+                    <tr>
+                        <td><?= $counter; ?></td>
+                        <td><?= $product->name ?></td>
+                        <td><?= $product->findMeasure($obtn) ?></td>
+                        <td><?= $price ?></td>
+                        <td><?= $count ?></td>
+                        <td><?= $count * $price; ?></td>
+                    </tr>
+                    <?php
                     $counter++;
                     ?>
-                <?php endforeach;?>
+                <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
