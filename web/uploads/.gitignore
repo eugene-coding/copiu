@@ -1,2 +1,4 @@
 *
+!/out_act/
+!/out_invoice/
 !.gitignore

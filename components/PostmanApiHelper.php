@@ -414,6 +414,12 @@ XML;
         $root->appendChild($suppressWarnings);
 
         $this->post_data = $dom->saveXML();
+        //Сохраняем в файл
+        try {
+            file_put_contents('uploads/out_act/' . $params['documentNumber'] . '.xml', $this->post_data);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'test');
+        }
         Yii::info($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';

@@ -308,6 +308,12 @@ class IikoApiHelper
 //        $dom->save($path);
 
         $this->post_data = $dom->saveXML();
+        //Сохраняем в файл
+        try {
+            file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '.xml', $this->post_data);
+        } catch (\Exception $e) {
+            Yii::error($e->getMessage(), 'test');
+        }
         $this->headers = [
             'Content-Type: application/xml'
         ];

@@ -181,19 +181,6 @@ class Order extends ActiveRecord
     public function makeInvoice()
     {
         $items = [];
-//        $nomenclatures = Nomenclature::find()
-//            ->joinWith(['orders'])
-//            ->select([
-//                'nomenclature.outer_id',
-//                'nomenclature.num',
-//                'order_to_nomenclature.price',
-//                'order_to_nomenclature.count',
-//                '(order_to_nomenclature.price * order_to_nomenclature.count) AS sum'
-//            ])
-//            ->andWhere(['order.id' => $this->id])
-//            ->asArray()
-//            ->all();
-
         $otn = OrderToNomenclature::find()
             ->andWhere(['IN', 'order_blank_id', $this->blanks])
             ->andWhere(['order_id' => $this->id])
