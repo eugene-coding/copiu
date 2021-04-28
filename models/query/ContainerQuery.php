@@ -37,7 +37,6 @@ class ContainerQuery extends ActiveQuery
      */
     public function all($db = null)
     {
-        $this->actual();
         return parent::all($db);
     }
 
@@ -47,7 +46,6 @@ class ContainerQuery extends ActiveQuery
      */
     public function one($db = null)
     {
-        $this->actual();
         return parent::one($db);
     }
 }

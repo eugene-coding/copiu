@@ -173,7 +173,8 @@ class OrderBlank extends ActiveRecord
 
         if ($product_outer_ids_in_blanks) {
             //Обновляем продукты указанные в бланках
-            Nomenclature::syncByIds($product_outer_ids_in_blanks);
+            Yii::info($product_outer_ids_in_blanks, 'test');
+            Nomenclature::syncByIds($product_outer_ids_in_blanks, 'test');
 
             //Обновляем цены для ценовых категорий в которых находятся продукты бланков
             PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
