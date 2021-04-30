@@ -420,7 +420,7 @@ class Order extends ActiveRecord
                 'obtn_id' => $obtn->id,
             ]);
 
-            $data[] = [
+            $data[$obtn->ob->number][] = [
                 'id' => $product->id,
                 'name' => $product->name,
                 'count' => $order_to_nomenclature->count,

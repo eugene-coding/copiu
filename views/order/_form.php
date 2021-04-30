@@ -1,5 +1,6 @@
 <?php
 
+use app\models\OrderBlank;
 use kartik\date\DatePicker;
 
 use yii\helpers\Html;
@@ -118,10 +119,41 @@ $this->registerJsFile('/js/order_form.js', [
                 доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
             <div class="row">
                 <div class="col-md-8 col-xs-12">
-                    <?= $this->render('_nomenclature', [
-                        'model' => $model,
-                        'dataProvider' => $productsDataProvider,
-                    ]) ?>
+                    <div>
+                        <!-- Навигационные вкладки -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <?php
+                            Yii::warning($productsDataProvider->getModels());
+                            foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
+                                <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
+                                <li role="presentation">
+                                    <a href="#tab-<?= $tab_model->id ?>" aria-controls="<?= $tab_model->id; ?>"
+                                       role="tab" data-toggle="tab">
+                                        <?= $tab_model->number; ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+
+                        </ul>
+
+                        <!-- Вкладки панелей -->
+                        <div class="tab-content">
+                            <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
+                                <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
+                                <div role="tabpanel" class="tab-pane" id="tab-<?= $tab_model->id ?>">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <?= $this->render('_nomenclature', [
+                                                'model' => $model,
+                                                'dataProvider' => $products,
+                                            ]) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="col-md-4 col-xs-12">
                     <div class="panel panel-default">
