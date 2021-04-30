@@ -44,7 +44,7 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'discount',
-        'content' => function (Buyer $model){
+        'content' => function (Buyer $model) {
             return Yii::$app->formatter->asPercent($model->discount, 2);
         }
 //        'format' => 'percent',
@@ -71,7 +71,12 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'min_balance',
-        'format' => 'currency',
+        'value' => function (Buyer $model) {
+            $min_balance = Yii::$app->formatter->asCurrency($model->min_balance);
+            $cur_balance = Yii::$app->formatter->asCurrency($model->balance);
+            return "<label title='Текущий баланс: {$cur_balance}'>{$min_balance}</label>";
+        },
+        'format' => 'raw',
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
