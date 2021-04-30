@@ -74,8 +74,10 @@ return [
         'value' => function (Buyer $model) {
             $min_balance = Yii::$app->formatter->asCurrency($model->min_balance);
             $cur_balance = Yii::$app->formatter->asCurrency($model->balance);
-            return "<label title='Текущий баланс: {$cur_balance}'>{$min_balance}</label>";
+            return "Мин.: {$min_balance} <br> Текущий: {$cur_balance}";
         },
+        'noWrap' => true,
+        'label' => 'Баланс',
         'format' => 'raw',
     ],
     [
