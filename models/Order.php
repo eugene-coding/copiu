@@ -181,8 +181,9 @@ class Order extends ActiveRecord
     public function makeInvoice()
     {
         $items = [];
+        $blanks = explode(',', $this->blanks);
         $otn = OrderToNomenclature::find()
-            ->andWhere(['IN', 'order_blank_id', $this->blanks])
+            ->andWhere(['IN', 'order_blank_id', $blanks])
             ->andWhere(['order_id' => $this->id])
             ->all();
 
@@ -216,6 +217,7 @@ class Order extends ActiveRecord
             ];
         }
 
+        Yii::info($items, 'test');
 
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
@@ -227,6 +229,7 @@ class Order extends ActiveRecord
             'items' => $items,
             'defaultStoreId' => Settings::getValueByKey('store_outer_id'),
         ];
+        Yii::info($params, 'test');
 
         $helper = new IikoApiHelper();
         $result = $helper->makeExpenseInvoice($params);
@@ -303,8 +306,8 @@ class Order extends ActiveRecord
         Yii::info($result, 'test');
         $xml = simplexml_load_string($result);
 
-        if ($xml->returnValue->additionalInfo) {
-            Yii::warning($xml->returnValue->additionalInfo, 'test');
+        if ((string)$xml->returnValue->additionalInfo) {
+            Yii::warning((string)$xml->returnValue->additionalInfo, 'test');
         }
 
         if ($xml->success == 'false') {

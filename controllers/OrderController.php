@@ -620,13 +620,14 @@ class OrderController extends Controller
 
             if ($model->step === 4) {
                 //Формируем накладную
-                if (!$model->makeInvoice()) {
+                $invoice_maked = $model->makeInvoice();
+                if (!$invoice_maked) {
                     $model->invoice_number = 'error';
                     $model->status = $model::STATUS_DRAFT;
                     $model->save();
                 }
 
-                if ($model->deliveryCost) {
+                if ($model->deliveryCost && $invoice_maked) {
                     //Формируем акт оказания услуг (доставка)
                     if (!$model->makeDeliveryAct()) {
                         $model->delivery_act_number = 'error';
