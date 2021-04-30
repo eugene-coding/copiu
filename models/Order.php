@@ -29,7 +29,6 @@ use yii\db\StaleObjectException;
  * @property string|null $delivery_act_number Номер Акта оказанных услуг
  *
  * @property Buyer $buyer
- * @property Nomenclature[] $products;
  * @property OrderToNomenclature[] $orderToNomenclature;
  * @property double $deliveryCost;
  * @property OrderBlankToNomenclature[] $orderBlankToNomenclature;
@@ -148,17 +147,8 @@ class Order extends ActiveRecord
      */
     public function getOrderBlankToNomenclature()
     {
-        return OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $this->blanks]);
-    }
-
-    /**
-     * Продукты в заказе
-     * @return \yii\db\ActiveQuery
-     */
-    public function getProducts()
-    {
-        return $this->hasMany(Nomenclature::class, ['id' => 'nomenclature_id'])
-            ->via('orderToNomenclature');
+        $blanks = explode(',', $this->blanks);
+        return OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $blanks]);
     }
 
     /**
@@ -181,28 +171,23 @@ class Order extends ActiveRecord
     public function makeInvoice()
     {
         $items = [];
-        $blanks = explode(',', $this->blanks);
         $otn = OrderToNomenclature::find()
-            ->andWhere(['IN', 'order_blank_id', $blanks])
             ->andWhere(['order_id' => $this->id])
             ->all();
 
         /** @var OrderToNomenclature $order_to_nomenclature */
         foreach ($otn as $order_to_nomenclature) {
             /** @var OrderBlankToNomenclature $obtn */
-            $obtn = OrderBlankToNomenclature::find()
-                ->andWhere(['ob_id' => $order_to_nomenclature->order_blank_id])
-                ->andWhere(['n_id' => $order_to_nomenclature->nomenclature_id])
-                ->one();
+            $obtn = OrderBlankToNomenclature::findOne($order_to_nomenclature->obtn_id);
+
             if ($obtn->container_id) {
                 $container_id = $obtn->container_id;
             } else {
                 $container_id = '';
             }
 
-
             $product = Nomenclature::find()
-                ->andWhere(['id' => $order_to_nomenclature->nomenclature_id])
+                ->andWhere(['id' => $obtn->n_id])
                 ->one();
 
             $price = $product->getPriceForBuyer($container_id);
@@ -366,34 +351,23 @@ class Order extends ActiveRecord
     public function orderProcessing()
     {
         if (isset($this->count) && is_array($this->count)) {
-            foreach ($this->count as $n_id_and_blank_id => $count) {
+            foreach ($this->count as $obtn_id => $count) {
                 if (!$count) {
                     continue;
                 }
-                $nomenclature_id = explode('-', $n_id_and_blank_id)[0];
-                $blank_id = explode('-', $n_id_and_blank_id)[1];
-
-                $n = Nomenclature::findOne($nomenclature_id);
-
+                $obtn = OrderBlankToNomenclature::findOne($obtn_id);
                 $otn = OrderToNomenclature::find()
                     ->andWhere([
                         'order_id' => $this->id,
-                        'nomenclature_id' => $nomenclature_id,
-                        'order_blank_id' => $blank_id
+                        'obtn_id' => $obtn,
                     ])->one();
                 if (!$otn) {
                     $otn = new OrderToNomenclature();
                     $otn->order_id = $this->id;
-                    $otn->nomenclature_id = $nomenclature_id;
+                    $otn->obtn_id = $obtn->id;
                 }
-                /** @var OrderBlankToNomenclature $obtn */
-                $obtn = OrderBlankToNomenclature::find()
-                    ->andWhere(['ob_id' => $blank_id, 'n_id' => $nomenclature_id])
-                    ->one();
-
-                $otn->price = $n->getPriceForBuyer($obtn->container_id);
+                $otn->price = $obtn->n->getPriceForBuyer($obtn->container_id);
                 $otn->count = $count;
-                $otn->order_blank_id = $blank_id;
 
                 if (!$otn->save()) {
                     Yii::error($otn->errors, '_error');
@@ -436,25 +410,23 @@ class Order extends ActiveRecord
 
         /** @var OrderBlankToNomenclature $obtn */
         foreach ($order_blanks_to_nomenclatures as $obtn) {
-            /** @var OrderBlank $blank */
-            $blank = $obtn->ob;
+
             /** @var Nomenclature $product */
             $product = $obtn->n;
 
             /** @var OrderToNomenclature $order_to_nomenclature */
             $order_to_nomenclature = OrderToNomenclature::findOne([
                 'order_id' => $this->id,
-                'nomenclature_id' => $product->id,
-                'order_blank_id' => $blank->id
+                'obtn_id' => $obtn->id,
             ]);
 
             $data[] = [
                 'id' => $product->id,
                 'name' => $product->name,
                 'count' => $order_to_nomenclature->count,
-                'order_blank_id' => $blank->id,
                 'price' => $product->getPriceForBuyer($obtn->container_id),
-                'measure' => $product->findMeasure($obtn)
+                'measure' => $product->findMeasure($obtn),
+                'obtn_id' => $obtn->id,
             ];
         }
 
@@ -468,6 +440,17 @@ class Order extends ActiveRecord
 
         return $productsDataProvider;
     }
+    /**
+     * Продукты в бланке из заказа
+     * @return array|ActiveRecord[]
+     */
+    public function getObtns()
+    {
+        return OrderBlankToNomenclature::find()
+            ->joinWith(['orderToNomenclature'])
+            ->andWhere(['order_to_nomenclature.order_id' => $this->id])->all();
+    }
+
 
 
 }

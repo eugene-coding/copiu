@@ -1,6 +1,6 @@
 <?php
 
-use yii\helpers\Html;
+use app\models\OrderBlankToNomenclature;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
@@ -56,14 +56,14 @@ $counter = 1;
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($model->orderToNomenclature as $item): ?>
+                <?php /** @var OrderBlankToNomenclature $obtn */
+                foreach ($model->getObtns() as $obtn): ?>
                     <?php
-                    $product = $item->nomenclature;
-                    $count = $product->getCount($model->id);
-                    $price = $product->getPriceForOrder($model->id);
-                    $obtn = \app\models\OrderBlankToNomenclature::find()
-                        ->andWhere(['ob_id' => $item->order_blank_id, 'n_id' => $product->id,])
-                        ->one();
+                    Yii::info($obtn->attributes, 'test');
+                    $product = $obtn->n;
+                    Yii::info($product->attributes, 'test');
+                    $count = $obtn->getCount($model->id);
+                    $price = $obtn->getPriceForOrder($model->id);
                     ?>
                     <tr>
                         <td><?= $counter; ?></td>

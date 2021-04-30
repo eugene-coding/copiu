@@ -45,7 +45,7 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
             <tr>
                 <td><?= $counter ?></td>
                 <td><?= $product->name ?></td>
-                <td><?= Html::input('number', "Order[count][{$product->id}-{$product->order_blank_id}]", $product->count, [
+                <td><?= Html::input('number', "Order[count][{$product->obtn_id}]", $product->count, [
                         'class' => 'form-control count-product',
                         'min' => 0,
                         'step' => 1,

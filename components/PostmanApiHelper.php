@@ -2,13 +2,9 @@
 
 namespace app\components;
 
-use app\models\Nomenclature;
-use app\models\PriceCategory;
-use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
 use DOMDocument;
 use Yii;
-use yii\helpers\ArrayHelper;
 
 
 /**
@@ -414,16 +410,28 @@ XML;
         $root->appendChild($suppressWarnings);
 
         $this->post_data = $dom->saveXML();
-        //Сохраняем в файл
-        try {
-            file_put_contents('uploads/out_act/' . $params['documentNumber'] . '.xml', $this->post_data);
-        } catch (\Exception $e) {
-            Yii::error($e->getMessage(), 'test');
+        if (YII_ENV_DEV) {
+            //Сохраняем в файл
+            try {
+                file_put_contents('uploads/out_act/' . $params['documentNumber'] . '.xml', $this->post_data);
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), 'test');
+            }
         }
+
         Yii::info($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
-        return $this->send('POST');
+        $response = $this->send('POST');
+        if (YII_ENV_DEV) {
+            //Сохраняем в файл
+            try {
+                file_put_contents('uploads/out_act/' . $params['documentNumber'] . '_response.xml', $response);
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), 'test');
+            }
+        }
+        return $response;
     }
 
     /**

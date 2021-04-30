@@ -66,6 +66,7 @@ $this->registerJsFile('/js/order_form.js', [
                     <?= Html::submitButton('Далее', [
                         'class' => 'btn btn-success btn-block',
                         'title' => 'Сохранить и продолжить',
+                        'style' => $model->step == 1 ? 'display: none;':'',
                     ]) ?>
                 </div>
             </div>
@@ -86,10 +87,18 @@ $this->registerJsFile('/js/order_form.js', [
                             // you can hide the input by setting the following
                             'style' => 'display:none'
                         ],
+                        'pluginEvents' => [
+                            'changeDate'=> 'function(e) {  
+                                setTimeout(function(){
+                                    $("#confirm-order-date").trigger("click");
+                                }, 500);
+                            }',
+                        ],
                     ])->label('Выберите дату доставки'); ?>
                     <?= Html::button('Подтвердить дату ', [
                         'class' => 'btn btn-success btn-block',
                         'id' => 'confirm-order-date',
+                        'style' => 'display:none;'
                     ]); ?>
                     <!--                <input type="text" name="selected_date" id="selected-date" class="hidden">-->
                 </div>

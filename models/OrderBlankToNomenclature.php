@@ -110,4 +110,44 @@ class OrderBlankToNomenclature extends ActiveRecord
             return $this->n->measure->name;
         }
     }
+
+    /**
+     * Колво продуктов в заказе
+     * @param $order_id
+     * @return mixed
+     */
+    public function getCount($order_id)
+    {
+        /** @var OrderToNomenclature $query */
+        $query = OrderToNomenclature::find()
+            ->andWhere(['obtn_id' => $this->id, 'order_id' => $order_id])
+            ->one();
+
+        return $query->count;
+    }
+
+    /**
+     * Цена продукта для заказа
+     * @param $order_id
+     * @return float|null
+     */
+    public function getPriceForOrder($order_id)
+    {
+        /** @var OrderToNomenclature $query */
+        $query = OrderToNomenclature::find()
+            ->andWhere([
+                'order_id' => $order_id,
+                'obtn_id' => $this->id
+            ])->one();
+
+        return $query->price;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrderToNomenclature()
+    {
+        return $this->hasMany(OrderToNomenclature::class, ['obtn_id' => 'id']);
+    }
 }

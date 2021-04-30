@@ -9,12 +9,11 @@ use yii\db\ActiveRecord;
  *
  * @property int $id
  * @property int|null $order_id Заказ
- * @property int|null $nomenclature_id Продукт
  * @property float|null $price Цена за единицу
  * @property float|null $count Количество
- * @property float|null $order_blank_id Идентификатор бланка заказа
+ * @property int|null $obtn_id Позиция в бланке заказа
  *
- * @property Nomenclature $nomenclature
+ * @property OrderBlankToNomenclature $obtn
  * @property Order $order
  * @property double $totalPrice
  */
@@ -34,14 +33,14 @@ class OrderToNomenclature extends ActiveRecord
     public function rules()
     {
         return [
-            [['order_id', 'nomenclature_id'], 'integer'],
+            [['order_id', 'obtn_id'], 'integer'],
             [['price', 'count'], 'number'],
             [
-                ['nomenclature_id'],
+                ['obtn_id'],
                 'exist',
                 'skipOnError' => true,
-                'targetClass' => Nomenclature::className(),
-                'targetAttribute' => ['nomenclature_id' => 'id']
+                'targetClass' => OrderBlankToNomenclature::class,
+                'targetAttribute' => ['obtn_id' => 'id']
             ],
             [
                 ['order_id'],
@@ -50,8 +49,6 @@ class OrderToNomenclature extends ActiveRecord
                 'targetClass' => Order::class,
                 'targetAttribute' => ['order_id' => 'id']
             ],
-            [['order_id', 'nomenclature_id', 'order_blank_id'], 'unique', 'targetAttribute' => ['order_id', 'nomenclature_id','order_blank_id']],
-
         ];
     }
 
@@ -63,20 +60,20 @@ class OrderToNomenclature extends ActiveRecord
         return [
             'id' => 'ID',
             'order_id' => 'Заказ',
-            'nomenclature_id' => 'Продукт',
+            'obtn_id' => 'Продукт в бланке',
             'price' => 'Цена за единицу',
             'count' => 'Количество',
         ];
     }
 
     /**
-     * Gets query for [[Nomenclature]].
+     * Gets query for [[OrderBlankToNomenclature]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getNomenclature()
+    public function getObtn()
     {
-        return $this->hasOne(Nomenclature::className(), ['id' => 'nomenclature_id']);
+        return $this->hasOne(OrderBlankToNomenclature::class, ['id' => 'obtn_id']);
     }
 
     /**
@@ -86,7 +83,7 @@ class OrderToNomenclature extends ActiveRecord
      */
     public function getOrder()
     {
-        return $this->hasOne(Order::className(), ['id' => 'order_id']);
+        return $this->hasOne(Order::class, ['id' => 'order_id']);
     }
 
     /**

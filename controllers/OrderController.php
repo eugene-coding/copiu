@@ -733,29 +733,30 @@ class OrderController extends Controller
             return $this->redirect('index');
         }
 
-        //Получаем список ID продуктов из бланков заказа-источника (удаленные бланки не попадают в выдачу)
-        $basis_product_ids = OrderBlankToNomenclature::find()
-            ->select(['n_id'])
-            ->andWhere([
-                'IN',
-                'ob_id',
-                $blank_ids
-            ])->column();
+//        //Получаем список ID продуктов из бланков заказа-источника (удаленные бланки не попадают в выдачу)
+//        $basis_product_ids = OrderBlankToNomenclature::find()
+//            ->select(['n_id'])
+//            ->andWhere([
+//                'IN',
+//                'ob_id',
+//                $blank_ids
+//            ])->column();
 
         //Добавляем продукты в новый заказ
         $rows = [];
         $query = OrderToNomenclature::find()
-            ->andWhere(['IN', 'nomenclature_id', $basis_product_ids])
             ->andWhere(['order_id' => $order_basis->id]);
 
         /** @var OrderToNomenclature $item */
         foreach ($query->each() as $item) {
+            /** @var OrderBlankToNomenclature $obtn */
+            $obtn = $item->obtn;
+
             $rows[] = [
                 $order->id,
-                $item->nomenclature_id,
-                $item->nomenclature->priceForBuyer, //Цену рассчитываем заново, т.к. скидка и цена может измениться
+                $obtn->getPriceForOrder($order->id), //Цену рассчитываем заново, т.к. цена может измениться
                 $item->count,
-                $item->order_blank_id,
+                $obtn->id,
             ];
 
         }
@@ -763,10 +764,9 @@ class OrderController extends Controller
         try {
             Yii::$app->db->createCommand()->batchInsert(OrderToNomenclature::tableName(), [
                 'order_id',
-                'nomenclature_id',
                 'price',
                 'count',
-                'order_blank_id',
+                'obtn_id',
             ], $rows)->execute();
         } catch (Exception $e) {
             Yii::error($order->errors, '_error');

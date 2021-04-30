@@ -243,7 +243,7 @@
         </key>
         <comment>Покупатели</comment>
     </table>
-    <table x="999" y="234" name="order_to_nomenclature">
+    <table x="1056" y="228" name="order_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -251,19 +251,15 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="order" row="id" />
         </row>
-        <row name="nomenclature_id" null="1" autoincrement="0">
-            <datatype>INTEGER</datatype>
-            <default>NULL</default><relation table="nomenclature" row="id" />
-        </row>
         <row name="price" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
         <row name="count" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
-        <row name="order_blank_id" null="1" autoincrement="0">
+        <row name="obtn_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
-            <default>NULL</default><relation table="order_blank" row="id" />
+            <default>NULL</default><relation table="order_blank_to_nomenclature" row="id" />
         </row>
         <key type="PRIMARY" name="">
             <part>id</part>
@@ -296,7 +292,7 @@
         </key>
         <comment>Настройки</comment>
     </table>
-    <table x="1403" y="366" name="n_group">
+    <table x="1518" y="349" name="n_group">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -327,7 +323,7 @@
         </key>
         <comment>Группы номенклатуры</comment>
     </table>
-    <table x="1386" y="585" name="measure">
+    <table x="1511" y="560" name="measure">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>

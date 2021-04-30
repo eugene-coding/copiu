@@ -311,12 +311,15 @@ class IikoApiHelper
 //        $dom->save($path);
 
         $this->post_data = $dom->saveXML();
-        //Сохраняем в файл
-        try {
-            file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '.xml', $this->post_data);
-        } catch (\Exception $e) {
-            Yii::error($e->getMessage(), 'test');
+        if (YII_ENV_DEV) {
+            //Сохраняем в файл
+            try {
+                file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '.xml', $this->post_data);
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), 'test');
+            }
         }
+
         $this->headers = [
             'Content-Type: application/xml'
         ];
@@ -324,6 +327,15 @@ class IikoApiHelper
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
         $result = $this->send('POST');
+        if (YII_ENV_DEV) {
+            //Сохраняем ответ в файл
+            try {
+                file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '_response.xml', $result);
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), 'test');
+            }
+        }
+
 //        Yii::info($result, 'test');
         return $result;
     }
