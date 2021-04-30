@@ -10,3 +10,29 @@
 .select2-search__field {
     width: inherit !important;
 }
+
+@media screen and (max-width: 600px) {
+    .container-pre-order {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    table.table-nomenclature thead {
+        display: none;
+    }
+    table.table-nomenclature tr {
+        display: block;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #e8e9eb;
+    }
+    table.table-nomenclature td {
+        display: block;
+        text-align: right;
+    }
+    table.table-nomenclature td:before {
+        content: attr(aria-label);
+        float: left;
+        font-weight: bold;
+    }
+}

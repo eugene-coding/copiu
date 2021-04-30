@@ -427,6 +427,7 @@ class Order extends ActiveRecord
                 'price' => $product->getPriceForBuyer($obtn->container_id),
                 'measure' => $product->findMeasure($obtn),
                 'obtn_id' => $obtn->id,
+                'description' => $product->description,
             ];
         }
 

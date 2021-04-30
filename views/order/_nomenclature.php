@@ -25,6 +25,7 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
             <tr>
                 <th>#</th>
                 <th>Наименование</th>
+                <th>Описание</th>
                 <th>Количество</th>
                 <th>Ед. измерения</th>
                 <th>Цена</th>
@@ -43,17 +44,18 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
             $product = (object)$product;
             ?>
             <tr>
-                <td><?= $counter ?></td>
-                <td><?= $product->name ?></td>
-                <td><?= Html::input('number', "Order[count][{$product->obtn_id}]", $product->count, [
+                <td aria-label="#"><?= $counter ?></td>
+                <td aria-label="Наименование"><?= $product->name ?></td>
+                <td aria-label="Описание"><?= $product->description?:'нет' ?></td>
+                <td aria-label="Кол-во"><?= Html::input('number', "Order[count][{$product->obtn_id}]", $product->count, [
                         'class' => 'form-control count-product',
                         'min' => 0,
                         'step' => 1,
                         'onkeypress' => 'return event.charCode >= 48'
                     ]) ?></td>
-                <td><?= $product->measure ?></td>
-                <td class="product-price"><?= $product->price ?></td>
-                <td class="total-cost"><?= $product->count * $product->price ?></td>
+                <td aria-label="Ед. изм."><?= $product->measure ?></td>
+                <td aria-label="Цена" class="product-price"><?= $product->price ?></td>
+                <td aria-label="Итого" class="total-cost"><?= $product->count * $product->price ?></td>
                 <?php $counter++; ?>
                 <?php endforeach; ?>
             </tr>

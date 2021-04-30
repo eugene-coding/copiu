@@ -43,26 +43,26 @@ $this->registerJsFile('/js/order_form.js', [
     <?php if ($model->step != 5): ?>
     <div class="buttons" style="margin-bottom: 2rem">
         <div class="row">
-            <div class="col-xs-2">
+            <div class="col-md-2 col-xs-4">
                 <?= Html::a('Отмена', ['/order/cancel', 'id' => $model->id], [
                     'class' => 'btn btn-default btn-block',
                     'title' => 'Отменить формирование закзаза',
                 ]) ?>
             </div>
             <?php if ($model->step == 2 || $model->step == 3): ?>
-            <div class="col-xs-2">
+            <div class="col-md-2 col-xs-4">
                 <?= Html::button('Назад', [
                     'class' => 'btn btn-info btn-block to-back',
                     'title' => 'Вернуться к предыдущему шагу',
                     'onClick' => 'history.go(-1);'
                 ]) ?>
             </div>
-            <div class="col-xs-6">
+            <div class="col-md-6 col-xs-4">
                 <?php else: ?>
-                <div class="col-xs-8">
+                <div class="col-md-8 col-xs-4">
                     <?php endif; ?>
                 </div>
-                <div class="col-xs-2">
+                <div class="col-md-2 col-xs-4">
                     <?= Html::submitButton('Далее', [
                         'class' => 'btn btn-success btn-block',
                         'title' => 'Сохранить и продолжить',
@@ -76,7 +76,7 @@ $this->registerJsFile('/js/order_form.js', [
         <?php endif; ?>
         <?php if ($model->step == 1): ?>
             <div class="row">
-                <div class="col-xs-3 text-center" style="display: flex; flex-direction: column; align-items: center;">
+                <div class="col-md-3 col-xs-12 text-center" style="display: flex; flex-direction: column; align-items: center;">
                     <?= $form->field($model, 'target_date')->widget(DatePicker::class, [
                         'type' => DatePicker::TYPE_INLINE,
                         'pluginOptions' => [
@@ -102,7 +102,7 @@ $this->registerJsFile('/js/order_form.js', [
                     ]); ?>
                     <!--                <input type="text" name="selected_date" id="selected-date" class="hidden">-->
                 </div>
-                <div class="col-xs-9" style="min-height: 300px;">
+                <div class="col-md-9 col-xs-12" style="min-height: 300px;">
                     <div class="nomenclature-loader" style="display: none;">
                         <div class="preloader" style="color: #3c8dbc;">
                             <i class="fa fa-spinner fa-spin fa-fw fa-5x" aria-hidden="true"></i>
@@ -117,13 +117,13 @@ $this->registerJsFile('/js/order_form.js', [
                 будет добавлена услуга
                 доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
             <div class="row">
-                <div class="col-xs-6">
+                <div class="col-md-8 col-xs-12">
                     <?= $this->render('_nomenclature', [
                         'model' => $model,
                         'dataProvider' => $productsDataProvider,
                     ]) ?>
                 </div>
-                <div class="col-xs-6">
+                <div class="col-md-4 col-xs-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             Укажите временной интервал доставки
@@ -142,7 +142,7 @@ $this->registerJsFile('/js/order_form.js', [
                             </div>
                         </div>
                     </div>
-                    <?= $form->field($model, 'comment')->textarea(['rows' => 6]) ?>
+                    <?= $form->field($model, 'comment')->textarea(['rows' => 3]) ?>
                 </div>
             </div>
         <?php elseif ($model->step == 3): ?>

@@ -5,13 +5,13 @@
 ?>
 
 <div class="pre-order-form">
-    <div class="container" style="width: 70%">
+    <div class="container container-pre-order">
         <div class="panel panel-primary">
             <div class="panel-heading text-center">
                 <b style="font-size: 2rem;">Подтверждение данных</b>
             </div>
             <div class="panel-body">
-                <div class="col-xs-6 text-center">
+                <div class="col-md-6 col-xs-12 text-center">
                     Заказ <b>на <?= Yii::$app->formatter->asDate($model->target_date); ?></b>
                     c <?= Yii::$app->formatter->asTime($model->delivery_time_from); ?>
                     по <?= Yii::$app->formatter->asTime($model->delivery_time_to); ?>
@@ -26,7 +26,7 @@
                     <br>
                     ИТОГО: <?= Yii::$app->formatter->asCurrency($model->deliveryCost + $model->total_price); ?>
                 </div>
-                <div class="col-xs-6">
+                <div class="col-md-6 col-xs-12">
                     Комментарий к доставке:
                     <br>
                     <?= $model->comment; ?>
