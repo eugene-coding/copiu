@@ -13,20 +13,18 @@ $config = [
     'timeZone' => 'Europe/Moscow',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
     ],
     'modules' => [
-        'gridview' =>  [
+        'gridview' => [
             'class' => '\kartik\grid\Module'
         ]
     ],
     'components' => [
-        'formatter' => [
-            'defaultTimeZone' => 'Europe/Moscow'
-        ],
         'authManager' => [
             'class' => 'yii\rbac\PhpManager',
-            'defaultRoles' => ['admin', 'buyer'], // Здесь нет роли "guest", т.к. эта роль виртуальная и не присутствует в модели UserExt
+            'defaultRoles' => ['admin', 'buyer'],
+            // Здесь нет роли "guest", т.к. эта роль виртуальная и не присутствует в модели UserExt
         ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -69,6 +67,7 @@ $config = [
             ],
         ],
         'formatter' => [
+            'defaultTimeZone' => 'Europe/Moscow',
             'dateFormat' => 'php:d.m.Y',
             'datetimeFormat' => 'php:d.m.Y H:i',
             'timeFormat' => 'php:H:i',
