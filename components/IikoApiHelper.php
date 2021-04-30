@@ -277,7 +277,7 @@ class IikoApiHelper
         $defaultStoreId = $dom->createElement('defaultStoreId', $params['defaultStoreId']);
         $counteragent_id = $dom->createElement('counteragentId', $params['counteragentId']);
         $comment = $dom
-            ->createElement('comment', "Доставка с {$params['from']} по {$params['to']} + «{$params['comment']}»");
+            ->createElement('comment', "ТОРГ12 Доставка с {$params['from']} по {$params['to']} + «{$params['comment']}»");
 
         $root->appendChild($number);
         $root->appendChild($date_incoming);
