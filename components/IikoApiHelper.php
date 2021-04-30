@@ -218,7 +218,7 @@ class IikoApiHelper
         $sum = 0;
         $rdb = Settings::getValueByKey('revenue_debit_account');
         foreach ($info as $item) {
-            if ($item['sccount'] == $rdb){
+            if ($item['account'] == $rdb){
                 $sum -= isset($item['sum']) ? $item['sum'] : 0;
             }
         }
