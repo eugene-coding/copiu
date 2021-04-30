@@ -216,11 +216,14 @@ class IikoApiHelper
         Yii::info($info, 'test');
 
         $sum = 0;
+        $rdb = Settings::getValueByKey('revenue_debit_account');
         foreach ($info as $item) {
-            $sum += isset($item['sum']) ? $item['sum'] : 0;
+            if ($item['sccount'] == $rdb){
+                $sum -= isset($item['sum']) ? $item['sum'] : 0;
+            }
         }
 
-        return $sum;
+        return round($sum, 2);
     }
 
     /**
