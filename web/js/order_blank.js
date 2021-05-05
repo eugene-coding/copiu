@@ -12,7 +12,7 @@ $(document).ready(function () {
                if (response.success){
                    message_block.html('<i class="glyphicon glyphicon-ok text-success"></i> '
                        + response.data);
-                   $('tbody').find('[data-col-seq="5"]').text(response.date)
+                   $('tbody').find('[data-col-seq="6"]').text(response.date)
                } else {
                    message_block.html('<i class="glyphicon glyphicon-alert text-danger"></i> ' + response.error).fadeIn(300);
                }
