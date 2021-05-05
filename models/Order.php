@@ -441,6 +441,7 @@ class Order extends ActiveRecord
 
         return $productsDataProvider;
     }
+
     /**
      * Продукты в бланке из заказа
      * @return array|ActiveRecord[]
@@ -451,7 +452,6 @@ class Order extends ActiveRecord
             ->joinWith(['orderToNomenclature'])
             ->andWhere(['order_to_nomenclature.order_id' => $this->id])->all();
     }
-
 
 
 }
