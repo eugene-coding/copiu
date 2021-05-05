@@ -6,7 +6,6 @@ use app\components\IikoApiHelper;
 use app\models\query\NomenclatureQuery;
 use Yii;
 use yii\db\ActiveRecord;
-use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -254,39 +253,42 @@ class Nomenclature extends ActiveRecord
             }
         }
         Yii::info($containers, 'test');
-
-        //Удвляем все контейнеры для выбранных продуктов
-        Container::deleteAll(['IN', 'nomenclature_id', array_keys($containers)]);
+        $actual_container_ids = [];
 
         //Обновляем контейнеры
-        $rows = [];
-        foreach ($containers as $id => $items) {
-            foreach ($items as $item) {
-                $rows[] = [
-                    $item['id'],
-                    $id,
-                    $item['name'],
-                    $item['count'],
-                    $item['containerWeight'],
-                    $item['fullContainerWeight'],
-                    $item['deleted'],
-                ];
+        foreach ($containers as $nomenclature_id => $arr_containers) {
+            foreach ($arr_containers as $item) {
+                $container_model = Container::findOne($item['id']);
+
+                if (!$container_model){
+                    $container_model = new Container([
+                        'id' => $item['id'],
+                        'nomenclature_id' => $nomenclature_id,
+                    ]);
+                }
+                $container_model->name = $item['name'];
+                $container_model->count = $item['count'];
+                $container_model->weight = $item['containerWeight'];
+                $container_model->full_weight = $item['fullContainerWeight'];
+                $container_model->deleted = $item['deleted'];
+
+                if ($container_model->id){
+                    $actual_container_ids[] = $container_model->id;
+                }
+
+                if (!$container_model->save()){
+                    Yii::error($container_model->errors, '_error');
+                }
             }
         }
 
-        try {
-            Yii::$app->db->createCommand()->batchInsert(Container::tableName(), [
-                'id',
-                'nomenclature_id',
-                'name',
-                'count',
-                'weight',
-                'full_weight',
-                'deleted',
-            ], $rows)->execute();
-        } catch (Exception $e) {
-            Yii::error($e->getMessage(), '_error');
-        }
+        //Удаляем контейнеры, которые не пришли в ответе (например контейнеры, которые удалены)
+        $current_container_ids = Container::find()->select(['id'])->column();
+        $container_for_delete = array_diff($current_container_ids, $actual_container_ids);
+
+        Yii::warning('Контейнеры для удаления: ' . implode(',', $container_for_delete));
+
+        Container::deleteAll(['IN', 'id', $container_for_delete]);
 
         return [
             'success' => true,
