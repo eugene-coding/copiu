@@ -160,6 +160,7 @@ class RbacController extends Controller
         $authManager->addChild($admin, $sysInfo);
         $authManager->addChild($admin, $showErrors);
 
+        $authManager->addChild($admin, $guest);
         $authManager->addChild($admin, $buyer);
 
         //Добавляем правило, запрещающее редактировать чужой профиль
