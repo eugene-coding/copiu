@@ -384,6 +384,10 @@
         <row name="show_to_all" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
+        <row name="show_number_in_comment" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Показывать номер в комментарии</comment>
+        </row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>

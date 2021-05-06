@@ -204,13 +204,21 @@ class Order extends ActiveRecord
 
         Yii::info($items, 'test');
 
+        $blank = $obtn->ob;
+
+        if ($blank->show_number_in_comment){
+            $comment = 'ТОРГ12 ' . $blank->number . ". Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
+        } else {
+            $comment = "ТОРГ12 Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
+        }
+
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
             'dateIncoming' => date('Y-m-d\TH:i:s', strtotime($this->target_date)),
             'counteragentId' => $this->buyer->outer_id,
             'from' => $this->delivery_time_from,
             'to' => $this->delivery_time_to,
-            'comment' => $this->comment,
+            'comment' => $comment,
             'items' => $items,
             'defaultStoreId' => Settings::getValueByKey('store_outer_id'),
         ];

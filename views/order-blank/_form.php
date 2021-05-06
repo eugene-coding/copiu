@@ -15,21 +15,26 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin(); ?>
 
     <div class="row">
-        <div class="col-xs-6">
-            <?= $form->field($model, 'number')->textInput(['maxlength' => true]) ?>
+        <div class="col-md-6 col-xs-12">
+            <?= $form->field($model, 'number')->textInput(['maxlength' => true])->label('Название бланка (Номер накладной)') ?>
         </div>
-        <div class="col-xs-6">
+        <div class="col-md-6 col-xs-12">
             <?= $form->field($model, 'date')->input('date') ?>
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-6">
+        <div class="col-md-6 col-xs-12">
             <?= $form->field($model, 'time_limit')->input('time', [
                 'value' => Yii::$app->formatter->asTime($model->time_limit),
             ]) ?>
         </div>
-        <div class="col-xs-6">
+        <div class="col-md-6 col-xs-12">
             <?= $form->field($model, 'day_limit')->input('number') ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <?=  $form->field($model, 'show_number_in_comment')->checkbox(); ?>
         </div>
     </div>
     <div class="row">

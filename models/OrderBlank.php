@@ -21,6 +21,7 @@ use yii\helpers\Html;
  * @property string|null $synced_at Дата и время синхронизации
  * @property string|null $show_to_all Виден всем покупателям
  * @property string|null $buyers Заказчики
+ * @property int show_number_in_comment Вставлять номер в комментарий к заказу
  *
  * @property Nomenclature[] $products Продукты в из накладной
  * @property OrderBlankToNomenclature[] $orderBlankToNomenclature
@@ -49,6 +50,7 @@ class OrderBlank extends ActiveRecord
             [['number'], 'string', 'max' => 255],
             [['number'], 'unique', 'message' => 'Накладная уже есть в базе'],
             ['buyers', 'safe'],
+            ['show_number_in_comment', 'integer'],
         ];
     }
 
@@ -66,6 +68,7 @@ class OrderBlank extends ActiveRecord
             'synced_at' => 'Дата и время синхронизации',
             'show_to_all' => 'Видимость',
             'buyers' => 'Заказчики',
+            'show_number_in_comment' => 'Добавлять название бланка в комментарий',
         ];
     }
 
@@ -174,7 +177,7 @@ class OrderBlank extends ActiveRecord
         if ($product_outer_ids_in_blanks) {
             //Обновляем продукты указанные в бланках
             Yii::info($product_outer_ids_in_blanks, 'test');
-            Nomenclature::syncByIds($product_outer_ids_in_blanks, 'test');
+            Nomenclature::syncByIds($product_outer_ids_in_blanks);
 
             //Обновляем цены для ценовых категорий в которых находятся продукты бланков
             PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
