@@ -293,7 +293,7 @@ class IikoApiHelper
             $product_id = $dom->createElement('productId', $item['outer_id']);
             $num = $dom->createElement('productArticle', $item['num']);
             $price = $dom->createElement('price', $item['price']);
-            $amount = $dom->createElement('amount', $item['count']);
+            $amount = $dom->createElement('amount', $item['amount']);
             $sum = $dom->createElement('sum', $item['sum']);
             $container = $dom->createElement('containerId', $item['container_id']);
 

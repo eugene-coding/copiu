@@ -182,8 +182,10 @@ class Order extends ActiveRecord
 
             if ($obtn->container_id) {
                 $container_id = $obtn->container_id;
+                $count = (int)($obtn->container->count * $order_to_nomenclature->count);
             } else {
                 $container_id = '';
+                $count = $order_to_nomenclature->count;
             }
 
             $product = Nomenclature::find()
@@ -196,7 +198,7 @@ class Order extends ActiveRecord
                 'outer_id' => $product->outer_id,
                 'num' => $product->num,
                 'price' => $price,
-                'count' => $order_to_nomenclature->count,
+                'amount' => $count,
                 'sum' => round($order_to_nomenclature->count * $price, 2),
                 'container_id' => $container_id,
             ];
