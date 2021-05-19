@@ -27,6 +27,7 @@ use yii\db\StaleObjectException;
  * @property int $step Текущий шаг заказа
  * @property string|null $invoice_number Номер накладной
  * @property string|null $delivery_act_number Номер Акта оказанных услуг
+ * @property string $buyer_name Наименование покупателя
  *
  * @property Buyer $buyer
  * @property OrderToNomenclature[] $orderToNomenclature;
@@ -42,6 +43,7 @@ class Order extends ActiveRecord
     public $count;
     public $step = 1;
     public $error_delivery_time;
+    public $buyer_name;
 
     /**
      * {@inheritdoc}
@@ -89,6 +91,7 @@ class Order extends ActiveRecord
             'blanks' => 'Бланки заказов',
             'invoice_number' => 'Накладная',
             'delivery_act_number' => 'Акт оказания услуг (доставка)',
+            'buyer_name' => 'Покупатель',
         ];
     }
 

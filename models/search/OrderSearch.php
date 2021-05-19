@@ -2,6 +2,7 @@
 
 namespace app\models\search;
 
+use app\models\Buyer;
 use app\models\Users;
 use Yii;
 use yii\base\Model;
@@ -20,7 +21,7 @@ class OrderSearch extends Order
     {
         return [
             [['id', 'buyer_id', 'status'], 'integer'],
-            [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to', 'comment'], 'safe'],
+            [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to', 'comment', 'buyer_name'], 'safe'],
             [['total_price'], 'number'],
         ];
     }
@@ -56,7 +57,12 @@ class OrderSearch extends Order
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
+        $query->joinWith(['buyer']);
+        $dataProvider->sort->attributes['buyer_name'] = [
+            'asc' => [Buyer::tableName() . '.name' => SORT_ASC],
+            'desc' => [Buyer::tableName() . '.name' => SORT_DESC],
+            'label' => 'Покупатель'
+        ];
 
         $this->load($params);
 
@@ -76,6 +82,8 @@ class OrderSearch extends Order
             'total_price' => $this->total_price,
             'status' => $this->status,
         ]);
+        $query->andFilterWhere(['like', 'buyer.name', $this->buyer_name]);
+
 
         $query->andFilterWhere(['like', 'comment', $this->comment]);
 

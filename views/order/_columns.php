@@ -17,7 +17,7 @@ return [
 //    ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'buyer_id',
+        'attribute' => 'buyer_name',
         'content' => function (Order $model) {
             return $model->buyer->name;
         },
