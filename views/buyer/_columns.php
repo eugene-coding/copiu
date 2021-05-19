@@ -19,7 +19,7 @@ return [
     ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'user_id',
+        'attribute' => 'user_login',
         'value' => function (Buyer $model) {
             return $model->user_id ? $model->user->login : 'Не назначен';
         },
@@ -27,7 +27,7 @@ return [
     ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'user_id',
+        'attribute' => 'user_password',
         'value' => function (Buyer $model) {
             return $model->user_id ? $model->user->open_pass : 'Не назначен';
         },

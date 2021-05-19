@@ -20,6 +20,8 @@ use yii\helpers\ArrayHelper;
  * @property string $delivery_cost Сумма доставки
  * @property string $work_mode Режим работы
  * @property string $discount Скидка от ЦК
+ * @property string $user_login Логин покупателя как пользователя
+ * @property string $user_password Пароль покупателя как пользователя системы
  *
  * @property PriceCategory $pc
  * @property Users $user
@@ -31,6 +33,9 @@ class Buyer extends ActiveRecord
     const WORK_MODE_ACTIVE = 1;
     const WORK_MODE_DEACTIVATED = 2;
     const WORK_MODE_BALANCE_LIMIT = 3;
+
+    public $user_login;
+    public $user_password;
 
     /**
      * {@inheritdoc}
@@ -117,6 +122,19 @@ class Buyer extends ActiveRecord
     }
 
     /**
+     * Получает список режимов работы пользователя
+     * @return array
+     */
+    public static function getWorkModeList()
+    {
+        return [
+            static::WORK_MODE_ACTIVE => 'Активирован',
+            static::WORK_MODE_DEACTIVATED => 'Деактивирован',
+            static::WORK_MODE_BALANCE_LIMIT => 'Ограничение по балансу',
+        ];
+    }
+
+    /**
      * Синхронизирует покупателей с базой
      * @param array $data Массив покупателей из postman
      * @return array
@@ -167,19 +185,6 @@ class Buyer extends ActiveRecord
         return [
             'success' => true,
             'data' => 'Синхронизация покупателей прошла успешно',
-        ];
-    }
-
-    /**
-     * Получает список режимов работы пользователя
-     * @return array
-     */
-    public static function getWorkModeList()
-    {
-        return [
-            static::WORK_MODE_ACTIVE => 'Активирован',
-            static::WORK_MODE_DEACTIVATED => 'Деактивирован',
-            static::WORK_MODE_BALANCE_LIMIT => 'Ограничение по балансу',
         ];
     }
 

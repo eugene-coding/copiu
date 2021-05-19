@@ -2,6 +2,7 @@
 
 namespace app\models\search;
 
+use app\models\Users;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Buyer;
@@ -21,6 +22,7 @@ class BuyerSearch extends Buyer
             [['name', 'outer_id'], 'safe'],
             [['work_mode'], 'integer'],
             [['min_order_cost', 'delivery_cost', 'discount', 'min_balance'], 'number'],
+            [['user_login', 'user_password'], 'string']
         ];
     }
 
@@ -47,7 +49,18 @@ class BuyerSearch extends Buyer
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+        $query->joinWith('user');
 
+        $dataProvider->sort->attributes['user_login'] = [
+            'asc' => [Users::tableName() . '.login' => SORT_ASC],
+            'desc' => [Users::tableName() . '.login' => SORT_DESC],
+            'label' => 'Логин'
+        ];
+        $dataProvider->sort->attributes['user_password'] = [
+            'asc' => [Users::tableName() . '.open_pass' => SORT_ASC],
+            'desc' => [Users::tableName() . '.open_pass' => SORT_DESC],
+            'label' => 'Пароль'
+        ];
 
         $this->load($params);
 
@@ -65,7 +78,9 @@ class BuyerSearch extends Buyer
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'outer_id', $this->outer_id]);
+            ->andFilterWhere(['like', 'outer_id', $this->outer_id])
+            ->andFilterWhere(['like', 'users.login', $this->user_login])
+            ->andFilterWhere(['like', 'users.open_pass', $this->user_password]);
 
         return $dataProvider;
     }
