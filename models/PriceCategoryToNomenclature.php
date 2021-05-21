@@ -300,16 +300,26 @@ class PriceCategoryToNomenclature extends ActiveRecord
 
                 if (in_array($category_id, $pctn_in_base_cat)
                     && in_array($product_id, $pctn_in_base_nom)) {
-                    //Если комбинация продукт + категория уже есть в базе
+                    //Если и продукт и категория есть в базе, поверяем принадлежат ли они одной записи
+
+                    Yii::info('Категория найдена', 'test');
                     $pctn_model = PriceCategoryToNomenclature::find()
                         ->andWhere([
-                            'pc_id' => $categories_in_base[$categories[$i]],
+                            'pc_id' => $category_id,
                             'n_id' => $product_id,
                         ])
                         ->one();
+
+                    if (!$pctn_model){
+                        //Если запись не найдена
+                        $pctn_model = new PriceCategoryToNomenclature([
+                            'pc_id' => $category_id,
+                            'n_id' => $product_id,
+                        ]);
+                    }
                 } else {
                     $pctn_model = new PriceCategoryToNomenclature([
-                        'pc_id' => $categories_in_base[$categories[$i]],
+                        'pc_id' =>$category_id,
                         'n_id' => $product_id,
                     ]);
                 }
