@@ -8,10 +8,19 @@ use johnitvn\ajaxcrud\CrudAsset;
 /* @var $searchModel app\models\search\PriceCategorySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Price Categories';
+$this->title = 'Ценовые категории';
 $this->params['breadcrumbs'][] = $this->title;
 
-CrudAsset::register($this);
+try {
+    $this->registerJsFile('/js/price_categories.js', [
+        'depends' => [
+            'yii\web\YiiAsset',
+            'yii\bootstrap\BootstrapAsset',
+        ]
+    ]);
+} catch (\yii\base\InvalidConfigException $e) {
+    echo $e->getMessage();
+}
 
 ?>
 <div class="price-category-index">
@@ -27,6 +36,13 @@ CrudAsset::register($this);
                 'toolbar' => [
                     [
                         'content' =>
+                            Html::button('<i class="glyphicon glyphicon-sort"></i> Синхронизировать цены для ценовых категорий',
+                                [
+                                    'class' => 'btn btn-info',
+                                    'title' => 'Нажмите, чтобы начать синхронизацию',
+                                    'id' => 'sync-price-for-pc',
+                                    'data-url' => '/site/get-price-for-price-category?force=1',
+                                ]) .
                             Html::a('<i class="glyphicon glyphicon-repeat"></i>', [''],
                                 ['data-pjax' => 1, 'class' => 'btn btn-default', 'title' => 'Reset Grid']) .
                             '{toggleData}' .
@@ -38,6 +54,7 @@ CrudAsset::register($this);
                 'responsive' => true,
                 'panel' => [
                     'type' => 'primary',
+                    'before' => '<div id="before-panel-message" style="display: none;"></div>',
                     'heading' => '<i class="glyphicon glyphicon-list"></i> Список ценовых категорий',
                     'after' => '<div class="clearfix"></div>',
                 ]
@@ -47,8 +64,4 @@ CrudAsset::register($this);
         } ?>
     </div>
 </div>
-<?php Modal::begin([
-    "id"=>"ajaxCrudModal",
-    "footer"=>"",// always need it for jquery plugin
-])?>
-<?php Modal::end(); ?>
+

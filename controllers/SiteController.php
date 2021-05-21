@@ -205,7 +205,7 @@ class SiteController extends Controller
             '1. Синхронизация покупателей, ценовых категорий, отделов и пр.' => '/site/sync-all',
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
-//            '4. Синхронизация цен для ценовых категорий' => '/site/get-price-for-price-category?force=true',
+            '4. Синхронизация цен для ценовых категорий' => '/site/get-price-for-price-category?force=true',
         ];
 
         if ($request->isGet) {
@@ -613,6 +613,7 @@ class SiteController extends Controller
         $this->actionSyncAll();
         $this->actionSyncNomenclatureGroup();
         $this->actionGetNomenclature();
+        $this->actionGetPriceForPriceCategory();
         OrderBlank::sync();
         return 'Готово';
     }
