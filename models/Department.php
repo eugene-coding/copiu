@@ -31,7 +31,7 @@ class Department extends ActiveRecord
     {
         return [
             [['name', 'outer_id'], 'string', 'max' => 255],
-            ['deleted', 'int'],
+            ['deleted', 'integer'],
         ];
     }
 
@@ -85,6 +85,6 @@ class Department extends ActiveRecord
      */
     public static function getList()
     {
-        return ArrayHelper::map(static::find()->all(), 'outer_id', 'name');
+        return ArrayHelper::map(static::find()->andWhere(['deleted' => 0])->all(), 'outer_id', 'name');
     }
 }
