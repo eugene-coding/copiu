@@ -12,6 +12,7 @@ use yii\helpers\ArrayHelper;
  * @property int $id
  * @property string|null $name
  * @property string|null $outer_id Внешний идентификатор
+ * @property int $deleted Удален
  */
 class Department extends ActiveRecord
 {
@@ -30,6 +31,7 @@ class Department extends ActiveRecord
     {
         return [
             [['name', 'outer_id'], 'string', 'max' => 255],
+            ['deleted', 'int'],
         ];
     }
 
@@ -42,6 +44,7 @@ class Department extends ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
             'outer_id' => 'Внешний идентификатор',
+            'deleted' => 'Удалён',
         ];
     }
 
@@ -63,6 +66,7 @@ class Department extends ActiveRecord
 
             $model->name = (string)$department['name'];
             $model->outer_id = (string)$department['outer_id'];
+            $model->deleted = (int)$department['deleted'];
 
             if (!$model->save()){
                 Yii::error($model->errors, '_error');

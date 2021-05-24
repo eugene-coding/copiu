@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\models\Department;
 use app\models\Settings;
 use DOMDocument;
 use Yii;
@@ -148,12 +149,16 @@ XML;
                         }
                         break;
                     case 'Department':
-                        if ($item->deleted == 'false') {
-                            $arr_department[] = [
-                                'outer_id' => $item->id,
-                                'name' => $item->r->name
-                            ];
+                        if ((string)$item->deleted == 'false' && (string)$item->r->deleted == 'false'){
+                            $deleted = 0;
+                        } else {
+                            $deleted = 1;
                         }
+                        $arr_department[] = [
+                            'outer_id' => (string)$item->id,
+                            'name' => (string)$item->r->name,
+                            'deleted' => $deleted,
+                        ];
                         break;
                     case 'Store':
                         if ($item->deleted == 'false') {
@@ -228,7 +233,13 @@ XML;
         } else {
             $entities_version = Settings::getValueByKey('entities_version');
             $date = date('Y-m-d\TH:i:s.000+03:00', time());
-            $department = Settings::getValueByKey('department_outer_id');
+//            $department = Settings::getValueByKey('department_outer_id');
+            $departments = '';
+            /** @var Department $department */
+            foreach (Department::find()->andWhere(['deleted' => 0])->each() as $department) {
+                $departments .= '<i cls="Department">' . $department->outer_id . '</i>';
+            }
+
             $this->post_data = <<<XML
 <?xml version="1.0" encoding="utf-8"?><args>
 <entities-version>$entities_version</entities-version>
@@ -237,7 +248,7 @@ XML;
 <use-raw-entities>true</use-raw-entities>
 <dateFrom>$date</dateFrom>
 <dateTo>9999-12-31T23:59:59.999+03:00</dateTo>
-<departments><i cls="Department">$department</i></departments>
+<departments>$departments</departments>
 <includeItemsWithSchedules>false</includeItemsWithSchedules></args>
 XML;
 
