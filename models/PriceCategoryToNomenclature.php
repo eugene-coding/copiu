@@ -254,7 +254,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     Yii::warning('!!!!', 'test');
                     //Пишем цену в цену по умолчанию для продукта
                     $target_product = Nomenclature::find()->andWhere(['outer_id' => $product_outer_id])->one();
-                    $target_product->default_price = $price;
+                    $target_product->default_price = round((double)$price, 2);
                     if (!$target_product->save()){
                         Yii::error($target_product->errors, '_error');
                     }
