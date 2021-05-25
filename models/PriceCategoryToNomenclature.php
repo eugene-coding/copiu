@@ -249,12 +249,15 @@ class PriceCategoryToNomenclature extends ActiveRecord
 
             if (!$prices_and_categories){
                 //Если нет ни категорий ни цен
-                $price = $item['price'];
+                $price = round((double)$item['price'], 2);
+                if (!$price){
+                    $price =  round((double)$item['price'][0], 2);
+                }
                 if ($price){
                     Yii::warning('!!!!', 'test');
                     //Пишем цену в цену по умолчанию для продукта
                     $target_product = Nomenclature::find()->andWhere(['outer_id' => $product_outer_id])->one();
-                    $target_product->default_price = round((double)$price, 2);
+                    $target_product->default_price = $price;
                     if (!$target_product->save()){
                         Yii::error($target_product->errors, '_error');
                     }
