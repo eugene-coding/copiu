@@ -251,7 +251,7 @@ XML;
 <departments><i cls="Department">$department</i></departments>
 <includeItemsWithSchedules>false</includeItemsWithSchedules></args>
 XML;
-
+            file_put_contents('uploads/request_getPriceListItems.xml', $this->post_data);
             $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
             $str = $this->send('POST');
         }
