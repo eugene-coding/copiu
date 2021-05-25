@@ -234,9 +234,12 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $product_outer_id = $info['product'];
             $prices_and_categories = $info['pricesForCategories'];
 
-//            if ($product_outer_id == '62690614-bc0e-4da9-b4e9-68d752d4c190'){
-//                Yii::warning('Gotcha! Хлеб тостовый (Ф)', 'test');
-//            }
+            if ($product_outer_id == 'fffa537c-7edd-42e8-9fd6-d39fba5c26bf'){
+                Yii::warning('Gotcha! Чиабата с курицей NEW', 'test');
+                Yii::warning($prices_and_categories, 'test');
+                Yii::warning(round((double)$item['price']), 'test');
+                Yii::warning(round((double)$item['price'][0]), 'test');
+            }
 
             $product_id = $products_in_base[$product_outer_id];
 //            Yii::info('Product ID: ' . $product_id, 'test');
