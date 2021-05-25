@@ -18,7 +18,9 @@ use app\models\Settings;
 use app\models\Store;
 use app\models\Users;
 use Yii;
+use yii\db\Exception;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\helpers\VarDumper;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
@@ -155,7 +157,7 @@ class SiteController extends Controller
         $user->is_active = 0;
         $user->activity_ip = null;
         $user->last_activity = null;
-        if (!$user->save()){
+        if (!$user->save()) {
             Yii::error($user->errors, '_error');
         }
 
@@ -544,6 +546,115 @@ class SiteController extends Controller
 
         return $result;
     }
+
+    /**
+     * SyncPriceForPriceCategory v2
+     */
+    public function actionSyncPFPC()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $model = new PriceCategory();
+        if (!$model->allowSync()) {
+            return [
+                'success' => 'false',
+                'error' => 'Превышен лимит запросов, попробуйте позже'
+            ];
+        }
+        set_time_limit(600);
+
+        $path_xml = 'uploads/getPriceListItems.xml';
+        if (!is_file($path_xml)) {
+            return [
+                'success' => 'false',
+                'error' => 'Файл не найден',
+            ];
+        }
+        Yii::info('Файл найден.', 'test');
+
+        $xml = simplexml_load_file($path_xml, "SimpleXMLElement", LIBXML_NOCDATA);
+        /** @var array $rows_to_add Массив для вставки одним запросом */
+        $rows_to_add = [];
+
+        foreach ($xml->returnValue->v as $item) {
+            Yii::info('Продукт: ' . (string)$item->i->product, 'test');
+            $product_in_response = (string)$item->i->product;
+            $arr_prices = json_decode(json_encode($item->i->pricesForCategories), true);
+//            Yii::info($arr_prices, 'test');
+            if ($arr_prices) {
+                if (is_array($arr_prices['k'])) {
+                    $cat_to_prices = array_combine($arr_prices['k'], $arr_prices['v']);
+                } else {
+                    //в массиве только один элемент
+                    $cat_to_prices[$arr_prices['k']] = $arr_prices['v'];
+                }
+            } else {
+                $cat_to_prices = [];
+            }
+
+            Yii::info($cat_to_prices, 'test');
+
+            $product_in_db = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
+            $category_in_db = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
+            $product_outer_ids = array_keys($product_in_db);
+            $category_outer_ids = array_keys($category_in_db);
+
+            foreach ($cat_to_prices as $category => $price) {
+                $price = round((double)$price, 2);
+                if (!in_array($product_in_response, $product_outer_ids)) {
+                    Yii::warning('Продукт: ' . $product_in_response . ' не найден. Пропускаем');
+                    continue;
+                }
+
+                if (!in_array($category, $category_outer_ids)) {
+                    Yii::warning('Категория: ' . $category . ' не найдена. Пропускаем');
+                    continue;
+                }
+                $category_id = $category_in_db[$category];
+                $product_id = $product_in_db[$product_in_response];
+
+                /** @var PriceCategoryToNomenclature $pctn_model */
+                $pctn_model = PriceCategoryToNomenclature::find()
+                    ->andWhere([
+                        'pc_id' => $category_id,
+                        'n_id' => $product_id,
+                    ])->one();
+
+                if (!$pctn_model) {
+                    $rows_to_add[] = [
+                        $category_id,
+                        $product_id,
+                        $price,
+                    ];
+                } else {
+                    if ($pctn_model->price != $price){
+                        $pctn_model->price = $price;
+                        if (!$pctn_model->save()) {
+                            Yii::error($pctn_model->errors, '_error');
+                        }
+                    }
+                }
+            }
+        }
+
+        //Добавляем новые записи
+        if ($rows_to_add) {
+            try {
+                Yii::$app->db->createCommand()->batchInsert(PriceCategoryToNomenclature::tableName(),
+                    ['pc_id', 'n_id', 'price'], $rows_to_add)->execute();
+            } catch (Exception $e) {
+                Yii::error($e->getMessage(), '_error');
+            }
+        }
+
+        //Удаление лишних не производим, т.к. при удалении ценовой категории удаляются все записи
+        // с этой категорией из PriceCategoryToNomenclature
+
+        return [
+            'success' => true,
+        ];
+    }
+
 
     /**
      * Синхронизация цен для ценовых категорий

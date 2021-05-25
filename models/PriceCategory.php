@@ -125,4 +125,23 @@ class PriceCategory extends ActiveRecord
     {
         return ArrayHelper::map(static::find()->orderBy(['name' => SORT_ASC])->all(), 'id', 'name');
     }
+
+    /**
+     * Проверка перодичности синхронизации номенклатуры
+     * @param int $min_sec Минимальный период в секкудандах
+     * @return string
+     */
+    public function allowSync($min_sec = 110)
+    {
+        //Проверяем период синхронизации номенклатуры
+        $last_time = strtotime(Settings::getValueByKey('sync_price_date'));
+        if (!$last_time) {
+            $last_time = date('Y-m-d H:i:s', time());
+        }
+        $diff_time = time() - $last_time;
+        if ($diff_time < $min_sec) {
+            return false;
+        }
+        return true;
+    }
 }
