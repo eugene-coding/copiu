@@ -237,8 +237,8 @@ class PriceCategoryToNomenclature extends ActiveRecord
             if ($product_outer_id == 'fffa537c-7edd-42e8-9fd6-d39fba5c26bf'){
                 Yii::warning('Gotcha! Чиабата с курицей NEW', 'test');
                 Yii::warning($prices_and_categories, 'test');
-                Yii::warning(round((double)$item['price']), 'test');
-                Yii::warning(round((double)$item['price'][0]), 'test');
+                Yii::warning(round((double)$info['price']), 'test');
+                Yii::warning(round((double)$info['price'][0]), 'test');
             }
 
             $product_id = $products_in_base[$product_outer_id];
@@ -252,10 +252,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
 
             if (!$prices_and_categories){
                 //Если нет ни категорий ни цен
-                $price = round((double)$item['price'], 2);
-                if (!$price){
-                    $price =  round((double)$item['price'][0], 2);
-                }
+                $price = round((double)$info['price'], 2);
                 if ($price){
                     Yii::warning('!!!!', 'test');
                     //Пишем цену в цену по умолчанию для продукта
