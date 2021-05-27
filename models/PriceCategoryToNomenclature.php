@@ -234,12 +234,12 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $product_outer_id = $info['product'];
             $prices_and_categories = $info['pricesForCategories'];
 
-            if ($product_outer_id == 'fffa537c-7edd-42e8-9fd6-d39fba5c26bf'){
-                Yii::warning('Gotcha! Чиабата с курицей NEW', 'test');
-                Yii::warning($prices_and_categories, 'test');
-                Yii::warning(round((double)$info['price']), 'test');
-                Yii::warning(round((double)$info['price'][0]), 'test');
-            }
+//            if ($product_outer_id == 'fffa537c-7edd-42e8-9fd6-d39fba5c26bf'){
+//                Yii::warning('Gotcha! Чиабата с курицей NEW', 'test');
+//                Yii::warning($prices_and_categories, 'test');
+//                Yii::warning(round((double)$info['price']), 'test');
+//                Yii::warning(round((double)$info['price'][0]), 'test');
+//            }
 
             $product_id = $products_in_base[$product_outer_id];
 //            Yii::info('Product ID: ' . $product_id, 'test');
@@ -254,12 +254,17 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 //Если нет ни категорий ни цен
                 $price = round((double)$info['price'], 2);
                 if ($price){
-                    Yii::warning('!!!!', 'test');
+                    Yii::info('New Default Price: ' . $price, 'test');
                     //Пишем цену в цену по умолчанию для продукта
                     $target_product = Nomenclature::find()->andWhere(['outer_id' => $product_outer_id])->one();
-                    $target_product->default_price = $price;
-                    if (!$target_product->save()){
-                        Yii::error($target_product->errors, '_error');
+                    if ($price != $target_product->default_price){
+                        $target_product->default_price = $price;
+                        if (!$target_product->save()){
+                            Yii::error($target_product->errors, '_error');
+                        }
+                        Yii::info('Price changed', 'test');
+                    } else {
+                        Yii::info('Price skipped', 'test');
                     }
                 }
                 continue;

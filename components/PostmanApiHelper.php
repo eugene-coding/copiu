@@ -2,7 +2,6 @@
 
 namespace app\components;
 
-use app\models\Department;
 use app\models\Settings;
 use DOMDocument;
 use Yii;
