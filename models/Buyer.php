@@ -148,6 +148,8 @@ class Buyer extends ActiveRecord
         $price_categories = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
 
         foreach ($data as $buyer) {
+            Yii::info($buyer, 'test');
+            Yii::info('Buyer outer_id: ' . $buyer['id'], 'test');
             $outer_id = (string)$buyer['id'];
             $outer_price_category = (string)$buyer['price_category'];
 
