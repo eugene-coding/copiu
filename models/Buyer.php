@@ -162,7 +162,7 @@ class Buyer extends ActiveRecord
                 $rows[] = [$name, $price_category, $outer_id];
             } else {
                 //Обновление покупателя
-                $buyer = Buyer::findOne(['outer_id' => $buyer]);
+                $buyer = Buyer::findOne(['outer_id' => $buyer['id']]);
                 $buyer->pc_id = PriceCategory::findOne(['outer_id' => $outer_price_category])->id;
                 $buyer->name = (string)$buyer['name'];
 
