@@ -136,7 +136,7 @@ class NGroup extends ActiveRecord
                 'num' => $group['num'],
                 'code' => $group['code'],
                 'outer_id' => $group['id'],
-                'parent_id' => $outer_id_to_id[$group['id']]
+                'parent_id' => isset($outer_id_to_id[$group['id']]) ? $outer_id_to_id[$group['id']]: null,
             ]);
 
             if (!$model->save()) {
