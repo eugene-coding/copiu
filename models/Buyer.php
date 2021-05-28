@@ -167,8 +167,10 @@ class Buyer extends ActiveRecord
                 /** @var Buyer $buyer */
                 $buyer = Buyer::find()->andWhere(['outer_id' => $buyer['id']])->one();
                 /** @var PriceCategory $category */
-                $category = PriceCategory::find()->andWhere(['outer_id' => $outer_price_category])->one();
-                $buyer->pc_id = $category->id;
+                if ($outer_price_category){
+                    $category = PriceCategory::find()->andWhere(['outer_id' => $outer_price_category])->one();
+                    $buyer->pc_id = $category->id;
+                }
                 $buyer->name = (string)$buyer['name'];
 
                 if (!$buyer->save()){

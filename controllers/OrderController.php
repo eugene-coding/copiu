@@ -537,6 +537,9 @@ class OrderController extends Controller
      * Редактирование заказа
      * @param $id
      * @return string
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionOrderUpdate($id)
     {
@@ -581,7 +584,6 @@ class OrderController extends Controller
                     $model->step = 2;
                     $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
                     Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
-
                 }
             }
 
