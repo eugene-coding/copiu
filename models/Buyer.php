@@ -95,7 +95,7 @@ class Buyer extends ActiveRecord
 
     public function beforeSave($insert)
     {
-        if ($this->discount > 1){
+        if ($this->discount > 1) {
             $this->discount = $this->discount / 100;
         }
         return parent::beforeSave($insert);
@@ -167,13 +167,11 @@ class Buyer extends ActiveRecord
                 /** @var Buyer $buyer */
                 $buyer = Buyer::find()->andWhere(['outer_id' => $buyer['id']])->one();
                 /** @var PriceCategory $category */
-                if ($outer_price_category){
-                    $category = PriceCategory::find()->andWhere(['outer_id' => $outer_price_category])->one();
-                    $buyer->pc_id = $category->id;
-                }
+                $category = PriceCategory::find()->andWhere(['outer_id' => $outer_price_category])->one();
+                $buyer->pc_id = $category ? $category->id : null;
                 $buyer->name = (string)$buyer['name'];
 
-                if (!$buyer->save()){
+                if (!$buyer->save()) {
                     Yii::error($buyer->errors, '_error');
                 }
 
@@ -216,10 +214,10 @@ class Buyer extends ActiveRecord
     public function getDeliveryTimeIntervals($type)
     {
         $from_setting = Settings::getValueByKey('delivery_min_time');
-        $from = (int)explode(':',$from_setting)[0];
+        $from = (int)explode(':', $from_setting)[0];
 
         $to_setting = Settings::getValueByKey('delivery_max_time');
-        $to = (int)explode(':',$to_setting)[0];
+        $to = (int)explode(':', $to_setting)[0];
 
         Yii::info('From: ' . $from, 'test');
         Yii::info('To: ' . $to, 'test');
@@ -232,14 +230,14 @@ class Buyer extends ActiveRecord
                 return $this->getTimeIntervals($from + 2, $to);
                 break;
             default:
-                return[];
+                return [];
         }
     }
 
     private function getTimeIntervals($start, $end)
     {
         $result_arr = [];
-        for ($i = $start; $i <= $end; $i++){
+        for ($i = $start; $i <= $end; $i++) {
             $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
             $result_arr[$val] = $val;
         }
@@ -257,7 +255,7 @@ class Buyer extends ActiveRecord
     public function calcOnDiscount($sum)
     {
         $discount = $this->discount;
-        if (!$discount){
+        if (!$discount) {
             return $sum;
         }
 
