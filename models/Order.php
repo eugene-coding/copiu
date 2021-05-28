@@ -211,7 +211,7 @@ class Order extends ActiveRecord
 
         $blank = $obtn->ob;
 
-        if ($blank->show_number_in_comment){
+        if ($blank->show_number_in_comment) {
             $comment = 'ТОРГ12 ' . $blank->number . ". Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
         } else {
             $comment = "ТОРГ12 Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
@@ -358,14 +358,25 @@ class Order extends ActiveRecord
         }
     }
 
+
     /**
      * Обработка заказа
+     * @throws StaleObjectException
+     * @throws \Exception
+     * @throws \Throwable
      */
     public function orderProcessing()
     {
         if (isset($this->count) && is_array($this->count)) {
             foreach ($this->count as $obtn_id => $count) {
                 if (!$count) {
+                    //В случае если заказ скопирован, нужно удалить позицию из базы, т.к. кол-во продукта равно нулю
+                    $otn_model = OrderToNomenclature::find()
+                        ->andWhere(['obtn_id' => $obtn_id, 'order_id' => $this->id])
+                        ->one();
+                    if ($otn_model) {
+                        $otn_model->delete();
+                    }
                     continue;
                 }
                 $obtn = OrderBlankToNomenclature::findOne($obtn_id);
