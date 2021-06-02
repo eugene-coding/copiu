@@ -36,7 +36,7 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
             foreach ($dataProvider as $product): ?>
             <?php
 
-            Yii::warning($product, 'test');
+//            Yii::warning($product, 'test');
             $product = (object)$product;
             ?>
             <tr>

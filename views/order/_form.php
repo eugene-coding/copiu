@@ -123,7 +123,7 @@ $this->registerJsFile('/js/order_form.js', [
                         <!-- Навигационные вкладки -->
                         <ul class="nav nav-tabs" role="tablist">
                             <?php
-                            Yii::warning($productsDataProvider->getModels());
+//                            Yii::warning($productsDataProvider->getModels());
                             foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
                                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
                                 <li role="presentation">
