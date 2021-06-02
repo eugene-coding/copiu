@@ -369,6 +369,7 @@ class Order extends ActiveRecord
     {
         if (isset($this->count) && is_array($this->count)) {
             foreach ($this->count as $obtn_id => $count) {
+                Yii::info($this->count, 'test');
                 if (!$count) {
                     //В случае если заказ скопирован, нужно удалить позицию из базы, т.к. кол-во продукта равно нулю
                     $otn_model = OrderToNomenclature::find()
@@ -379,17 +380,17 @@ class Order extends ActiveRecord
                     }
                     continue;
                 }
-                $obtn = OrderBlankToNomenclature::findOne($obtn_id);
                 $otn = OrderToNomenclature::find()
                     ->andWhere([
                         'order_id' => $this->id,
-                        'obtn_id' => $obtn,
+                        'obtn_id' => $obtn_id,
                     ])->one();
                 if (!$otn) {
                     $otn = new OrderToNomenclature();
                     $otn->order_id = $this->id;
-                    $otn->obtn_id = $obtn->id;
+                    $otn->obtn_id = $obtn_id;
                 }
+                $obtn = OrderBlankToNomenclature::findOne($obtn_id);
                 $otn->price = $obtn->n->getPriceForBuyer($obtn->container_id);
                 $otn->count = $count;
 
