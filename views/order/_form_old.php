@@ -67,7 +67,7 @@ $this->registerJsFile('/js/order_form.js', [
                     <?= Html::submitButton('Далее', [
                         'class' => 'btn btn-success btn-block',
                         'title' => 'Сохранить и продолжить',
-                        'style' => $model->step == 1 ? 'display: none;' : '',
+                        'style' => $model->step == 1 ? 'display: none;':'',
                     ]) ?>
                 </div>
             </div>
@@ -77,8 +77,7 @@ $this->registerJsFile('/js/order_form.js', [
         <?php endif; ?>
         <?php if ($model->step == 1): ?>
             <div class="row">
-                <div class="col-md-3 col-xs-12 text-center"
-                     style="display: flex; flex-direction: column; align-items: center;">
+                <div class="col-md-3 col-xs-12 text-center" style="display: flex; flex-direction: column; align-items: center;">
                     <?= $form->field($model, 'target_date')->widget(DatePicker::class, [
                         'type' => DatePicker::TYPE_INLINE,
                         'pluginOptions' => [
@@ -90,7 +89,7 @@ $this->registerJsFile('/js/order_form.js', [
                             'style' => 'display:none'
                         ],
                         'pluginEvents' => [
-                            'changeDate' => 'function(e) {  
+                            'changeDate'=> 'function(e) {  
                                 setTimeout(function(){
                                     $("#confirm-order-date").trigger("click");
                                 }, 500);
@@ -118,75 +117,65 @@ $this->registerJsFile('/js/order_form.js', [
             <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
                 будет добавлена услуга
                 доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
-            <style>
-                .card {
-                    border: black solid 1px;
-                    margin-top: 15px;
-                    border-radius: 10px;
-                    padding: 5px;
-                }
-            </style>
-            <hr>
             <div class="row">
-                <div class="col-xs-12">Укажите временной интервал доставки</div>
-                <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]', $model->delivery_time_from,
-                        $model->buyer->getDeliveryTimeIntervals('from'), ['class' => 'form-control']) ?></div>
-                <div class="col-xs-6"><b>По</b><br><?= Html::dropDownList('Order[delivery_time_to]', $model->delivery_time_to,
-                        $model->buyer->getDeliveryTimeIntervals('to'), ['class' => 'form-control']) ?></div>
-                <div class="error-time text-center col-xs-12">
-                    <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
-                </div>
-                <div class="col-xs-12"><b>Коментарий</b><br><?= Html::textarea('Order[comment]', '',
-                        ['class' => 'form-control']) ?></div>
-            </div>
-            <div class="row">
-                <?php foreach ($productsDataProvider->getModels() as $products) : ?>
-                    <?php foreach ($products as $item): ?>
-                        <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
-                            <div class="card">
-                                <div class="row">
-                                    <div class="col-md-12 card-name">
-                                        <b>Наименование:</b>
-                                        <?= $item['name'] ?>
-                                    </div>
+                <div class="col-md-8 col-xs-12">
+                    <div>
+                        <!-- Навигационные вкладки -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <?php
+//                            Yii::warning($productsDataProvider->getModels());
+                            foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
+                                <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
+                                <li role="presentation">
+                                    <a href="#tab-<?= $tab_model->id ?>" aria-controls="<?= $tab_model->id; ?>"
+                                       role="tab" data-toggle="tab">
+                                        <?= $tab_model->number; ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
 
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12 card-description">
-                                        <b>Описание:</b>
-                                        <?= $item['description'] ?>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12 card-ed">
-                                        <b>Единица измерения:</b>
-                                        <?= $item['measure']; ?>
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-md-6 col-sm-12 card-count">
-                                        <label for="count-product">Количество:</label><br>
-                                        <?= Html::input('number', "Order[count][{$item['obtn_id']}]",
-                                            $item->count, [
-                                                'id' => 'count-product',
-                                                'class' => 'form-control count-product',
-                                                'min' => 0,
-                                                'step' => 1,
-                                                'onkeypress' => 'return event.charCode >= 48'
+                        </ul>
+
+                        <!-- Вкладки панелей -->
+                        <div class="tab-content">
+                            <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
+                                <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
+                                <div role="tabpanel" class="tab-pane" id="tab-<?= $tab_model->id ?>">
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <?= $this->render('_nomenclature', [
+                                                'model' => $model,
+                                                'dataProvider' => $products,
                                             ]) ?>
-                                    </div>
-                                    <div class="col-md-3 col-xs-6 card-cena">
-                                        <b>Цена:</b><br><span class="product-price"><?= $item['price'] ?></span>
-                                    </div>
-                                    <div class="col-md-3 col-xs-6 card-amount">
-                                        <b>Сумма:</b><br><span class="total-cost"><?= $item['count'] * $item['price'] ?></span>
+                                        </div>
                                     </div>
                                 </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-4 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Укажите временной интервал доставки
+                            <small>(Не менее двух часов)</small>
+                        </div>
+                        <div class="panel-body">
+                            <div class="time-dropdown"
+                                 style="display: flex; align-items: center; justify-content: space-around;">
+                                <?= $form->field($model, 'delivery_time_from')
+                                    ->dropDownList($model->buyer->getDeliveryTimeIntervals('from'))->label('С') ?>
+                                <?= $form->field($model, 'delivery_time_to')
+                                    ->dropDownList($model->buyer->getDeliveryTimeIntervals('to'))->label('ДО') ?>
+                            </div>
+                            <div class="error-time text-center">
+                                <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php endforeach; ?>
+                    </div>
+                    <?= $form->field($model, 'comment')->textarea(['rows' => 3]) ?>
+                </div>
             </div>
         <?php elseif ($model->step == 3): ?>
             <?= $this->render('_pre_order_form', [

@@ -370,6 +370,7 @@ class Order extends ActiveRecord
         if (isset($this->count) && is_array($this->count)) {
             foreach ($this->count as $obtn_id => $count) {
                 Yii::info($this->count, 'test');
+                Yii::info($obtn_id . ' => ' . $count, 'test');
                 if (!$count) {
                     //В случае если заказ скопирован, нужно удалить позицию из базы, т.к. кол-во продукта равно нулю
                     $otn_model = OrderToNomenclature::find()
