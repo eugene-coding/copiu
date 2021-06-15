@@ -781,13 +781,12 @@ class OrderController extends Controller
         if ($request->isPost) {
             $order->load($request->post());
             $order->save();
-            $this->redirect(['order-update', 'id' => $order->id]);
+           return $this->redirect(['order-update', 'id' => $order->id]);
         } else {
             return $this->render('_form', [
                 'model' => $order,
             ]);
         }
-
     }
 
     /**
@@ -845,6 +844,30 @@ class OrderController extends Controller
             'footer' => Html::button('Закрыть',
                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
         ];
+    }
+
+    /**
+     * @param $order_id
+     * @param $is_mobile
+     * @return string
+     */
+    public function actionGetContent($order_id, $is_mobile = null)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $model = Order::findOne($order_id);
+        $productsDataProvider = $model->getProductDataProvider();
+
+        if ($is_mobile) {
+            return $this->renderAjax('_step_2_mobile', [
+                'model' => $model,
+                'productsDataProvider' => $productsDataProvider,
+            ]);
+        } else {
+            return $this->renderAjax('_step_2_desktop', [
+                'model' => $model,
+                'productsDataProvider' => $productsDataProvider,
+            ]);
+        }
     }
 }
 

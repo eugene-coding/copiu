@@ -26,7 +26,7 @@
                     <br>
                     ИТОГО: <?= Yii::$app->formatter->asCurrency($model->deliveryCost + $model->total_price); ?>
                 </div>
-                <div class="col-md-6 col-xs-12">
+                <div class="col-md-6 col-xs-12 text-center">
                     Комментарий к доставке:
                     <br>
                     <?= $model->comment; ?>

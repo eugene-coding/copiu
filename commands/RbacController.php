@@ -65,6 +65,7 @@ class RbacController extends Controller
         $reMakeDocuments = $authManager->createPermission('re-make-documents');
         $sync = $authManager->createPermission('sync');
         $syncPFPC = $authManager->createPermission('sync-p-f-p-c');
+        $getContent = $authManager->createPermission('get-content');
 
 
         //Добавляем разрешения в AuthManager
@@ -103,6 +104,7 @@ class RbacController extends Controller
         $authManager->add($reMakeDocuments);
         $authManager->add($sync);
         $authManager->add($syncPFPC);
+        $authManager->add($getContent);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -148,6 +150,7 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $changeStatus);
         $authManager->addChild($buyer, $copyOrder);
         $authManager->addChild($buyer, $reMakeDocuments);
+        $authManager->addChild($buyer, $getContent);
 
         //Admin
         $authManager->addChild($admin, $delete);

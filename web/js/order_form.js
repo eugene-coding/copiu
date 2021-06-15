@@ -44,7 +44,9 @@ $(document).ready(function () {
     $(document).on('change', '.count-product', function () {
         var count = $(this).val();
         var price = $(this).parents('.card').find('.product-price').html();
+        var price_d = $(this).parents('tr').find('.product-price').html();
         $(this).parents('.card').find('.total-cost').html((count*price).toFixed(2));
+        $(this).parents('tr').find('.total-cost').html((count*price_d).toFixed(2));
         var total = 0;
         $('.total-cost').each(function(index, value){
             total += Number(value.innerHTML);
