@@ -654,16 +654,18 @@ class OrderController extends Controller
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionCancel($id)
+    public function actionCancel($id = null)
     {
-        $model = Order::findOne($id);
+        if ($id){
+            $model = Order::findOne($id);
 
-        try {
-            if (!$model->delete()) {
-                \Yii::error($model->errors, '_error');
+            try {
+                if (!$model->delete()) {
+                    \Yii::error($model->errors, '_error');
+                }
+            } catch (\Exception $e) {
+                Yii::error($e->getMessage(), '_error');
             }
-        } catch (\Exception $e) {
-            Yii::error($e->getMessage(), '_error');
         }
 
         return $this->redirect('index');
@@ -753,6 +755,8 @@ class OrderController extends Controller
         foreach ($query->each() as $item) {
             /** @var OrderBlankToNomenclature $obtn */
             $obtn = $item->obtn;
+            //Если в бланке уже нет продукта, который был раньше
+            if (!$obtn) continue;
 
             $rows[] = [
                 $order->id,

@@ -56,16 +56,15 @@ class LoginForm extends Model
      * This method serves as the inline validation for password.
      *
      * @param string $attribute the attribute currently being validated
-     * @param array $params the additional name-value pairs given in the rule
      */
-    public function validatePassword($attribute, $params)
+    public function validatePassword($attribute)
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
 //            Yii::info($user->attributes, 'test');
 
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+                $this->addError($attribute, 'Неверный логин или пароль.');
             }
         }
     }
@@ -130,21 +129,24 @@ class LoginForm extends Model
         $buyer = $user->buyer;
         Yii::info($buyer->attributes, 'test');
 
-        //Проверяем деактивацию
-        if ($buyer->work_mode === $buyer::WORK_MODE_DEACTIVATED){
-            return [
-                'success' => false,
-                'error' => 'Ваша учетная запись заблокирована.'
-            ];
+        if ($buyer){
+            //Проверяем деактивацию
+            if ($buyer->work_mode === $buyer::WORK_MODE_DEACTIVATED){
+                return [
+                    'success' => false,
+                    'error' => 'Ваша учетная запись заблокирована.'
+                ];
+            }
+
+            //Проверяем баланс
+            if (!$this->checkBalance($buyer) ){
+                return [
+                    'success' => false,
+                    'error' => 'Для совершения заказа недостаточен баланс.'
+                ];
+            }
         }
 
-        //Проверяем баланс
-        if (!$this->checkBalance($buyer) ){
-            return [
-                'success' => false,
-                'error' => 'Для совершения заказа недостаточен баланс.'
-            ];
-        }
 
         //Проверяем занятость сессии (уже есть кто-то в системе под этим пользователем или нет)
         if ($user->is_active){
