@@ -160,7 +160,7 @@ class Users extends ActiveRecord
      * Получает список ролей системы
      * @return array
      */
-    public function getRoles()
+    public static function getRoles()
     {
         return ArrayHelper::map(Yii::$app->authManager->roles, 'name', 'description');
 

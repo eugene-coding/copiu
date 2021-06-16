@@ -245,7 +245,11 @@ class UsersController extends Controller
     public function actionDelete($id)
     {
         $request = Yii::$app->request;
-        $this->findModel($id)->delete();
+        if (!Users::isAdmin()){
+            throw new ForbiddenHttpException('Доступ запрещен!');
+        } else {
+            $this->findModel($id)->delete();
+        }
 
         if ($request->isAjax) {
             /*

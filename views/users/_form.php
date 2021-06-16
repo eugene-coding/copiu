@@ -1,4 +1,6 @@
 <?php
+
+use app\models\Users;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -17,15 +19,10 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'new_password')->passwordInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'role')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'role')->dropDownList(Users::getRoles(), [
+            'disabled' => true,
+    ]) ?>
 
-    <?= $form->field($model, 'phone')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'avatar')->textInput(['maxlength' => true]) ?>
-
-  
 	<?php if (!Yii::$app->request->isAjax){ ?>
 	  	<div class="form-group">
 	        <?= Html::submitButton($model->isNewRecord ? 'Создать' : 'Редактировать', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
