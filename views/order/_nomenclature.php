@@ -8,14 +8,14 @@ use yii\helpers\Html;
 
 $counter = 1;
 $product_sum = OrderToNomenclature::getTotalPrice($model->id);
-$product_sum = $product_sum ? $product_sum . 'р.' : '';
+$product_sum = $product_sum ? $product_sum : 0;
 
 ?>
 <div class="panel panel-primary">
     <div class="panel-heading" style="display: flex; justify-content: space-between;">
         <h3 class="panel-title"><i class="glyphicon glyphicon-list"></i> Список позиций для заказа</h3>
         <div class="total-amount">
-            Итого: <span class="total"><?= $product_sum; ?></span>
+            Итого: <span class="total"><?= $product_sum; ?></span><span>&nbsp;р.</span>
         </div>
     </div>
     <div class="panel-body">
@@ -66,6 +66,7 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
                     <td aria-label="Кол-во"><?= Html::input('number', "Order[count][{$product['obtn_id']}]",
                             $product['count'],
                             [
+                                'data-obtn-id' => $product['obtn_id'],
                                 'class' => 'form-control count-product',
                                 'min' => 0,
                                 'step' => 1,
@@ -78,7 +79,7 @@ $product_sum = $product_sum ? $product_sum . 'р.' : '';
                 <?php endforeach; ?>
                 </tr>
             <?php else: ?>
-                    <p>Ничего не найдено</p>
+                <p>Ничего не найдено</p>
             <?php endif; ?>
             </tbody>
         </table>

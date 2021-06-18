@@ -94,7 +94,7 @@ class OrderToNomenclature extends ActiveRecord
     public static function getTotalPrice($order_id)
     {
         return self::find()
-            ->select(['SUM(price*count)'])
+            ->select(['SUM(REPLACE(price,",",".") * count)'])
             ->andWhere(['order_id' => $order_id])
             ->scalar();
     }

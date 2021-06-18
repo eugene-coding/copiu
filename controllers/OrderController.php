@@ -905,5 +905,61 @@ class OrderController extends Controller
             ];
         }
     }
+
+    /**
+     * Добавляет продукт в заказ
+     * @return array
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionAddProduct()
+    {
+        $request = Yii::$app->request->post();
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $order_id = $request['order_id'];
+        $obtn_id = $request['obtn_id'];
+        $count = $request['count'];
+        $price = $request['price'];
+
+
+        $model = OrderToNomenclature::find()
+            ->andWhere(['order_id' => $order_id, 'obtn_id' => $obtn_id])
+            ->one();
+
+        if (!$model) {
+            $model = new OrderToNomenclature([
+                'order_id' => $order_id,
+                'obtn_id' => $obtn_id
+            ]);
+        }
+        Yii::info($model->attributes, 'test');
+
+        if (!$count){
+            //Если выставлено кол-во продукта в ноль
+            if ($model->id){
+                //Если запись есть в базе
+                $model->delete();
+            }
+        } else {
+            $model->count = $count;
+            $model->price = $price;
+
+            if (!$model->save()) {
+                Yii::error($model->errors, '_error');
+            }
+        }
+
+        $total = OrderToNomenclature::find()
+            ->select(['SUM(REPLACE(price,",",".") * count)'])
+            ->andWhere(['order_id' => $order_id])
+            ->scalar();
+
+        return [
+            'success' => true,
+            'total' => $total ?: 0,
+        ];
+    }
 }
 

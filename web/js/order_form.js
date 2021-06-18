@@ -45,13 +45,30 @@ $(document).ready(function () {
         var count = $(this).val();
         var price = $(this).parents('.card').find('.product-price').html();
         var price_d = $(this).parents('tr').find('.product-price').html();
-        $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
-        $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
-        var total = 0;
-        $('.total-cost').each(function (index, value) {
-            total += Number(value.innerHTML);
-        });
-        $('.total').html(total.toFixed(2) + 'р.');
+        // $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
+        // $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
+        if (typeof(price) === 'undefined'){
+            price = price_d;
+        }
+        var order_id = $('#order-step').attr('data-id');
+        var obtn_id = $(this).attr('data-obtn-id');
+
+        // var total = 0;
+        // $('.total-cost').each(function (index, value) {
+        //     total += Number(value.innerHTML);
+        // });
+        $.post('/order/add-product', {
+            order_id: order_id,
+            obtn_id:obtn_id,
+            count:count,
+            price:price
+        })
+            .done(function (response) {
+                debugger;
+                console.log(response);
+                $('.total').html(Number(response.total).toFixed(2));
+            });
+
     });
 
     $(document).on('click', '[type="submit"], .to-back', function () {
@@ -80,7 +97,7 @@ $(document).ready(function () {
         var tab = blank_block.attr('id').split('-')[1];
         var order_id = $('#order-step').attr('data-id');
 
-        $.get('/order/get-product-for-tab', {order_id:order_id, blank_id:tab, string:str, is_mobile:''})
+        $.get('/order/get-product-for-tab', {order_id: order_id, blank_id: tab, string: str, is_mobile: ''})
             .done(function (response) {
                 btn.parents('.tab-content').find('.tab-nomenclature-list').html(response.data);
             })
