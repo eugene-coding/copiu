@@ -16,7 +16,7 @@ $(document).ready(function () {
                     $('.count-products').each(function (index) {
                         total_count = total_count + Number($(this).text());
                     });
-                    if (total_count > 0){
+                    if (total_count > 0) {
                         $('[type="submit"]').fadeIn(300);
                     } else {
                         $('[type="submit"]').fadeOut(300);
@@ -45,10 +45,10 @@ $(document).ready(function () {
         var count = $(this).val();
         var price = $(this).parents('.card').find('.product-price').html();
         var price_d = $(this).parents('tr').find('.product-price').html();
-        $(this).parents('.card').find('.total-cost').html((count*price).toFixed(2));
-        $(this).parents('tr').find('.total-cost').html((count*price_d).toFixed(2));
+        $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
+        $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
         var total = 0;
-        $('.total-cost').each(function(index, value){
+        $('.total-cost').each(function (index, value) {
             total += Number(value.innerHTML);
         });
         $('.total').html(total.toFixed(2) + 'р.');
@@ -58,16 +58,35 @@ $(document).ready(function () {
         $(window).unbind('beforeunload');
     });
 
-    $(window).bind('beforeunload', function() {
+    $(window).bind('beforeunload', function () {
         var step = $('#order-step').val();
-        if (step !== 'undefined' && step > 1 && step < 4){
-            setTimeout(function() {
-                setTimeout(function() {
+        if (step !== 'undefined' && step > 1 && step < 4) {
+            setTimeout(function () {
+                setTimeout(function () {
                     console.log('Отмена');
                 }, 1000);
                 console.log('Закрываем');
-            },1);
+            }, 1);
             return 'Данные заказа не будут сохранены. Вы уверены?';
         }
+    });
+
+    $(document).on('click', '#search-btn', function () {
+        // var detect = new MobileDetect(window.navigator.userAgent);
+        var btn = $(this);
+        var block = btn.parents('.search-product');
+        var str = block.find('input').val();
+        var blank_block = btn.parents('.tab-content').find('.tab-pane');
+        var tab = blank_block.attr('id').split('-')[1];
+        var order_id = $('#order-step').attr('data-id');
+
+        $.get('/order/get-product-for-tab', {order_id:order_id, blank_id:tab, string:str, is_mobile:''})
+            .done(function (response) {
+                btn.parents('.tab-content').find('.tab-nomenclature-list').html(response.data);
+            })
+            .fail(function (response) {
+                btn.parents('.tab-content').find('panel-body').html(response.responseText)
+            })
+
     });
 });

@@ -656,7 +656,7 @@ class OrderController extends Controller
      */
     public function actionCancel($id = null)
     {
-        if ($id){
+        if ($id) {
             $model = Order::findOne($id);
 
             try {
@@ -756,7 +756,9 @@ class OrderController extends Controller
             /** @var OrderBlankToNomenclature $obtn */
             $obtn = $item->obtn;
             //Если в бланке уже нет продукта, который был раньше
-            if (!$obtn) continue;
+            if (!$obtn) {
+                continue;
+            }
 
             $rows[] = [
                 $order->id,
@@ -785,7 +787,7 @@ class OrderController extends Controller
         if ($request->isPost) {
             $order->load($request->post());
             $order->save();
-           return $this->redirect(['order-update', 'id' => $order->id]);
+            return $this->redirect(['order-update', 'id' => $order->id]);
         } else {
             return $this->render('_form', [
                 'model' => $order,
@@ -871,6 +873,36 @@ class OrderController extends Controller
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
             ]);
+        }
+    }
+
+    /**
+     * @param $order_id
+     * @param $blank_id
+     * @param null $string
+     * @param null $is_mobile
+     * @return array|string
+     */
+    public function actionGetProductForTab($order_id, $blank_id, $string = null, $is_mobile = null)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $model = Order::findOne($order_id);
+        $model->search_string = $string;
+        $productsDataProvider = $model->getProductDataProvider($string, [$blank_id]);
+        $blank_model = OrderBlank::findOne($blank_id);
+        if ($is_mobile) {
+            return $this->renderAjax('_nomenclature', [
+                'model' => $model,
+                'dataProvider' => $productsDataProvider,
+            ]);
+        } else {
+            return [
+                'success' => true,
+                'data' => $this->renderAjax('_nomenclature', [
+                    'model' => $model,
+                    'dataProvider' => $productsDataProvider->getModels()[$blank_model->number],
+                ])
+            ];
         }
     }
 }

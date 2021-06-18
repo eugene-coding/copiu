@@ -77,7 +77,7 @@ return [
             $status = Order::getStatusList()[$model->status];
 
             if ($status == $model::getStatusList()[$model::STATUS_DRAFT]) {
-                return $status . '<br><small class="text-warning">Для принятия заказа в работу повторите формирование документов</small>';
+                return $status . '<br><small class="text-warning">Повторите формирование документов</small>';
             } else {
                 return $status;
             }

@@ -61,8 +61,6 @@ try {
                     ],
                 ],
                 'striped' => true,
-                'condensed' => true,
-                'responsive' => true,
                 'panel' => [
                     'type' => 'primary',
                     'heading' => '<i class="glyphicon glyphicon-list"></i> Список заказов',

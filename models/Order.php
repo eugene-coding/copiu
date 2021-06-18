@@ -44,6 +44,7 @@ class Order extends ActiveRecord
     public $step = 1;
     public $error_delivery_time;
     public $buyer_name;
+    public $search_string;
 
     /**
      * {@inheritdoc}
@@ -425,11 +426,15 @@ class Order extends ActiveRecord
 
     /**
      * Создает провайдер для таблицы с продуктами
+     * @param string $search_string Строка поиска продукта
+     * @param array $blanks Массив с номерами бланков
      * @return ArrayDataProvider
      */
-    public function getProductDataProvider()
+    public function getProductDataProvider($search_string = null, $blanks = [])
     {
-        $blanks = explode(',', $this->blanks);
+        if (!$blanks){
+            $blanks = explode(',', $this->blanks);
+        }
         $data = [];
 
         $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $blanks])->all();
@@ -439,6 +444,11 @@ class Order extends ActiveRecord
 
             /** @var Nomenclature $product */
             $product = $obtn->n;
+            $l_name = mb_strtolower($product->name);
+            $l_search = mb_strtolower($search_string);
+            if ($search_string && strpos($l_name, $l_search) === false){
+                continue;
+            }
 
             /** @var OrderToNomenclature $order_to_nomenclature */
             $order_to_nomenclature = OrderToNomenclature::findOne([
@@ -464,6 +474,8 @@ class Order extends ActiveRecord
                 'attributes' => ['name'],
             ],
         ]);
+        Yii::info($data, 'test');
+        Yii::info($productsDataProvider, 'test');
 
         return $productsDataProvider;
     }

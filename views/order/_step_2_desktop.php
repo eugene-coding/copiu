@@ -31,7 +31,7 @@ use app\models\OrderBlank;
                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
                 <div role="tabpanel" class="tab-pane" id="tab-<?= $tab_model->id ?>">
                     <div class="row">
-                        <div class="col-xs-12">
+                        <div class="col-sm-12 tab-nomenclature-list">
                             <?= $this->render('_nomenclature', [
                                 'model' => $model,
                                 'dataProvider' => $products,

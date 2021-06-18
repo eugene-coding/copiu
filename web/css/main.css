@@ -36,3 +36,41 @@
         font-weight: bold;
     }
 }
+
+@media (max-width: 767px) {
+    #crud-datatable-filters {
+        display: none;
+    }
+
+    .order-index th[data-col-seq="4"] {
+        display: none;
+    }
+
+    .order-index td[data-col-seq="4"] {
+        display: none;
+    }
+
+    .order-index thead {
+        display: none;
+    }
+
+
+
+    .order-index .kv-grid-toolbar {
+        width: 90%
+    }
+
+    .order-index .kv-grid-toolbar .btn-group {
+        width: inherit;
+    }
+
+    .order-index .kv-grid-toolbar .btn-group * {
+        display: none;
+    }
+
+    .order-index .kv-grid-toolbar .btn-group :first-child {
+        display: block;
+        width: 100%;
+    }
+
+}
