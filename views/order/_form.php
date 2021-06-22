@@ -85,24 +85,29 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
     <div class="row">
         <div class="col-md-3 col-xs-12 text-center"
              style="display: flex; flex-direction: column; align-items: center;">
-            <?= $form->field($model, 'target_date')->widget(DatePicker::class, [
-                'type' => DatePicker::TYPE_INLINE,
-                'pluginOptions' => [
-                    'format' => 'yyyy-mm-dd',
-                    'multidate' => false
-                ],
-                'options' => [
-                    // you can hide the input by setting the following
-                    'style' => 'display:none'
-                ],
-                'pluginEvents' => [
-                    'changeDate' => 'function(e) {  
-                                setTimeout(function(){
-                                    $("#confirm-order-date").trigger("click");
-                                }, 500);
-                            }',
-                ],
-            ])->label('Выберите дату доставки'); ?>
+            <?php
+            try {
+                echo $form->field($model, 'target_date')->widget(DatePicker::class, [
+                    'type' => DatePicker::TYPE_INLINE,
+                    'pluginOptions' => [
+                        'format' => 'yyyy-mm-dd',
+                        'multidate' => false
+                    ],
+                    'options' => [
+                        // you can hide the input by setting the following
+                        'style' => 'display:none'
+                    ],
+                    'pluginEvents' => [
+                        'changeDate' => 'function(e) {  
+                                    setTimeout(function(){
+                                        $("#confirm-order-date").trigger("click");
+                                    }, 500);
+                                }',
+                    ],
+                ])->label('Выберите дату доставки');
+            } catch (Exception $e) {
+                echo $e->getMessage();
+            } ?>
             <?= Html::button('Подтвердить дату ', [
                 'class' => 'btn btn-success btn-block',
                 'id' => 'confirm-order-date',
@@ -125,28 +130,36 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
         будет добавлена услуга
         доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
     <div class="row">
-        <div class="col-xs-12">Укажите временной интервал доставки (не менее двух часов)</div>
-        <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
-                $model->delivery_time_from,
-                $model->buyer->getDeliveryTimeIntervals('from'), ['class' => 'form-control']) ?></div>
-        <div class="col-xs-6"><b>По</b><br><?= Html::dropDownList('Order[delivery_time_to]', $model->delivery_time_to,
-                $model->buyer->getDeliveryTimeIntervals('to'), ['class' => 'form-control']) ?></div>
-        <div class="error-time text-center col-xs-12">
-            <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
-        </div>
-        <div class="col-xs-12"><b>Коментарий</b><br><?= Html::textarea('Order[comment]', '',
-                ['class' => 'form-control']) ?></div>
-    </div>
-    <div class="row step-2-content" style="margin-top: 10px">
-        <div class="col-md-offset-3 col-md-6">
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
-                     aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                    <span class="sr-only">Загрузка...</span>
+        <div class="col-md-8">
+            <div class="row step-2-content" style="margin-top: 10px">
+                <div class="col-md-offset-3 col-md-6">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
+                             aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            <span>Загрузка...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-xs-12 text-center">Укажите временной интервал доставки<br>(не менее двух часов)</div>
+                <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
+                        $model->delivery_time_from,
+                        $model->buyer->getDeliveryTimeIntervals('from'), ['class' => 'form-control']) ?></div>
+                <div class="col-xs-6"><b>По</b><br><?= Html::dropDownList('Order[delivery_time_to]',
+                        $model->delivery_time_to,
+                        $model->buyer->getDeliveryTimeIntervals('to'), ['class' => 'form-control']) ?></div>
+                <div class="error-time text-center col-xs-12">
+                    <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
+                </div>
+                <div class="col-xs-12"><b>Комментарий</b><br><?= Html::textarea('Order[comment]', '',
+                        ['class' => 'form-control', 'rows' => 5]) ?></div>
+            </div>
+        </div>
     </div>
+
 <?php elseif ($model->step == 3): ?>
     <?= $this->render('_pre_order_form', [
         'model' => $model,
