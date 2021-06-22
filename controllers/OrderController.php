@@ -879,16 +879,18 @@ class OrderController extends Controller
     /**
      * @param $order_id
      * @param $blank_id
-     * @param null $string
+     * @param $product_id
      * @param null $is_mobile
      * @return array|string
      */
-    public function actionGetProductForTab($order_id, $blank_id, $string = null, $is_mobile = null)
+    public function actionGetProductForTab($order_id, $blank_id, $product_id, $is_mobile = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
-        $model->search_string = $string;
+        $string = Nomenclature::findOne($product_id)->name;
         $productsDataProvider = $model->getProductDataProvider($string, [$blank_id]);
+        $model->search_product_id =$product_id;
+
         $blank_model = OrderBlank::findOne($blank_id);
         if ($is_mobile) {
             return $this->renderAjax('_nomenclature', [

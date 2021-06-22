@@ -1,6 +1,5 @@
 <?php
 
-use app\models\Order;
 use app\models\OrderToNomenclature;
 use kartik\select2\Select2;
 use yii\helpers\Html;
@@ -22,26 +21,35 @@ $product_sum = $product_sum ? $product_sum : 0;
     <div class="panel-body">
         <div class="search-product">
             <div class="row">
-                <div class="col-md-9 col-sm-12" style="margin-bottom: 10px">
+                <div class="col-md-12" style="margin-bottom: 10px">
                     <?php
                     try {
                         echo Select2::widget([
                             'model' => $model,
-                            'attribute' => 'search_string',
+                            'attribute' => 'search_product_id',
                             'data' => $model->getProductList($dataProvider),
-                            'options' => ['placeholder' => 'Поиск продуктов'],
+                            'options' => ['placeholder' => 'Поиск продуктов', 'id' => 'product-search-input'],
                             'pluginOptions' => [
                                 'allowClear' => true
                             ],
+                            'pluginEvents' => [
+                                "change" => "function() {
+                                var elements = $('#search-btn');
+                                    console.log('click');
+                                    elements[0].click();
+                                }",
+                            ]
                         ]);
                     } catch (Exception $e) {
                         echo $e->getMessage();
                     } ?>
                 </div>
                 <div class="col-md-3 col-sm-12">
-                    <?= Html::button('Найти в бланке', [
+                    <?php
+                    echo Html::button('Найти в бланке', [
                         'class' => 'btn btn-primary btn-block',
-                        'id' => 'search-btn'
+                        'id' => 'search-btn',
+                        'style' => 'display:none;'
                     ]) ?>
                 </div>
             </div>

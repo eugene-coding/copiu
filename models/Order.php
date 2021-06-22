@@ -44,7 +44,7 @@ class Order extends ActiveRecord
     public $step = 1;
     public $error_delivery_time;
     public $buyer_name;
-    public $search_string;
+    public $search_product_id;
 
     /**
      * {@inheritdoc}
@@ -71,6 +71,7 @@ class Order extends ActiveRecord
                 'targetClass' => Buyer::class,
                 'targetAttribute' => ['buyer_id' => 'id']
             ],
+            ['search_product_id', 'integer'],
         ];
     }
 
@@ -520,13 +521,14 @@ class Order extends ActiveRecord
     {
         $list = [];
 
-        if (!$products) return [];
+        if (!$products) {
+            return [];
+        }
 
-        foreach ($products as $product){
+        foreach ($products as $product) {
             $list[$product['id']] = $product['name'];
         }
 
         return $list;
     }
-
 }

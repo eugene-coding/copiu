@@ -92,12 +92,12 @@ $(document).ready(function () {
         // var detect = new MobileDetect(window.navigator.userAgent);
         var btn = $(this);
         var block = btn.parents('.search-product');
-        var str = block.find('input').val();
+        var product_id = block.find('select').val();
         var blank_block = btn.parents('.tab-content').find('.tab-pane');
         var tab = blank_block.attr('id').split('-')[1];
         var order_id = $('#order-step').attr('data-id');
 
-        $.get('/order/get-product-for-tab', {order_id: order_id, blank_id: tab, string: str, is_mobile: ''})
+        $.get('/order/get-product-for-tab', {order_id: order_id, blank_id: tab, product_id: product_id, is_mobile: ''})
             .done(function (response) {
                 btn.parents('.tab-content').find('.tab-nomenclature-list').html(response.data);
             })
@@ -106,4 +106,5 @@ $(document).ready(function () {
             })
 
     });
+
 });
