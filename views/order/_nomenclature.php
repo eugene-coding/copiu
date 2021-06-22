@@ -47,8 +47,8 @@ $product_sum = $product_sum ? $product_sum : 0;
                 <div class="col-md-3 col-sm-12">
                     <?php
                     echo Html::button('Найти в бланке', [
-                        'class' => 'btn btn-primary btn-block',
-                        'id' => 'search-btn',
+                        'class' => 'btn btn-primary btn-block search-btn',
+//                        'id' => 'search-btn',
                         'style' => 'display:none;'
                     ]) ?>
                 </div>

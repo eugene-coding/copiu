@@ -88,7 +88,7 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click', '#search-btn', function () {
+    $(document).on('click', '.search-btn', function () {
         // var detect = new MobileDetect(window.navigator.userAgent);
         var btn = $(this);
         var block = btn.parents('.search-product');
