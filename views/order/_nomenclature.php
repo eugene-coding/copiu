@@ -1,7 +1,5 @@
 <?php
 
-use app\models\OrderToNomenclature;
-use kartik\select2\Select2;
 use yii\helpers\Html;
 
 /* @var $model app\models\Order */
@@ -9,8 +7,7 @@ use yii\helpers\Html;
 /* @var $blank_id integer */
 
 $counter = 1;
-$product_sum = OrderToNomenclature::getTotalPrice($model->id);
-$product_sum = $product_sum ? $product_sum : 0;
+
 ?>
 
         <div class="table-products">

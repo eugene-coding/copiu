@@ -41,33 +41,34 @@ $(document).ready(function () {
 
     });
 
-    $(document).on('change', '.count-product', function () {
-        var count = $(this).val();
-        var price = $(this).parents('.card').find('.product-price').html();
-        var price_d = $(this).parents('tr').find('.product-price').html();
-        // $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
-        // $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
-        if (typeof(price) === 'undefined'){
-            price = price_d;
-        }
-        var order_id = $('#order-step').attr('data-id');
-        var obtn_id = $(this).attr('data-obtn-id');
-
-        // var total = 0;
-        // $('.total-cost').each(function (index, value) {
-        //     total += Number(value.innerHTML);
-        // });
-        $.post('/order/add-product', {
-            order_id: order_id,
-            obtn_id:obtn_id,
-            count:count,
-            price:price
-        })
-            .done(function (response) {
-                $('.total').html(Number(response.total).toFixed(2));
-            });
-
-    });
+    // $(document).on('change', '.count-product', function () {
+    //     var count = $(this).val();
+    //     var price = $(this).parents('.card').find('.product-price').html();
+    //     var price_d = $(this).parents('tr').find('.product-price').html();
+    //     // $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
+    //     // $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
+    //     debugger;
+    //     if (typeof(price) === 'undefined'){
+    //         price = price_d;
+    //     }
+    //     var order_id = $('#order-step').attr('data-id');
+    //     var obtn_id = $(this).attr('data-obtn-id');
+    //
+    //     // var total = 0;
+    //     // $('.total-cost').each(function (index, value) {
+    //     //     total += Number(value.innerHTML);
+    //     // });
+    //     $.post('/order/add-product', {
+    //         order_id: order_id,
+    //         obtn_id:obtn_id,
+    //         count:count,
+    //         price:price
+    //     })
+    //         .done(function (response) {
+    //             $('.total').html(Number(response.total).toFixed(2));
+    //         });
+    //
+    // });
 
     $(document).on('click', '[type="submit"], .to-back', function () {
         $(window).unbind('beforeunload');
