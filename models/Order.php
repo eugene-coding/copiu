@@ -517,7 +517,7 @@ class Order extends ActiveRecord
      * ]
      * @return array
      */
-    public function getProductList(array $products = [])
+    public function getProductList($products = null)
     {
         $list = [];
 
