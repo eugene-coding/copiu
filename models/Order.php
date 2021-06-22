@@ -432,7 +432,7 @@ class Order extends ActiveRecord
      */
     public function getProductDataProvider($search_string = null, $blanks = [])
     {
-        if (!$blanks){
+        if (!$blanks) {
             $blanks = explode(',', $this->blanks);
         }
         $data = [];
@@ -446,7 +446,7 @@ class Order extends ActiveRecord
             $product = $obtn->n;
             $l_name = mb_strtolower($product->name);
             $l_search = mb_strtolower($search_string);
-            if ($search_string && strpos($l_name, $l_search) === false){
+            if ($search_string && strpos($l_name, $l_search) === false) {
                 continue;
             }
 
@@ -491,5 +491,42 @@ class Order extends ActiveRecord
             ->andWhere(['order_to_nomenclature.order_id' => $this->id])->all();
     }
 
+    /**
+     * Получает список продуктов для Select2 (поиск по бланку)
+     * @param array $products
+     * [
+     * [
+     * 'id' => 2248,
+     * 'name' => 'Товар1',
+     * 'count' => null,
+     * 'price' => 11.4,
+     * 'measure' => 'кг',
+     * 'obtn_id' => 3,
+     * 'description' => '',
+     * ],
+     * [
+     * 'id' => 2248,
+     * 'name' => 'Товар1',
+     * 'count' => null,
+     * 'price' => 114.0,
+     * 'measure' => '10 шт',
+     * 'obtn_id' => 4,
+     * 'description' => '',
+     * ],
+     * ]
+     * @return array
+     */
+    public function getProductList(array $products)
+    {
+        $list = [];
+
+        if (!$products) return [];
+
+        foreach ($products as $product){
+            $list[$product['id']] = $product['name'];
+        }
+
+        return $list;
+    }
 
 }

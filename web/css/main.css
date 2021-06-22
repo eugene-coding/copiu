@@ -7,9 +7,9 @@
     width: 100%;
 }
 
-.select2-search__field {
-    width: inherit !important;
-}
+/*.select2-search__field {*/
+    /*width: inherit !important;*/
+/*}*/
 
 @media screen and (max-width: 600px) {
     .container-pre-order {
@@ -53,8 +53,6 @@
     .order-index thead {
         display: none;
     }
-
-
 
     .order-index .kv-grid-toolbar {
         width: 90%

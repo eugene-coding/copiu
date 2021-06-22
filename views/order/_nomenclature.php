@@ -1,15 +1,16 @@
 <?php
 
+use app\models\Order;
 use app\models\OrderToNomenclature;
+use kartik\select2\Select2;
 use yii\helpers\Html;
 
 /* @var $model app\models\Order */
-/* @var $dataProvider \yii\data\ActiveDataProvider */
+/* @var $dataProvider array */
 
 $counter = 1;
 $product_sum = OrderToNomenclature::getTotalPrice($model->id);
 $product_sum = $product_sum ? $product_sum : 0;
-
 ?>
 <div class="panel panel-primary">
     <div class="panel-heading" style="display: flex; justify-content: space-between;">
@@ -22,10 +23,20 @@ $product_sum = $product_sum ? $product_sum : 0;
         <div class="search-product">
             <div class="row">
                 <div class="col-md-9 col-sm-12" style="margin-bottom: 10px">
-                    <?= Html::input('text', "search-product", $model->search_string, [
-                        'class' => 'form-control',
-                        'placeholder' => 'Введите часть наименования продукта'
-                    ]) ?>
+                    <?php
+                    try {
+                        echo Select2::widget([
+                            'model' => $model,
+                            'attribute' => 'search_string',
+                            'data' => $model->getProductList($dataProvider),
+                            'options' => ['placeholder' => 'Поиск продуктов'],
+                            'pluginOptions' => [
+                                'allowClear' => true
+                            ],
+                        ]);
+                    } catch (Exception $e) {
+                        echo $e->getMessage();
+                    } ?>
                 </div>
                 <div class="col-md-3 col-sm-12">
                     <?= Html::button('Найти в бланке', [
