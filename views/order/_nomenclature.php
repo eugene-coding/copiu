@@ -38,7 +38,7 @@ $counter = 1;
                 <td aria-label="#"><?= $counter ?></td>
                 <td aria-label="Наименование"><?= $product['name'] ?></td>
                 <td aria-label="Описание">
-                    <div class="description">
+                    <div class="description" style="max-width: 200px">
                         <?php
                         echo $product['description'] ?: 'нет';
                         ?>
