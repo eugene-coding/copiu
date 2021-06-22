@@ -888,19 +888,14 @@ class OrderController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
 
-        $product =  Nomenclature::findOne($product_id);
-        if ($product){
-            $string = $product->name;
-        } else {
-            $string = null;
-        }
-        $productsDataProvider = $model->getProductDataProvider($string, [$blank_id]);
+        $productsDataProvider = $model->getProductDataProvider($product_id, [$blank_id]);
         $model->search_product_id =$product_id;
 
         $blank_model = OrderBlank::findOne($blank_id);
         if ($is_mobile) {
             return $this->renderAjax('_nomenclature', [
                 'model' => $model,
+                'blank_id' => $blank_id,
                 'dataProvider' => $productsDataProvider,
             ]);
         } else {
@@ -970,5 +965,6 @@ class OrderController extends Controller
             'total' => $total ?: 0,
         ];
     }
+
 }
 

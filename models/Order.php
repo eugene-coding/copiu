@@ -431,23 +431,24 @@ class Order extends ActiveRecord
      * @param array $blanks Массив с номерами бланков
      * @return ArrayDataProvider
      */
-    public function getProductDataProvider($search_string = null, $blanks = [])
+    public function getProductDataProvider($product_id = null, $blanks = [])
     {
         if (!$blanks) {
             $blanks = explode(',', $this->blanks);
         }
         $data = [];
 
-        $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $blanks])->all();
+        $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()
+            ->andWhere(['IN', 'ob_id', $blanks])
+            ->all();
 
         /** @var OrderBlankToNomenclature $obtn */
         foreach ($order_blanks_to_nomenclatures as $obtn) {
 
             /** @var Nomenclature $product */
             $product = $obtn->n;
-            $l_name = mb_strtolower($product->name);
-            $l_search = mb_strtolower($search_string);
-            if ($search_string && strpos($l_name, $l_search) === false) {
+
+            if ($product_id && $product->id != $product_id){
                 continue;
             }
 
@@ -476,7 +477,7 @@ class Order extends ActiveRecord
             ],
         ]);
         Yii::info($data, 'test');
-        Yii::info($productsDataProvider, 'test');
+//        Yii::info($productsDataProvider, 'test');
 
         return $productsDataProvider;
     }

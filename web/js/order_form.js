@@ -91,17 +91,16 @@ $(document).ready(function () {
         var btn = $(this);
         var block = btn.parents('.search-product');
         var product_id = block.find('select').val();
-        var blank_block = btn.parents('.tab-content').find('.tab-pane');
-        var tab = blank_block.attr('id').split('-')[1];
+        var tab = btn.parents('.tab-pane').attr('id').split('-')[1];
         var order_id = $('#order-step').attr('data-id');
-        console.log(tab);
 
         $.get('/order/get-product-for-tab', {order_id: order_id, blank_id: tab, product_id: product_id, is_mobile: ''})
             .done(function (response) {
-                btn.parents('.tab-content').find('.tab-nomenclature-list').html(response.data);
+                console.log(btn.parents('.tab-pane').find('.tab-nomenclature-list'));
+                btn.parents('.tab-pane').find('.table-products').html(response.data);
             })
             .fail(function (response) {
-                btn.parents('.tab-content').find('panel-body').html(response.responseText)
+                btn.parents('.tab-pane').find('.table-products').html(response.responseText)
             })
 
     });
