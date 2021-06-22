@@ -6,6 +6,7 @@ use yii\helpers\Html;
 
 /* @var $model app\models\Order */
 /* @var $dataProvider array */
+/* @var $blank_id integer */
 
 $counter = 1;
 $product_sum = OrderToNomenclature::getTotalPrice($model->id);
@@ -28,15 +29,17 @@ $product_sum = $product_sum ? $product_sum : 0;
                             'model' => $model,
                             'attribute' => 'search_product_id',
                             'data' => $model->getProductList($dataProvider),
-                            'options' => ['placeholder' => 'Поиск продуктов', 'class' => 'product-search-input'],
+                            'options' => [
+                                'placeholder' => 'Поиск продуктов',
+                                'class' => 'product-search-input',
+                                'id' => 'search-input-' . $blank_id
+                            ],
                             'pluginOptions' => [
                                 'allowClear' => true
                             ],
                             'pluginEvents' => [
                                 "change" => "function() {
-                                var elements = $('#search-btn');
-                                    console.log('click');
-                                    elements[0].click();
+                                    $(this).parents('.search-product').find('.search-btn').click()
                                 }",
                             ]
                         ]);

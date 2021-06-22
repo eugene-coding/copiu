@@ -64,8 +64,6 @@ $(document).ready(function () {
             price:price
         })
             .done(function (response) {
-                debugger;
-                console.log(response);
                 $('.total').html(Number(response.total).toFixed(2));
             });
 
@@ -96,6 +94,7 @@ $(document).ready(function () {
         var blank_block = btn.parents('.tab-content').find('.tab-pane');
         var tab = blank_block.attr('id').split('-')[1];
         var order_id = $('#order-step').attr('data-id');
+        console.log(tab);
 
         $.get('/order/get-product-for-tab', {order_id: order_id, blank_id: tab, product_id: product_id, is_mobile: ''})
             .done(function (response) {

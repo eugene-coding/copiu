@@ -908,6 +908,7 @@ class OrderController extends Controller
                 'success' => true,
                 'data' => $this->renderAjax('_nomenclature', [
                     'model' => $model,
+                    'blank_id' => $blank_id,
                     'dataProvider' => $productsDataProvider->getModels()[$blank_model->number],
                 ])
             ];

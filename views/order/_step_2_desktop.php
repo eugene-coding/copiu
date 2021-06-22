@@ -34,6 +34,7 @@ use app\models\OrderBlank;
                         <div class="col-sm-12 tab-nomenclature-list">
                             <?= $this->render('_nomenclature', [
                                 'model' => $model,
+                                'blank_id' => $tab_model->id,
                                 'dataProvider' => $products,
                             ]) ?>
                         </div>
