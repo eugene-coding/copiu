@@ -28,7 +28,7 @@ $product_sum = $product_sum ? $product_sum : 0;
                             'model' => $model,
                             'attribute' => 'search_product_id',
                             'data' => $model->getProductList($dataProvider),
-                            'options' => ['placeholder' => 'Поиск продуктов', 'id' => 'product-search-input'],
+                            'options' => ['placeholder' => 'Поиск продуктов', 'class' => 'product-search-input'],
                             'pluginOptions' => [
                                 'allowClear' => true
                             ],

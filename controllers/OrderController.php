@@ -887,7 +887,13 @@ class OrderController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
-        $string = Nomenclature::findOne($product_id)->name;
+
+        $product =  Nomenclature::findOne($product_id);
+        if ($product){
+            $string = $product->name;
+        } else {
+            $string = null;
+        }
         $productsDataProvider = $model->getProductDataProvider($string, [$blank_id]);
         $model->search_product_id =$product_id;
 
