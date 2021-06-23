@@ -32,7 +32,7 @@ return [
         'attribute' => 'target_date',
         'label' => 'Дата и время доставки',
         'content' => function (Order $model) {
-            $str = 'Дата: ' . Yii::$app->formatter->asDate($model->target_date) . '<br>';
+            $str = 'Дата:&nbsp;' . Yii::$app->formatter->asDate($model->target_date) . '<br>';
             $str .= 'c ' . Yii::$app->formatter->asTime($model->delivery_time_from);
             $str .= ' до ' . Yii::$app->formatter->asTime($model->delivery_time_to);
             return $str;
@@ -51,9 +51,9 @@ return [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'total_price',
         'content' => function (Order $model) {
-            $str = 'Заказ: ' . Yii::$app->formatter->asCurrency($model->total_price) . '<br>';
-            $str .= 'Доставка: ' . Yii::$app->formatter->asCurrency($model->deliveryCost) . '<br>';
-            $str .= '<b>Итого: ' . Yii::$app->formatter->asCurrency($model->total_price + $model->deliveryCost) . '</b>';
+            $str = 'Заказ:&nbsp;' . Yii::$app->formatter->asCurrency($model->total_price) . '<br>';
+            $str .= 'Доставка:&nbsp;' . Yii::$app->formatter->asCurrency($model->deliveryCost) . '<br>';
+            $str .= '<b>Итого:&nbsp;' . Yii::$app->formatter->asCurrency($model->total_price + $model->deliveryCost) . '</b>';
             return $str;
         },
         'format' => 'raw',

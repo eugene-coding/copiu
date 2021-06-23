@@ -213,6 +213,7 @@ class Buyer extends ActiveRecord
      */
     public function getDeliveryTimeIntervals($type)
     {
+        $delivery_period = (double)Settings::getValueByKey('delivery_period');
         $from_setting = Settings::getValueByKey('delivery_min_time');
         $from = (int)explode(':', $from_setting)[0];
 
@@ -224,10 +225,10 @@ class Buyer extends ActiveRecord
 
         switch ($type) {
             case 'from':
-                return $this->getTimeIntervals($from, $to - 2);
+                return $this->getTimeIntervals($from, $to - $delivery_period);
                 break;
             case 'to':
-                return $this->getTimeIntervals($from + 2, $to);
+                return $this->getTimeIntervals($from + $delivery_period, $to);
                 break;
             default:
                 return [];

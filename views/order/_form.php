@@ -144,7 +144,7 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
         </div>
         <div class="col-md-4">
             <div class="row">
-                <div class="col-xs-12 text-center">Укажите временной интервал доставки<br>(не менее двух часов)</div>
+                <div class="col-xs-12 text-center">Укажите временной интервал доставки</div>
                 <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
                         $model->delivery_time_from,
                         $model->buyer->getDeliveryTimeIntervals('from'), ['class' => 'form-control']) ?></div>
