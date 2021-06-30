@@ -19,7 +19,6 @@ $product_sum = $product_sum ? $product_sum : 0;
         <!-- Навигационные вкладки -->
         <ul class="nav nav-tabs" role="tablist">
             <?php
-            //                            Yii::warning($productsDataProvider->getModels());
             foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
                 <li role="presentation">
@@ -95,7 +94,8 @@ $product_sum = $product_sum ? $product_sum : 0;
                             </div>
                         </div>
                     </div>
-                </div>  <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>

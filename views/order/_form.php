@@ -130,19 +130,7 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
         будет добавлена услуга
         доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
     <div class="row">
-        <div class="col-md-8">
-            <div class="row step-2-content" style="margin-top: 10px">
-                <div class="col-md-offset-3 col-md-6">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
-                             aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                            <span>Загрузка...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-4 col-md-push-8">
             <div class="row">
                 <div class="col-xs-12 text-center">Укажите временной интервал доставки</div>
                 <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
@@ -156,6 +144,18 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
                 </div>
                 <div class="col-xs-12"><b>Комментарий</b><br><?= Html::textarea('Order[comment]', '',
                         ['class' => 'form-control', 'rows' => 5]) ?></div>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-pull-4">
+            <div class="row step-2-content" style="margin-top: 10px">
+                <div class="col-md-offset-3 col-md-6">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
+                             aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            <span>Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
