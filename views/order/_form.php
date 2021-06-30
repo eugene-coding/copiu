@@ -72,9 +72,18 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
             <div class="col-md-2 col-xs-4">
                 <?= Html::submitButton('Далее', [
                     'class' => 'btn btn-success btn-block',
+                    'id' => 'next-btn',
                     'title' => 'Сохранить и продолжить',
                     'style' => $model->step == 1 ? 'display: none;' : '',
                 ]) ?>
+            </div>
+            <div class="col-md-2 col-xs-4">
+                <?= Html::button('<i class="fa fa-spinner fa-pulse fa-fw"></i>',
+                    [
+                        'class' => 'btn btn-success btn-block disabled',
+                        'id' => 'fake-next-btn',
+                        'style' => 'display:none'
+                    ]); ?>
             </div>
         </div>
         <hr>
@@ -216,6 +225,13 @@ $script = <<<JS
       }
   
     $(document).on('click', '#next-btn', function() {
+        $(this).hide();
+        $('#fake-next-btn').show();
+    });
+      $(document).on('click', '#next-btn', function() {
+        $(this).parents('.buttons').find('button').attr('disabled', true);
+        $(this).parents('.buttons').find('a').attr('disabled', true);
+        $(this).attr('disabled', false);
         $(this).hide();
         $('#fake-next-btn').show();
     });
