@@ -127,186 +127,6 @@ class OrderController extends Controller
         }
     }
 
-//    /**
-//     * Creates a new Order model.
-//     * For ajax request will return json object
-//     * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
-//     * @return mixed
-//     */
-//    public function actionCreate()
-//    {
-//        $request = Yii::$app->request;
-//        $model = new Order();
-//        $model->buyer_id = Yii::$app->user->identity->id;
-//        $model->status = $model::STATUS_DRAFT;
-//
-//
-//        if ($request->isAjax) {
-//            /*
-//            *   Process for ajax request
-//            */
-//            Yii::$app->response->format = Response::FORMAT_JSON;
-//            if ($request->isGet) {
-//                return [
-//                    'title' => "Добавление заказа",
-//                    'content' => $this->renderAjax('create', [
-//                        'model' => $model,
-//                        'step' => 1,
-//                    ]),
-//                    'footer' => Html::button('Закрыть',
-//                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-//                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
-//
-//                ];
-//            } else {
-//                if ($model->load($request->post()) && $model->save()) {
-//                    return [
-//                        'forceReload' => '#crud-datatable-pjax',
-//                        'title' => "Create new Order",
-//                        'content' => '<span class="text-success">Create Order success</span>',
-//                        'footer' => Html::button('Закрыть',
-//                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-//                            Html::a('Create More', ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-//
-//                    ];
-//                } else {
-//                    return [
-//                        'title' => "Create new Order",
-//                        'content' => $this->renderAjax('create', [
-//                            'model' => $model,
-//                        ]),
-//                        'footer' => Html::button('Закрыть',
-//                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-//                            Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
-//
-//                    ];
-//                }
-//            }
-//        } else {
-//            /*
-//            *   Process for non-ajax request
-//            */
-//            if ($model->load($request->post()) && $model->save()) {
-//                Yii::info($model->blanks, 'test');
-//
-//                $productsDataProvider = new ActiveDataProvider([
-//                    'query' => Nomenclature::find()
-//                        ->joinWith(['orderBlanks'])
-//                        ->andWhere(['IN', 'order_blank.id', $model->blanks])
-//                ]);
-//
-//                return $this->render('update', [
-//                    'model' => $model,
-//                    'step' => 2,
-//                    'productsDataProvider' => $productsDataProvider
-//                ]);
-//            } else {
-//                return $this->render('create', [
-//                    'model' => $model,
-//                    'step' => 1,
-//                ]);
-//            }
-//        }
-//
-//    }
-//
-//    /**
-//     * Updates an existing Order model.
-//     * For ajax request will return json object
-//     * and for non-ajax request if update is successful, the browser will be redirected to the 'view' page.
-//     * @param int $step Шаг заказа
-//     * @param integer $id
-//     * @return mixed
-//     * @throws NotFoundHttpException
-//     */
-//    public function actionUpdate($id, $step = null)
-//    {
-//        $request = Yii::$app->request;
-//
-//        $model = $this->findModel($id);
-//        $blanks = explode(',', $model->blanks);
-//        $orderToNomenclatureDataProvider = new ActiveDataProvider([
-//            'query' => Nomenclature::find()
-//                ->joinWith(['orderToNomenclature'])
-//                ->andWhere(['order_to_nomenclature.order_id' => $model->id]),
-//        ]);
-//        $orderToNomenclatureDataProvider->pagination = false;
-//        $products_in_order = OrderToNomenclature::find()
-//            ->select(['nomenclature_id'])
-//            ->andWhere(['order_id' => $model->id])
-//            ->column();
-//
-//        $productsDataProvider = new ActiveDataProvider([
-//            'query' => Nomenclature::find()
-//                ->joinWith(['orderBlanks'])
-//                ->andWhere(['IN', 'order_blank.id', $blanks])
-//                ->andWhere(['NOT IN', 'nomenclature.id', $products_in_order])
-//        ]);
-//        $productsDataProvider->pagination = false;
-//
-//        if ($request->isAjax) {
-//            /*
-//            *   Process for ajax request
-//            */
-//            Yii::$app->response->format = Response::FORMAT_JSON;
-//            if ($request->isGet) {
-//                $_pjax = $request->get('_pjax');
-//                return [
-//                    'forceClose' => true,
-//                    'forceReload' => $_pjax
-//                ];
-////                return [
-////                    'title' => "Update Order #" . $id,
-////                    'content' => $this->renderAjax('update', [
-////                        'model' => $model,
-////                    ]),
-////                    'footer' => Html::button('Закрыть',
-////                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-////                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
-////                ];
-//            } else {
-//                if ($model->load($request->post()) && $model->save()) {
-//                    return [
-//                        'forceReload' => '#crud-datatable-pjax',
-//                        'title' => "Order #" . $id,
-//                        'content' => $this->renderAjax('view', [
-//                            'model' => $model,
-//                        ]),
-//                        'footer' => Html::button('Закрыть',
-//                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-//                            Html::a('Редактировать', ['update', 'id' => $id],
-//                                ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-//                    ];
-//                } else {
-//                    return [
-//                        'title' => "Update Order #" . $id,
-//                        'content' => $this->renderAjax('update', [
-//                            'model' => $model,
-//                        ]),
-//                        'footer' => Html::button('Закрыть',
-//                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-//                            Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
-//                    ];
-//                }
-//            }
-//        } else {
-//            /*
-//            *   Process for non-ajax request
-//            */
-//            if ($model->load($request->post()) && $model->save()) {
-//                return $this->redirect(['view', 'id' => $model->id]);
-//            } else {
-//
-//                return $this->render('update', [
-//                    'model' => $model,
-//                    'step' => $step,
-//                    'productsDataProvider' => $productsDataProvider,
-//                    'orderToNomenclatureDataProvider' => $orderToNomenclatureDataProvider,
-//                ]);
-//            }
-//        }
-//    }
-
     /**
      * Delete an existing Order model.
      * For ajax request will return json object
@@ -894,12 +714,18 @@ class OrderController extends Controller
         $model->search_product_id =$product_id;
 
         $blank_model = OrderBlank::findOne($blank_id);
+
+        Yii::info($productsDataProvider->getModels()[$blank_model->number], 'test');
         if ($is_mobile) {
-            return $this->renderAjax('_nomenclature', [
-                'model' => $model,
-                'blank_id' => $blank_id,
-                'dataProvider' => $productsDataProvider,
-            ]);
+            Yii::info($model->attributes, 'test');
+            return [
+                'success' => true,
+                'data' => $this->renderAjax('_nomenclature_mobile', [
+                    'model' => $model,
+                    'blank_id' => $blank_id,
+                    'dataProvider' => $productsDataProvider->getModels()[$blank_model->number],
+                ])
+            ];
         } else {
             return [
                 'success' => true,

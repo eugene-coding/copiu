@@ -41,35 +41,6 @@ $(document).ready(function () {
 
     });
 
-    // $(document).on('change', '.count-product', function () {
-    //     var count = $(this).val();
-    //     var price = $(this).parents('.card').find('.product-price').html();
-    //     var price_d = $(this).parents('tr').find('.product-price').html();
-    //     // $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
-    //     // $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
-    //     debugger;
-    //     if (typeof(price) === 'undefined'){
-    //         price = price_d;
-    //     }
-    //     var order_id = $('#order-step').attr('data-id');
-    //     var obtn_id = $(this).attr('data-obtn-id');
-    //
-    //     // var total = 0;
-    //     // $('.total-cost').each(function (index, value) {
-    //     //     total += Number(value.innerHTML);
-    //     // });
-    //     $.post('/order/add-product', {
-    //         order_id: order_id,
-    //         obtn_id:obtn_id,
-    //         count:count,
-    //         price:price
-    //     })
-    //         .done(function (response) {
-    //             $('.total').html(Number(response.total).toFixed(2));
-    //         });
-    //
-    // });
-
     $(document).on('click', '[type="submit"], .to-back', function () {
         $(window).unbind('beforeunload');
     });
@@ -88,7 +59,6 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '.search-btn', function () {
-        // var detect = new MobileDetect(window.navigator.userAgent);
         var btn = $(this);
         var block = btn.parents('.search-product');
         var product_id = block.find('select').val();
@@ -102,6 +72,21 @@ $(document).ready(function () {
             })
             .fail(function (response) {
                 btn.parents('.tab-pane').find('.table-products').html(response.responseText)
+            })
+
+    });
+    $(document).on('click', '.search-mobile-btn', function () {
+        var btn = $(this);
+        var product_id = btn.parents('.search-product').find('select').val();
+        var tab = btn.parents('.tab-pane').attr('id').split('-')[1];
+        var order_id = $('#order-step').attr('data-id');
+
+        $.get('/order/get-product-for-tab', {order_id: order_id, blank_id: tab, product_id: product_id, is_mobile: 1})
+            .done(function (response) {
+                btn.parents('.tab-pane').find('.product-cards').html(response.data);
+            })
+            .fail(function (response) {
+                btn.parents('.tab-pane').find('.product-cards').html(response.responseText)
             })
 
     });

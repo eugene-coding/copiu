@@ -65,8 +65,8 @@ $product_sum = $product_sum ? $product_sum : 0;
                                                 ],
                                                 'pluginEvents' => [
                                                     "change" => "function() {
-                                    $(this).parents('.search-product').find('.search-btn').click()
-                                }",
+                                                    $(this).parents('.search-product').find('.search-btn').click()
+                                                }",
                                                 ]
                                             ]);
                                         } catch (Exception $e) {
@@ -77,7 +77,6 @@ $product_sum = $product_sum ? $product_sum : 0;
                                         <?php
                                         echo Html::button('Найти в бланке', [
                                             'class' => 'btn btn-primary btn-block search-btn',
-//                        'id' => 'search-btn',
                                             'style' => 'display:none;'
                                         ]) ?>
                                     </div>

@@ -71,4 +71,19 @@
         width: 100%;
     }
 
+    .order-view .order-view-measure{
+        display: none;
+    }
+
+    .crud-datatable .skip-export {
+        font-size: xx-large;
+    }
+
+}
+
+.card {
+    border: black solid 1px;
+    margin-top: 15px;
+    border-radius: 10px;
+    padding: 5px;
 }

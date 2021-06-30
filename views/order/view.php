@@ -44,41 +44,43 @@ $counter = 1;
             Список заказанных позиций
         </div>
         <div class="panel-body">
-            <table class="table table-hover">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Наименование</th>
-                    <th>Ед. изм.</th>
-                    <th>Цена</th>
-                    <th>Кол-во</th>
-                    <th>Сумма</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php /** @var OrderBlankToNomenclature $obtn */
-                foreach ($model->getObtns() as $obtn): ?>
-                    <?php
-                    Yii::info($obtn->attributes, 'test');
-                    $product = $obtn->n;
-                    Yii::info($product->attributes, 'test');
-                    $count = $obtn->getCount($model->id);
-                    $price = $obtn->getPriceForOrder($model->id);
-                    ?>
+            <div class="order-view">
+                <table class="table table-hover table-responsive">
+                    <thead>
                     <tr>
-                        <td><?= $counter; ?></td>
-                        <td><?= $product->name ?></td>
-                        <td><?= $product->findMeasure($obtn) ?></td>
-                        <td><?= $price ?></td>
-                        <td><?= $count ?></td>
-                        <td><?= $count * $price; ?></td>
+                        <th>#</th>
+                        <th>Наименование</th>
+                        <th class="order-view-measure">Ед. изм.</th>
+                        <th>Цена</th>
+                        <th>Кол-во</th>
+                        <th>Сумма</th>
                     </tr>
-                    <?php
-                    $counter++;
-                    ?>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    <?php /** @var OrderBlankToNomenclature $obtn */
+                    foreach ($model->getObtns() as $obtn): ?>
+                        <?php
+                        Yii::info($obtn->attributes, 'test');
+                        $product = $obtn->n;
+                        Yii::info($product->attributes, 'test');
+                        $count = $obtn->getCount($model->id);
+                        $price = $obtn->getPriceForOrder($model->id);
+                        ?>
+                        <tr>
+                            <td><?= $counter; ?></td>
+                            <td><?= $product->name ?></td>
+                            <td class="order-view-measure"><?= $product->findMeasure($obtn) ?></td>
+                            <td><?= $price ?></td>
+                            <td><?= $count ?></td>
+                            <td><?= $count * $price; ?></td>
+                        </tr>
+                        <?php
+                        $counter++;
+                        ?>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
