@@ -151,7 +151,7 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
                 <div class="error-time text-center col-xs-12">
                     <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
                 </div>
-                <div class="col-xs-12"><b>Комментарий</b><br><?= Html::textarea('Order[comment]', '',
+                <div class="col-xs-12"><b>Комментарий</b><br><?= Html::textarea('Order[comment]', $model->comment,
                         ['class' => 'form-control', 'rows' => 5]) ?></div>
             </div>
         </div>
