@@ -76,8 +76,6 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
                     'title' => 'Сохранить и продолжить',
                     'style' => $model->step == 1 ? 'display: none;' : '',
                 ]) ?>
-            </div>
-            <div class="col-md-2 col-xs-4">
                 <?= Html::button('<i class="fa fa-spinner fa-pulse fa-fw"></i>',
                     [
                         'class' => 'btn btn-success btn-block disabled',
@@ -144,10 +142,17 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
                 <div class="col-xs-12 text-center">Укажите временной интервал доставки</div>
                 <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
                         $model->delivery_time_from,
-                        $model->buyer->getDeliveryTimeIntervals('from'), ['class' => 'form-control']) ?></div>
+                        $model->buyer->getDeliveryTimeIntervals('from'), [
+                            'class' => 'form-control',
+                            'prompt' => '...'
+
+                        ]) ?></div>
                 <div class="col-xs-6"><b>По</b><br><?= Html::dropDownList('Order[delivery_time_to]',
                         $model->delivery_time_to,
-                        $model->buyer->getDeliveryTimeIntervals('to'), ['class' => 'form-control']) ?></div>
+                        $model->buyer->getDeliveryTimeIntervals('to'), [
+                            'class' => 'form-control',
+                            'prompt' => '...',
+                        ]) ?></div>
                 <div class="error-time text-center col-xs-12">
                     <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
                 </div>

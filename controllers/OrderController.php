@@ -401,6 +401,11 @@ class OrderController extends Controller
             if ($model->step == 2) {
                 $total_count = $model->getTotalCountProducts();
 
+                if (!$model->delivery_time_to || !$model->delivery_time_from){
+                    $model->addError('delivery_time_to', 'Не выбран период доставки');
+                    Yii::$app->session->setFlash('warning', 'Не выбран период доставки');
+                }
+
                 if ($total_count == 0) {
                     $model->step = 2;
                     $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
