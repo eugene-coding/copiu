@@ -288,7 +288,7 @@ class Order extends ActiveRecord
             'amountUnit' => $delivery_main_unit,
             'product' => $delivery_eid,
             'amount' => $this->deliveryCost,
-            'documentNumber' => 'xc' . str_pad($this->id, 6, '0', STR_PAD_LEFT),
+            'documentNumber' => 'D' . str_pad($this->id, 5, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
             'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', strtotime($this->target_date)),
         ];
@@ -326,11 +326,11 @@ class Order extends ActiveRecord
     }
 
     /**
-     * Генерирует номер накладной. xc<id заказа>_<Unix время создания заказа>
+     * Генерирует номер накладной. N<id заказа>
      */
     public function getInvoiceNumber()
     {
-        return 'xc' . $this->id . '_' . strtotime($this->created_at);
+        return 'N' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
     }
 
     /**
