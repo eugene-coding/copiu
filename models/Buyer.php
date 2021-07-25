@@ -240,7 +240,7 @@ class Buyer extends ActiveRecord
         $result_arr = [];
         for ($i = $start; $i <= $end; $i++) {
             $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
-            $result_arr[$val] = $val;
+            $result_arr[$val . ':00'] = $val;
         }
 
         Yii::info($result_arr, 'test');

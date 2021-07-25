@@ -24,6 +24,7 @@ if ($model->step == 1) {
     $title = 'Заказ создан на ' . Yii::$app->formatter->asDate($model->target_date);
 }
 Yii::info('Шаг: ' . $model->step, 'test');
+Yii::info( $model->attributes, 'test');
 
 $this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;

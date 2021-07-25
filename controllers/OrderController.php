@@ -557,6 +557,8 @@ class OrderController extends Controller
         $order->status = 1;
         $order->blanks = implode(',', $blank_ids);
         $order->comment = $order_basis->comment;
+        $order->delivery_time_from = $order_basis->delivery_time_from;
+        $order->delivery_time_to = $order_basis->delivery_time_to;
 
         if (!$order->save()) {
             Yii::error($order->errors, '_error');
