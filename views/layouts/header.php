@@ -8,12 +8,15 @@ use yii\helpers\Html;
 /* @var $this \yii\web\View */
 /* @var $content string */
 
-\johnitvn\ajaxcrud\CrudAsset::register($this)
+\johnitvn\ajaxcrud\CrudAsset::register($this);
+
+$app_name =  Settings::getValueByKey('app_name');
+$short_app_name = mb_substr($app_name, 0,1);
 ?>
 
     <header class="main-header">
 
-        <?= Html::a('<span class="logo-mini">BB</span><span class="logo-lg">' . Yii::$app->name . '</span>',
+        <?= Html::a('<span class="logo-mini">'. $short_app_name . '</span><span class="logo-lg">' . $app_name . '</span>',
             Yii::$app->homeUrl, ['class' => 'logo']) ?>
 
         <nav class="navbar navbar-static-top" role="navigation">

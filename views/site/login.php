@@ -1,4 +1,6 @@
 <?php
+
+use app\models\Settings;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
@@ -17,11 +19,14 @@ $fieldOptions2 = [
     'options' => ['class' => 'form-group has-feedback'],
     'inputTemplate' => "{input}<span class='glyphicon glyphicon-lock form-control-feedback'></span>"
 ];
+
+$phone = Settings::getValueByKey('phone_number');
+$phone2 = str_replace([' ', '-', '(', ')'], '', $phone);
 ?>
 
 <div class="login-box">
     <div class="login-logo">
-        <a href="#"><?= Yii::$app->name?></a>
+        <a href="#"><?= Settings::getValueByKey('app_name')?></a>
     </div>
     <!-- /.login-logo -->
     <div class="login-box-body">
@@ -52,7 +57,7 @@ $fieldOptions2 = [
 
         <div class="row">
             <div class="col-xs-12">
-                Контактный телефон по вопросам доступа к системе <a href="tel:+79672756510">8(967) 275-65-10</a>
+                Контактный телефон по вопросам доступа к системе <a href="tel:<?= $phone2; ?>"><?= $phone?></a>
             </div>
         </div>
 
