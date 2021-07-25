@@ -131,7 +131,9 @@ class OrderBlank extends ActiveRecord
             foreach ($data['document']['items']['item'] as $item) {
                 $n_id = $nomenclature[$item['productId']];
                 $container_id = $item['containerId'] ?: null;
+                $quantity = (double)$item['amount'] ?? 0;
                 if ($container_id) {
+                    Yii::warning($item, 'test');
                     if (!in_array($container_id, $containers)) {
                         //Синхронизируем позицию номенкалтуры
                         Nomenclature::syncByIds([$item['productId']]);
@@ -146,11 +148,18 @@ class OrderBlank extends ActiveRecord
                             ];
                         }
                     }
+                    $count_per_container = Container::findOne($container_id)->count ?? 0;
+
+                    if ($count_per_container){
+                        $quantity = $quantity/$count_per_container;
+                    } else {
+                        $quantity = 0;
+                    }
                 }
 
                 if ($n_id) {
                     $product_outer_ids_in_blanks[] = $item['productId'];
-                    $rows[] = [$n_id, $blank_id, $container_id];
+                    $rows[] = [$n_id, $blank_id, $container_id, $quantity];
                 } else {
                     Yii::info('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
                 }
@@ -171,7 +180,7 @@ class OrderBlank extends ActiveRecord
 
         //Сохраняем всё
         Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(),
-            ['n_id', 'ob_id', 'container_id'], $rows)->execute();
+            ['n_id', 'ob_id', 'container_id', 'quantity'], $rows)->execute();
 
 
         if ($product_outer_ids_in_blanks) {
@@ -434,6 +443,7 @@ class OrderBlank extends ActiveRecord
             $products[] = [
                 'name' => $item->n->name,
                 'measure' => $item->findMeasure(),
+                'quantity' => $item->quantity,
             ];
         }
 

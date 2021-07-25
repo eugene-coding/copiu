@@ -256,7 +256,7 @@ class IikoApiHelper
         \Yii::info($result, 'test');
         $result = simplexml_load_string($result);
         $json = json_encode($result);
-
+        \Yii::info(json_decode($json, 'true'), 'test');
         return json_decode($json, 'true');
     }
 

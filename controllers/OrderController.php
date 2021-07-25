@@ -375,6 +375,7 @@ class OrderController extends Controller
         $request = Yii::$app->request;
         $model = Order::findOne($id);
         $productsDataProvider = $model->getProductDataProvider();
+//        $check_quantity_enabled = Settings::getValueByKey('check_quantity_enabled');
 
         if ($request->isAjax) {
             return $this->render('_form', [
@@ -393,8 +394,7 @@ class OrderController extends Controller
         } else {
             $model->load($request->post());
 
-            Yii::info($model->attributes, 'test');
-
+//            Yii::info($model->attributes, 'test');
 
             $model->orderProcessing();
 

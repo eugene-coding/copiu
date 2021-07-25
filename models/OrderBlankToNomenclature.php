@@ -11,6 +11,7 @@ use yii\db\ActiveRecord;
  * @property int|null $ob_id Бланк заказа
  * @property int|null $n_id Продукт
  * @property string|null $container_id Идентификатор контейнера
+ * @property double $quantity Кол-во продуктов в бланке
  *
  * @property Nomenclature $n
  * @property OrderBlank $ob
@@ -53,6 +54,7 @@ class OrderBlankToNomenclature extends ActiveRecord
                 'targetAttribute' => ['n_id', 'ob_id'],
                 'message' => 'Продукт уже присутствует в бланке'
             ],
+            [['quantity'], 'number'],
         ];
     }
 
@@ -65,6 +67,8 @@ class OrderBlankToNomenclature extends ActiveRecord
             'id' => 'ID',
             'ob_id' => 'Бланк заказа',
             'n_id' => 'Продукт',
+            'container_id' => 'Контейнер',
+            'quantity' => 'Кол-во',
         ];
     }
 

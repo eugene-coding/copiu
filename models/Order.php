@@ -361,7 +361,6 @@ class Order extends ActiveRecord
         }
     }
 
-
     /**
      * Обработка заказа
      * @throws StaleObjectException
@@ -370,10 +369,14 @@ class Order extends ActiveRecord
      */
     public function orderProcessing()
     {
+        /** @var string $check_quantity_enabled зависимость кол-ва заказываемых товаров от кол-ва товаров в бланке заказа */
+        $check_quantity_enabled = Settings::getValueByKey('check_quantity_enabled');
+
         if (isset($this->count) && is_array($this->count)) {
             foreach ($this->count as $obtn_id => $count) {
-                Yii::info($this->count, 'test');
-                Yii::info($obtn_id . ' => ' . $count, 'test');
+                $obtn = OrderBlankToNomenclature::findOne($obtn_id);
+//                Yii::info($this->count, 'test');
+//                Yii::info($obtn_id . ' => ' . $count, 'test');
                 if (!$count) {
                     //В случае если заказ скопирован, нужно удалить позицию из базы, т.к. кол-во продукта равно нулю
                     $otn_model = OrderToNomenclature::find()
@@ -384,19 +387,31 @@ class Order extends ActiveRecord
                     }
                     continue;
                 }
+
                 $otn = OrderToNomenclature::find()
                     ->andWhere([
                         'order_id' => $this->id,
                         'obtn_id' => $obtn_id,
                     ])->one();
+
                 if (!$otn) {
                     $otn = new OrderToNomenclature();
                     $otn->order_id = $this->id;
                     $otn->obtn_id = $obtn_id;
                 }
-                $obtn = OrderBlankToNomenclature::findOne($obtn_id);
                 $otn->price = $obtn->n->getPriceForBuyer($obtn->container_id);
                 $otn->count = $count;
+
+                if ((int)$check_quantity_enabled) {
+                    //Если включена зависимость кол-ва заказываемых товаров от кол-ва товаров в бланке заказа
+                    //проверяем минимальное кол-во заказанных товаров
+                    if ($count > 0 && $obtn->quantity > $count) {
+                        Yii::$app->session->setFlash('warning',
+                            'Не соблюдены условия минимального количества для заказа продукта ' . $obtn->n->name);
+                        $this->addError('count',
+                            'Не соблюдены условия минимального количества для заказапродукта' . $obtn->n->name);
+                    }
+                }
 
                 if (!$otn->save()) {
                     Yii::error($otn->errors, '_error');
@@ -449,7 +464,7 @@ class Order extends ActiveRecord
             /** @var Nomenclature $product */
             $product = $obtn->n;
 
-            if ($product_id && $product->id != $product_id){
+            if ($product_id && $product->id != $product_id) {
                 continue;
             }
 

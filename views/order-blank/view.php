@@ -31,6 +31,7 @@ $counter = 1;
             <td>#</td>
             <td>Наименование</td>
             <td>Ед. измерения</td>
+            <td>Кол-во</td>
         </tr>
         </thead>
         <tbody>
@@ -40,6 +41,7 @@ $counter = 1;
                 <td><?= $counter; ?></td>
                 <td><?= $product['name']; ?></td>
                 <td><?= $product['measure']; ?></td>
+                <td><?= $product['quantity']; ?></td>
             </tr>
             <?php $counter++; ?>
         <?php endforeach; ?>
