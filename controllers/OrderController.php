@@ -400,6 +400,10 @@ class OrderController extends Controller
 
             if ($model->step == 2) {
                 $total_count = $model->getTotalCountProducts();
+                if (!$model->comment){
+                    $model->addError('comment', 'Необходимо заполнить комментарий');
+                    Yii::$app->session->setFlash('warning', 'Необходимо заполнить комментарий');
+                }
 
                 if (!$model->delivery_time_to || !$model->delivery_time_from){
                     $model->addError('delivery_time_to', 'Не выбран период доставки');
