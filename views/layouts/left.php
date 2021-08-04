@@ -14,7 +14,12 @@ use dmstr\widgets\Menu;
                 <img src="/img/user.png" class="img-circle" alt="User Image"/>
             </div>
             <div class="pull-left info">
-                <p><?= mb_strimwidth(Yii::$app->user->identity->fio, 0, 15, '...') ?></p>
+                <?php
+                    $fio = Yii::$app->user->identity->fio;
+                    $space_pos = mb_strpos($fio, ' ', 10);
+                    $cut_fio = mb_substr($fio, 0, $space_pos);
+                ?>
+                <p title="<?= $fio ?>"><?= $cut_fio ? $cut_fio . '...': $fio ?></p>
 
                 <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
