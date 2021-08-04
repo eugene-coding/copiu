@@ -24,7 +24,7 @@ if ($model->step == 1) {
     $title = 'Заказ создан на ' . Yii::$app->formatter->asDate($model->target_date);
 }
 Yii::info('Шаг: ' . $model->step, 'test');
-Yii::info( $model->attributes, 'test');
+Yii::info($model->attributes, 'test');
 
 $this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;
@@ -134,9 +134,11 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
     </div>
 <?php elseif ($model->step == 2): ?>
     <h4>Выберите позиции и установите количество</h4>
-    <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
-        будет добавлена услуга
-        доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
+    <?php if ($model->buyer->min_order_cost): ?>
+        <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
+            будет добавлена услуга
+            доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
+    <?php endif; ?>
     <div class="row">
         <div class="col-md-4 col-md-push-8">
             <div class="row">

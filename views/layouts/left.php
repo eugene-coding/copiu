@@ -14,7 +14,7 @@ use dmstr\widgets\Menu;
                 <img src="/img/user.png" class="img-circle" alt="User Image"/>
             </div>
             <div class="pull-left info">
-                <p><?= Yii::$app->user->identity->fio ?></p>
+                <p><?= mb_strimwidth(Yii::$app->user->identity->fio, 0, 15, '...') ?></p>
 
                 <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
