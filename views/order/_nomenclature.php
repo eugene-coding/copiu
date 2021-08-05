@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Settings;
 use yii\helpers\Html;
 
 /* @var $model app\models\Order */
@@ -8,6 +9,7 @@ use yii\helpers\Html;
 
 $counter = 1;
 
+$view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
 ?>
 
 <div class="table-products">
@@ -18,6 +20,9 @@ $counter = 1;
             <th>Наименование</th>
             <th>Описание</th>
             <th>Количество</th>
+            <?php if ($view_min_col): ?>
+                <th>Мин. кол-во</th>
+            <?php endif; ?>
             <th>Ед. измерения</th>
             <th>Цена</th>
             <th>Итого</th>
@@ -53,6 +58,9 @@ $counter = 1;
                             'step' => 1,
                             'onkeypress' => 'return event.charCode >= 48'
                         ]) ?></td>
+                <?php if ($view_min_col): ?>
+                    <td aria-label="Мин. кол-во"><?=$product['min_quantity'];?></td>
+                <?php endif; ?>
                 <td aria-label="Ед. изм."><?= $product['measure'] ?></td>
                 <td aria-label="Цена" class="product-price"><?= $product['price'] ?></td>
                 <td aria-label="Итого" class="total-cost"><?= $product['count'] * $product['price'] ?></td>

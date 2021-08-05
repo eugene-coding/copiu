@@ -1,10 +1,14 @@
 <?php
 
 /* @var $model app\models\Order */
+
+use app\models\Settings;
+
 /* @var $blank_id integer */
 /* @var $dataProvider array */
 
 $counter = 1;
+$view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
 
 ?>
 
@@ -20,7 +24,10 @@ $counter = 1;
         </div>
         <div class="row" style="display: none">
             <div class="col-md-12 card-description">
-                <span><?= $product['description'] ?> </span>
+                <span><?= $product['description'] ?> </span><br>
+                <?php if ($view_min_col): ?>
+                    <span><b>Минимальное кол-во для заказа:</b><?= $product['min_quantity'] . ' ' . $product['measure'] ?></span>
+                <?php endif; ?>
             </div>
         </div>
         <div class="row">
@@ -28,22 +35,24 @@ $counter = 1;
                 <span><b>Кол-во (<?= $product['measure'] ?>):</b><br>
                       <div class="input-group">
                           <input type="number" class="form-control count-product"
-                                 name="Order[count][<?= $product['obtn_id']?>]"
+                                 name="Order[count][<?= $product['obtn_id'] ?>]"
                                  aria-describedby="basic-addon2" value="<?= $product['count'] ?>">
                           <span class="input-group-btn">
                               <button class="btn btn-default count-inc"
-                                      type="button" data-obtn-id = "<?= $product['obtn_id'] ?>">+</button>
+                                      type="button" data-obtn-id="<?= $product['obtn_id'] ?>">+</button>
                               <button class="btn btn-default count-dec"
-                                      type="button" data-obtn-id = "<?= $product['obtn_id'] ?>">-</button>
+                                      type="button" data-obtn-id="<?= $product['obtn_id'] ?>">-</button>
                           </span>
                       </div>
                 </span>
             </div>
+
             <div class="col-xs-3 card-cena">
                 <span><b>Цена:</b><br><span class="product-price"><?= $product['price'] ?></span></span>
             </div>
             <div class="col-xs-3 card-amount">
-                <span><b>Сумма:</b><br><span class="product-total-price"><?= $product['price'] * $product['count'] ?></span> р.</span>
+                <span><b>Сумма:</b><br><span
+                            class="product-total-price"><?= $product['price'] * $product['count'] ?></span> р.</span>
             </div>
         </div>
     </div>

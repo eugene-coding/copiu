@@ -443,7 +443,7 @@ class Order extends ActiveRecord
 
     /**
      * Создает провайдер для таблицы с продуктами
-     * @param string $search_string Строка поиска продукта
+     * @param integer|null $product_id
      * @param array $blanks Массив с номерами бланков
      * @return ArrayDataProvider
      */
@@ -482,6 +482,7 @@ class Order extends ActiveRecord
                 'measure' => $product->findMeasure($obtn),
                 'obtn_id' => $obtn->id,
                 'description' => $product->description,
+                'min_quantity' => $obtn->quantity,
             ];
         }
 
