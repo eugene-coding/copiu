@@ -82,6 +82,7 @@ class SettingsController extends Controller
             $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
             $system_settings = [];
             $cms_settings = [];
+            $profile_settings = [];
 
             $result = [];
             if ($request->isPost) {
@@ -114,6 +115,15 @@ class SettingsController extends Controller
                 'sync_price_next_chunk',
             ];
 
+            $profile_set = [
+                'delivery_min_time',
+                'delivery_max_time',
+                'delivery_period',
+                'check_quantity_enabled',
+                'comment_required',
+                'delivery_article',
+            ];
+
             /** @var Settings $setting */
             foreach ($settings as $setting) {
                 if (in_array($setting->key, $sys_info_settings)) {
@@ -122,7 +132,11 @@ class SettingsController extends Controller
                 if ($setting->is_system) {
                     array_push($system_settings, $setting);
                 } else {
-                    array_push($cms_settings, $setting);
+                    if (!in_array($setting->key, $profile_set)){
+                        array_push($profile_settings, $setting);
+                    } else {
+                        array_push($cms_settings, $setting);
+                    }
                 }
             }
 
@@ -132,6 +146,7 @@ class SettingsController extends Controller
                     'settings' => [
                         'system' => $system_settings,
                         'cms' => $cms_settings,
+                        'profile' => $profile_settings,
                     ],
                     'result' => $result,
                 ]),
@@ -426,6 +441,8 @@ class SettingsController extends Controller
                     'settings' => $sys_info,
                 ])
             ];
+        } else {
+            return $this->redirect('index');
         }
     }
 
