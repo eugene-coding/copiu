@@ -127,7 +127,7 @@ use yii\widgets\ActiveForm;
                                         'title' => $model->description ?: '',
                                         'prompt' => 'Выберите аккаунт',
                                     ]);
-                            } elseif ($model->key == 'check_quantity_enabled') {
+                            } elseif ($model->key == 'check_quantity_enabled' || $model->key == 'comment_required') {
                                 echo Html::dropDownList('keys[' . $model->key . ']', $model->value,
                                     [0 => 'Нет', 1 => 'Да'], [
                                         'class' => 'form-control',

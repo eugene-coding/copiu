@@ -159,8 +159,19 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
                 <div class="error-time text-center col-xs-12">
                     <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
                 </div>
-                <div class="col-xs-12"><b>Комментарий</b><br><?= Html::textarea('Order[comment]', $model->comment,
-                        ['class' => 'form-control', 'rows' => 5]) ?></div>
+                <div class="col-xs-12">
+                    <div class="comment-label">
+                        <b>Комментарий</b>
+                        <span class="count-symbol"><?= mb_strlen($model->comment)? '(' . mb_strlen($model->comment). ' симв.)' : '' ?></span>
+                    </div>
+                    <br><?= Html::textarea('Order[comment]', $model->comment,
+                        [
+                            'id' => 'order-comment',
+                            'class' => 'form-control',
+                            'rows' => 5,
+                            'placeholder' => 'Комментарий должен содержать не более 255 символов'
+                        ]) ?>
+                </div>
             </div>
         </div>
         <div class="col-md-8 col-md-pull-4">
@@ -243,6 +254,20 @@ $script = <<<JS
         $(this).hide();
         $('#fake-next-btn').show();
     });
+       $(document).on('keyup', '#order-comment', function() {
+           let length = $(this).val().length; 
+           let c_symbols = $('.count-symbol');
+           if (length > 255){
+                c_symbols.addClass('text-danger');
+                c_symbols.html('(' + $(this).val().length + ' симв.)');
+           } else if(length > 0) {
+                c_symbols.removeClass('text-danger');
+                c_symbols.html('(' + $(this).val().length + ' симв.)');
+           } else {
+               c_symbols.html('');
+           }
+        });
+
 });
 JS;
 $this->registerJs($script);

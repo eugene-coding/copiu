@@ -399,10 +399,17 @@ class OrderController extends Controller
             $model->orderProcessing();
 
             if ($model->step == 2) {
+                Yii::debug($model->validate('comment'), 'test');
+                Yii::debug($model->errors, 'test');
                 $total_count = $model->getTotalCountProducts();
-                if (!$model->comment){
+                $comment_required = Settings::getValueByKey('comment_required');
+                $model->comment = trim($model->comment);
+
+                if ($comment_required && !$model->comment){
                     $model->addError('comment', 'Необходимо заполнить комментарий');
                     Yii::$app->session->setFlash('warning', 'Необходимо заполнить комментарий');
+                } elseif(!$model->validate('comment')){
+                    Yii::$app->session->setFlash('warning', $model->errors['comment']);
                 }
 
                 if (!$model->delivery_time_to || !$model->delivery_time_from){

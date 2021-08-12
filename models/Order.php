@@ -73,6 +73,7 @@ class Order extends ActiveRecord
                 'targetAttribute' => ['buyer_id' => 'id']
             ],
             ['search_product_id', 'integer'],
+            [['comment'], 'string', 'length' => [0, 255], 'message' => '«Комментарий» должен содержать максимум 255 символов.']
         ];
     }
 
