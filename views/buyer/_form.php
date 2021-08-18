@@ -115,7 +115,6 @@ $(document).on('click', '#add-address-btn', function () {
 });
 $(document).on('click', '.remove-address-btn', function () {
     let element = $(this).parents('.address-element');
-    element.slideUp();
     element.remove();
 });
 
