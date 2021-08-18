@@ -518,4 +518,20 @@
         </key>
         <comment>Видимость бланков для покупателей</comment>
     </table>
+    <table x="286" y="627" name="buyer_address">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="buyer_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="buyer" row="id" />
+        </row>
+        <row name="address" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Адреса покупателей</comment>
+    </table>
 </sql>

@@ -22,11 +22,13 @@ use yii\helpers\ArrayHelper;
  * @property string $discount Скидка от ЦК
  * @property string $user_login Логин покупателя как пользователя
  * @property string $user_password Пароль покупателя как пользователя системы
+ * @property array $addresses_list Адреса покупателя
  *
  * @property PriceCategory $pc
  * @property Users $user
  * @property string $workModeLabel
  * @property BuyerToOrderBlank[] $buyerToOrderBlanks Видимиость бланков для покупателя
+ * @property BuyerAddress[] $addresses Адреса покупателя
  */
 class Buyer extends ActiveRecord
 {
@@ -36,6 +38,7 @@ class Buyer extends ActiveRecord
 
     public $user_login;
     public $user_password;
+    public $addresses_list;
 
     /**
      * {@inheritdoc}
@@ -70,6 +73,7 @@ class Buyer extends ActiveRecord
             [['balance', 'min_balance', 'min_order_cost', 'delivery_cost'], 'number'],
             [['work_mode'], 'integer'],
             [['discount'], 'number'],
+            [['addresses_list'], 'safe'],
         ];
     }
 
@@ -99,6 +103,29 @@ class Buyer extends ActiveRecord
             $this->discount = $this->discount / 100;
         }
         return parent::beforeSave($insert);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($this->addresses){
+            //Удаляем все адреса покупателя
+            BuyerAddress::deleteAll(['buyer_id' => $this->id]);
+            //Заново заносим все адреса
+            foreach ($this->addresses_list as $address){
+                if (!$address) continue;
+                $model = new BuyerAddress(
+                    [
+                        'buyer_id' => $this->id,
+                        'address' => $address
+                    ]
+                );
+                if (!$model->save()){
+                    Yii::error($model->errors, '_error');
+                };
+            }
+        }
     }
 
     /**
@@ -280,5 +307,20 @@ class Buyer extends ActiveRecord
     public static function getList()
     {
         return ArrayHelper::map(Buyer::find()->all(), 'id', 'name');
+    }
+
+    /**
+     * Адреса покупателя
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAddresses()
+    {
+        return $this->hasMany(BuyerAddress::class, ['buyer_id' => 'id']);
+    }
+
+    public static function getAddressesList($id)
+    {
+        $addresses = BuyerAddress::findAll(['buyer_id' => $id]);
+        return ArrayHelper::map($addresses, 'id', 'address');
     }
 }

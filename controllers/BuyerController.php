@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\BuyerAddress;
 use app\models\Users;
 use Yii;
 use app\models\Buyer;
@@ -181,6 +182,7 @@ class BuyerController extends Controller
         $request = Yii::$app->request;
         $model = $this->findModel($id);
         $user_model = $model->user;
+        $addresses = $model->addresses;
 
         if (!$user_model) {
             $user_model = new Users();
@@ -196,6 +198,7 @@ class BuyerController extends Controller
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                         'user_model' => $user_model,
+                        'addresses' => $addresses,
                     ]),
                     'footer' => Html::button('Закрыть',
                             ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -220,6 +223,7 @@ class BuyerController extends Controller
                                         'content' => $this->renderAjax('update', [
                                             'model' => $model,
                                             'user_model' => $user_model,
+                                            'addresses' => $addresses,
                                         ]),
                                         'footer' => Html::button('Закрыть',
                                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -234,6 +238,7 @@ class BuyerController extends Controller
                                         'content' => $this->renderAjax('update', [
                                             'model' => $model,
                                             'user_model' => $user_model,
+                                            'addresses' => $addresses,
                                         ]),
                                         'footer' => Html::button('Закрыть',
                                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -247,6 +252,7 @@ class BuyerController extends Controller
                                     'content' => $this->renderAjax('update', [
                                         'model' => $model,
                                         'user_model' => $user_model,
+                                        'addresses' => $addresses,
                                     ]),
                                     'footer' => Html::button('Закрыть',
                                             ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -262,6 +268,7 @@ class BuyerController extends Controller
                             'content' => $this->renderAjax('update', [
                                 'model' => $model,
                                 'user_model' => $user_model,
+                                'addresses' => $addresses,
                             ]),
                             'footer' => Html::button('Закрыть',
                                     ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -278,6 +285,7 @@ class BuyerController extends Controller
                         'content' => $this->renderAjax('update', [
                             'model' => $model,
                             'user_model' => $user_model,
+                            'addresses' => $addresses,
                         ]),
                         'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
@@ -295,6 +303,7 @@ class BuyerController extends Controller
                 return $this->render('update', [
                     'model' => $model,
                     'user_model' => $user_model,
+                    'addresses' => $addresses,
                 ]);
             }
         }
