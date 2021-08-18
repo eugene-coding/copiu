@@ -37,7 +37,7 @@
             <type label="SET" length="1" sql="SET" quote=""/>
             <type label="Bit" length="0" sql="bit" quote=""/>
         </group>
-    </datatypes><table x="309" y="413" name="users">
+    </datatypes><table x="263" y="396" name="users">
     <row name="id" null="1" autoincrement="1">
         <datatype>INTEGER</datatype>
         <default>NULL</default></row>
@@ -59,7 +59,7 @@
     </key>
     <comment>Пользователи</comment>
 </table>
-    <table x="641" y="550" name="price_category">
+    <table x="632" y="574" name="price_category">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -74,7 +74,7 @@
         </key>
         <comment>Ценовая категория</comment>
     </table>
-    <table x="644" y="217" name="order">
+    <table x="639" y="234" name="order">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -121,6 +121,11 @@
         <row name="delivery_act_number" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default><comment>Номер акта оказанных услуг (доставка)</comment>
+        </row>
+        <row name="delivery_address_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="buyer_address" row="id" />
+            <comment>Адрес доставки</comment>
         </row>
         <key type="PRIMARY" name="">
             <part>id</part>
@@ -204,7 +209,7 @@
         </key>
         <comment>Номенклатура товаров</comment>
     </table>
-    <table x="475" y="361" name="buyer">
+    <table x="441" y="448" name="buyer">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -243,7 +248,7 @@
         </key>
         <comment>Покупатели</comment>
     </table>
-    <table x="1056" y="228" name="order_to_nomenclature">
+    <table x="828" y="239" name="order_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -518,7 +523,7 @@
         </key>
         <comment>Видимость бланков для покупателей</comment>
     </table>
-    <table x="286" y="627" name="buyer_address">
+    <table x="266" y="237" name="buyer_address">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>

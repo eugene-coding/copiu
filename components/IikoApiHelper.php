@@ -45,7 +45,7 @@ class IikoApiHelper
         } else {
             $token_is_expired = false;
         }
-        Yii::info('Token expired: ' . (int)$token_is_expired, 'test');
+        Yii::debug('Token expired: ' . (int)$token_is_expired, 'test');
 
         if (!$this->token || $token_is_expired) {
             $this->login();
@@ -92,8 +92,8 @@ class IikoApiHelper
 
     protected function send($type = 'GET')
     {
-        Yii::info('Request string: ' . $this->request_string, 'test');
-        Yii::info('Headers: ' . $this->headers, 'test');
+        Yii::debug('Request string: ' . $this->request_string, 'test');
+        Yii::debug('Headers: ' . $this->headers, 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
@@ -109,14 +109,14 @@ class IikoApiHelper
 
         $response = curl_exec($ch);
 
-        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
+        Yii::debug(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
 
         curl_close($ch);
         if ($response === false) {
             Yii::error(curl_error($ch), '_error');
         }
 
-//        Yii::info($response, 'test');
+//        Yii::debug($response, 'test');
         return $response;
     }
 
@@ -139,7 +139,7 @@ class IikoApiHelper
 
         $path_file = 'uploads/list_items.json';
         $put_result = file_put_contents($path_file, $result);
-        Yii::info($put_result, 'test');
+        Yii::debug($put_result, 'test');
 
         return $path_file;
 //        return json_decode($result, 'true');
@@ -160,7 +160,7 @@ class IikoApiHelper
 
         $str_ids = implode('&ids=', $ids);
 
-//        Yii::info($str_ids, 'test');
+//        Yii::debug($str_ids, 'test');
 
         $this->request_string = $this->base_url
             . 'resto/api/v2/entities/products/list?includeDeleted=false&key='
@@ -213,7 +213,7 @@ class IikoApiHelper
         $result = $this->send();
 
         $info = json_decode($result, 'true');
-        Yii::info($info, 'test');
+        Yii::debug($info, 'test');
 
         $sum = 0;
         $rdb = Settings::getValueByKey('revenue_debit_account');
@@ -253,10 +253,10 @@ class IikoApiHelper
             . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
         $result = $this->send();
 
-        \Yii::info($result, 'test');
+        \Yii::debug($result, 'test');
         $result = simplexml_load_string($result);
         $json = json_encode($result);
-        \Yii::info(json_decode($json, 'true'), 'test');
+        \Yii::debug(json_decode($json, 'true'), 'test');
         return json_decode($json, 'true');
     }
 
@@ -323,7 +323,7 @@ class IikoApiHelper
         $this->headers = [
             'Content-Type: application/xml'
         ];
-        \Yii::info($this->post_data, 'test');
+        \Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
         $result = $this->send('POST');
@@ -336,7 +336,7 @@ class IikoApiHelper
             }
         }
 
-//        Yii::info($result, 'test');
+//        Yii::debug($result, 'test');
         return $result;
     }
 }

@@ -60,9 +60,9 @@ $counter = 1;
                     <?php /** @var OrderBlankToNomenclature $obtn */
                     foreach ($model->getObtns() as $obtn): ?>
                         <?php
-                        Yii::info($obtn->attributes, 'test');
+                        Yii::debug($obtn->attributes, 'test');
                         $product = $obtn->n;
-                        Yii::info($product->attributes, 'test');
+                        Yii::debug($product->attributes, 'test');
                         $count = $obtn->getCount($model->id);
                         $price = $obtn->getPriceForOrder($model->id);
                         ?>

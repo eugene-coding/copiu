@@ -47,8 +47,8 @@ class PostmanApiHelper
 
     public function send($type = 'GET')
     {
-        Yii::info('Request string: ' . $this->request_string, 'test');
-        Yii::info($this->headers, 'test');
+        Yii::debug('Request string: ' . $this->request_string, 'test');
+        Yii::debug($this->headers, 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
@@ -56,16 +56,16 @@ class PostmanApiHelper
         curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         if ($type != "GET") {
-            Yii::info($this->post_data, 'test');
+            Yii::debug($this->post_data, 'test');
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
         }
         $response = curl_exec($ch);
-        Yii::info(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
+        Yii::debug(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
         curl_close($ch);
 
-//        Yii::info('Ответ сервера', 'test');
-//        Yii::info($response, 'test');
+//        Yii::debug('Ответ сервера', 'test');
+//        Yii::debug($response, 'test');
 
         return $response;
     }
@@ -278,9 +278,9 @@ XML;
         $document_eid = $this->getGUID();
         $item_eid = $this->getGUID();
 //        $invoice_eid = $this->getGUID();
-        Yii::info($document_eid, 'test');
-        Yii::info($item_eid, 'test');
-//        Yii::info($invoice_eid, 'test');
+        Yii::debug($document_eid, 'test');
+        Yii::debug($item_eid, 'test');
+//        Yii::debug($invoice_eid, 'test');
 
 
         $dom = new domDocument('1.0', 'utf-8');
@@ -429,7 +429,7 @@ XML;
             }
         }
 
-        Yii::info($this->post_data, 'test');
+        Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
         $response = $this->send('POST');
@@ -475,7 +475,7 @@ XML;
         $info = $this->getServerInfo();
         $info = '<?xml version="1.0" encoding="utf-8"?>' . $info;
         $xml = simplexml_load_string($info);
-        Yii::info($xml->version, 'test');
+        Yii::debug($xml->version, 'test');
 
         return (string)$xml->version;
     }

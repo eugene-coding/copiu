@@ -1,7 +1,7 @@
 <?php
 
+use app\models\BuyerAddress;
 use kartik\date\DatePicker;
-
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -23,26 +23,34 @@ if ($model->step == 1) {
 } elseif ($model->step == 5) {
     $title = 'Заказ создан на ' . Yii::$app->formatter->asDate($model->target_date);
 }
-Yii::info('Шаг: ' . $model->step, 'test');
-Yii::info($model->attributes, 'test');
+Yii::debug('Шаг: ' . $model->step, 'test');
+Yii::debug($model->attributes, 'test');
 
 $this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;
 
 
-$this->registerJsFile('/js/order_form.js', [
-    'depends' => [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
-    ]
-]);
+try {
+    $this->registerJsFile('/js/order_form.js', [
+        'depends' => [
+            'yii\web\YiiAsset',
+            'yii\bootstrap\BootstrapAsset',
+        ]
+    ]);
+} catch (\yii\base\InvalidConfigException $e) {
+    echo $e->getMessage();
+}
 
-$this->registerJsFile('/js/mobile_detect.min.js', [
-    'depends' => [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
-    ]
-]);
+try {
+    $this->registerJsFile('/js/mobile_detect.min.js', [
+        'depends' => [
+            'yii\web\YiiAsset',
+            'yii\bootstrap\BootstrapAsset',
+        ]
+    ]);
+} catch (\yii\base\InvalidConfigException $e) {
+    echo $e->getMessage();
+}
 ?>
 
     <hr>
@@ -134,12 +142,13 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
     </div>
 <?php elseif ($model->step == 2): ?>
     <h4>Выберите позиции и установите количество</h4>
-    <?php if ($model->buyer->min_order_cost): ?>
+    <?php if ($model->buyer->min_order_cost ?? 0): ?>
         <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
             будет добавлена услуга
             доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
     <?php endif; ?>
     <div class="row">
+        <!--Интервал, адрес, коментарий-->
         <div class="col-md-4 col-md-push-8">
             <div class="row">
                 <div class="col-xs-12 text-center">Укажите временной интервал доставки</div>
@@ -159,10 +168,19 @@ $this->registerJsFile('/js/mobile_detect.min.js', [
                 <div class="error-time text-center col-xs-12">
                     <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
                 </div>
+                <div class="col-md-12">
+                    <?php if ($model->buyer->addresses): ?>
+                        <?= $form->field($model,'delivery_address_id')
+                            ->dropDownList(BuyerAddress::getList($model->buyer_id), [
+                                    'prompt' => 'Выберите адрес доставки'
+                            ])
+                            ->label('Адрес доставки') ?>
+                    <?php endif; ?>
+                </div>
                 <div class="col-xs-12">
                     <div class="comment-label">
                         <b>Комментарий</b>
-                        <span class="count-symbol"><?= mb_strlen($model->comment)? '(' . mb_strlen($model->comment). ' симв.)' : '' ?></span>
+                        <span class="count-symbol"><?= mb_strlen($model->comment) ? '(' . mb_strlen($model->comment) . ' симв.)' : '' ?></span>
                     </div>
                     <br><?= Html::textarea('Order[comment]', $model->comment,
                         [

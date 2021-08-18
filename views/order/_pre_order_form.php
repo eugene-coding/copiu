@@ -24,6 +24,10 @@
                     Доставка: <?= Yii::$app->formatter->asCurrency($model->deliveryCost); ?>
                     <br>
                     <br>
+                    Адрес доставки: <?= \yii\helpers\Html::encode($model->address->address) ?>
+                    <br>
+                    <br>
+
                     ИТОГО: <?= Yii::$app->formatter->asCurrency($model->deliveryCost + $model->total_price); ?>
                 </div>
                 <div class="col-md-6 col-xs-12 text-center">

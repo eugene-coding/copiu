@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\BuyerAddress;
 use app\models\Users;
 use Yii;
 use app\models\Buyer;
@@ -206,7 +205,7 @@ class BuyerController extends Controller
                 ];
             } else {
                 if ($model->load($request->post())) {
-                    Yii::info($model->attributes, 'test');
+                    Yii::debug($model->attributes, 'test');
                     if (!$model->user_id) {
                         $user_model->load($request->post());
                         //Проверяем указан ли логин

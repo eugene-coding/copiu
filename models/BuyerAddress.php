@@ -3,6 +3,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "buyer_address".
@@ -12,6 +13,7 @@ use yii\db\ActiveRecord;
  * @property string|null $address
  *
  * @property Buyer $buyer
+ * @property Order $order
  */
 class BuyerAddress extends ActiveRecord
 {
@@ -61,5 +63,25 @@ class BuyerAddress extends ActiveRecord
     public function getBuyer()
     {
         return $this->hasOne(Buyer::class, ['id' => 'buyer_id']);
+    }
+
+    /**
+     * Gets query for [[Order]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOrder()
+    {
+        return $this->hasOne(Order::class, ['delivery_address_id' => 'id'])->inverseOf('address');
+    }
+
+    /**
+     * Список адресов для покупателя
+     * @param int $id
+     * @return array
+     */
+    public static function getList($id)
+    {
+        return ArrayHelper::map(self::findAll(['buyer_id' => $id]), 'id', 'address');
     }
 }

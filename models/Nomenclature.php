@@ -242,7 +242,7 @@ class Nomenclature extends ActiveRecord
             $model->unit_capacity = $item['unitCapacity'] ?: 0;
             $model->type = $item['type'];
             $model->main_unit = $item['mainUnit'] ?: null;
-//            Yii::info($model->attributes, 'test');
+//            Yii::debug($model->attributes, 'test');
 
             if (!$model->save()) {
                 Yii::error($model->errors, '_error');
@@ -252,7 +252,7 @@ class Nomenclature extends ActiveRecord
                 }
             }
         }
-        Yii::info($containers, 'test');
+        Yii::debug($containers, 'test');
         $actual_container_ids = [];
 
         //Обновляем контейнеры
@@ -406,7 +406,7 @@ class Nomenclature extends ActiveRecord
     {
         $helper = new IikoApiHelper();
         $outer_products = $helper->getItemsById($ids);
-//        Yii::info($outer_products, 'test');
+//        Yii::debug($outer_products, 'test');
 
         $products = ArrayHelper::map(self::find()
             ->andWhere(['IN', 'outer_id', $ids])->all(), 'outer_id', 'id');
@@ -435,7 +435,7 @@ class Nomenclature extends ActiveRecord
                 Container::deleteAll(['nomenclature_id' => $nom_id]);
             }
         }
-        Yii::info('Обновление номенклатуры. Ок', 'test');
+        Yii::debug('Обновление номенклатуры. Ок', 'test');
 
         return true;
     }

@@ -170,13 +170,13 @@ class Buyer extends ActiveRecord
     {
         $rows = [];
         $exists_buyer = Buyer::find()->select(['outer_id'])->column();
-        Yii::info($exists_buyer, 'test');
+        Yii::debug($exists_buyer, 'test');
 
         $price_categories = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
 
         foreach ($data as $buyer) {
-            Yii::info($buyer, 'test');
-            Yii::info('Buyer outer_id: ' . $buyer['id'], 'test');
+            Yii::debug($buyer, 'test');
+            Yii::debug('Buyer outer_id: ' . $buyer['id'], 'test');
             $outer_id = (string)$buyer['id'];
             $outer_price_category = (string)$buyer['price_category'];
 
@@ -204,8 +204,8 @@ class Buyer extends ActiveRecord
 
             }
         }
-//        Yii::info('Строки для добавления покупателей', 'test');
-//        Yii::info($rows, 'test');
+//        Yii::debug('Строки для добавления покупателей', 'test');
+//        Yii::debug($rows, 'test');
 
         try {
             Yii::$app->db->createCommand()->batchInsert(Buyer::tableName(), ['name', 'pc_id', 'outer_id'],
@@ -247,8 +247,8 @@ class Buyer extends ActiveRecord
         $to_setting = Settings::getValueByKey('delivery_max_time');
         $to = (int)explode(':', $to_setting)[0];
 
-        Yii::info('From: ' . $from, 'test');
-        Yii::info('To: ' . $to, 'test');
+        Yii::debug('From: ' . $from, 'test');
+        Yii::debug('To: ' . $to, 'test');
 
         switch ($type) {
             case 'from':
@@ -270,7 +270,7 @@ class Buyer extends ActiveRecord
             $result_arr[$val . ':00'] = $val;
         }
 
-        Yii::info($result_arr, 'test');
+        Yii::debug($result_arr, 'test');
 
         return $result_arr;
     }

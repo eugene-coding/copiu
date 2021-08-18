@@ -161,7 +161,7 @@ class OrderBlank extends ActiveRecord
                     $product_outer_ids_in_blanks[] = $item['productId'];
                     $rows[] = [$n_id, $blank_id, $container_id, $quantity];
                 } else {
-                    Yii::info('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
+                    Yii::debug('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
                 }
 
             }
@@ -175,8 +175,8 @@ class OrderBlank extends ActiveRecord
                 Yii::error($blank_model->errors, '_error');
             }
         }
-        Yii::info($product_outer_ids_in_blanks, 'test');
-        Yii::info($rows, 'test');
+        Yii::debug($product_outer_ids_in_blanks, 'test');
+        Yii::debug($rows, 'test');
 
         //Сохраняем всё
         Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(),
@@ -185,7 +185,7 @@ class OrderBlank extends ActiveRecord
 
         if ($product_outer_ids_in_blanks) {
             //Обновляем продукты указанные в бланках
-            Yii::info($product_outer_ids_in_blanks, 'test');
+            Yii::debug($product_outer_ids_in_blanks, 'test');
             Nomenclature::syncByIds($product_outer_ids_in_blanks);
 
             //Обновляем цены для ценовых категорий в которых находятся продукты бланков
@@ -228,7 +228,7 @@ class OrderBlank extends ActiveRecord
         $diff_time = strtotime($date) - strtotime($target_date);
         $diff_days = floor($diff_time / (60 * 60 * 24) + 1);
 
-        Yii::info('Diff days: ' . $diff_days, 'test');
+        Yii::debug('Diff days: ' . $diff_days, 'test');
 
         $blanks = self::find()
             ->andWhere(['<=', 'day_limit', $diff_days])
@@ -251,8 +251,8 @@ class OrderBlank extends ActiveRecord
         foreach ($blanks as $blank) {
             $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
             $user = Users::getUser();
-            Yii::info($buyers, 'test');
-            Yii::info('Buyer ID: ' . $user->buyer->id, 'test');
+            Yii::debug($buyers, 'test');
+            Yii::debug('Buyer ID: ' . $user->buyer->id, 'test');
             if ($buyers && !in_array($user->buyer->id, $buyers)){
                 //Если для бланка видимость только выбранным и покупателя нет в списке видимости
                 continue;
@@ -265,14 +265,14 @@ class OrderBlank extends ActiveRecord
             if ($max_order_time < time()) {
                 $max_order_time = $max_order_time + (60 * 60 * 24);
             }
-            Yii::info('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
+            Yii::debug('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
 
             $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 * 60 * 60));
             $delivery_time = strtotime($delivery_date);
 
-            Yii::info('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
-            Yii::info('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
-            Yii::info('Расчетная дата доставки больше даты заказа: '
+            Yii::debug('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
+            Yii::debug('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+            Yii::debug('Расчетная дата доставки больше даты заказа: '
                 . (int)(strtotime($delivery_date) > strtotime($target_date)), 'test');
 
             if (strtotime($delivery_date) > strtotime($target_date)) {
@@ -331,7 +331,7 @@ class OrderBlank extends ActiveRecord
         ];
 
         $result = $helper->getOrderBlank($params);
-        Yii::info($result, 'test');
+        Yii::debug($result, 'test');
 
         if ($result && isset($result['document']['id'])) {
             return true;
@@ -351,8 +351,8 @@ class OrderBlank extends ActiveRecord
         foreach ($blanks as $blank) {
             $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
             $user = Users::getUser();
-            Yii::info($buyers, 'test');
-            Yii::info('Buyer ID: ' . $user->buyer->id, 'test');
+            Yii::debug($buyers, 'test');
+            Yii::debug('Buyer ID: ' . $user->buyer->id, 'test');
             if ($buyers && !in_array($user->buyer->id, $buyers)){
                 //Если для бланка видимость только выбранным и покупателя нет в списке видимости
                 continue;
@@ -365,11 +365,11 @@ class OrderBlank extends ActiveRecord
             if ($max_order_time < time()) {
                 $max_order_time = $max_order_time + (60 * 60 * 24);
             }
-            Yii::info('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
+            Yii::debug('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
             $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 * 60 * 60));
             $delivery_time = strtotime($delivery_date);
 
-            Yii::info('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+            Yii::debug('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
 
             $result .= '<tr>';
             $result .= '<td>';
@@ -414,7 +414,7 @@ class OrderBlank extends ActiveRecord
                 $json = json_encode($item);
                 $data = json_decode($json, true);
                 $result_import = PriceCategoryToNomenclature::import($data);
-                Yii::info($result_import, 'test');
+                Yii::debug($result_import, 'test');
             }
         }
         return true;

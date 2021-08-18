@@ -336,7 +336,7 @@ class OrderController extends Controller
         $model = new Order();
         $user = Users::findOne(Yii::$app->user->identity->id);
         $model->buyer_id = $user->buyer->id;
-        Yii::info($model->attributes, 'test');
+        Yii::debug($model->attributes, 'test');
 
         if ($request->isPost) {
             $model->load($request->post());
@@ -356,8 +356,8 @@ class OrderController extends Controller
 
     /**
      * Редактирование заказа
-     * @param $id
-     * @return string
+     * @param int $id
+     * @return string|Response
      * @throws \Exception
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
@@ -375,7 +375,6 @@ class OrderController extends Controller
         $request = Yii::$app->request;
         $model = Order::findOne($id);
         $productsDataProvider = $model->getProductDataProvider();
-//        $check_quantity_enabled = Settings::getValueByKey('check_quantity_enabled');
 
         if ($request->isAjax) {
             return $this->render('_form', [
@@ -394,25 +393,27 @@ class OrderController extends Controller
         } else {
             $model->load($request->post());
 
-//            Yii::info($model->attributes, 'test');
+            Yii::debug($model->attributes, 'test');
 
             $model->orderProcessing();
 
             if ($model->step == 2) {
-                Yii::debug($model->validate('comment'), 'test');
-                Yii::debug($model->errors, 'test');
+                Yii::debug($model
+                    ->validate('comment') ? 'Валидация комментария успешна' : 'Валидация комментария провалена',
+                    'test');
+                Yii::debug($model->errors ?: 'Ошибок нет', 'test');
                 $total_count = $model->getTotalCountProducts();
                 $comment_required = Settings::getValueByKey('comment_required');
                 $model->comment = trim($model->comment);
 
-                if ($comment_required && !$model->comment){
+                if ($comment_required && !$model->comment) {
                     $model->addError('comment', 'Необходимо заполнить комментарий');
                     Yii::$app->session->setFlash('warning', 'Необходимо заполнить комментарий');
-                } elseif(!$model->validate('comment')){
+                } elseif (!$model->validate('comment')) {
                     Yii::$app->session->setFlash('warning', $model->errors['comment']);
                 }
 
-                if (!$model->delivery_time_to || !$model->delivery_time_from){
+                if (!$model->delivery_time_to || !$model->delivery_time_from) {
                     $model->addError('delivery_time_to', 'Не выбран период доставки');
                     Yii::$app->session->setFlash('warning', 'Не выбран период доставки');
                 }
@@ -421,6 +422,12 @@ class OrderController extends Controller
                     $model->step = 2;
                     $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
                     Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
+                }
+
+                $addresses = $model->buyer->addresses ?? null;
+                if ($addresses && !$model->delivery_address_id) {
+                    $model->addError('delivery_address_id', 'Не указан адрес доставки');
+                    Yii::$app->session->setFlash('warning', 'Не указан адрес доставки');
                 }
             }
 
@@ -446,10 +453,10 @@ class OrderController extends Controller
                 $model->step++;
             }
 
-            Yii::info('Шаг перед сохранением: ' . $model->step, 'test');
+            Yii::debug('Шаг перед сохранением: ' . $model->step, 'test');
+            Yii::debug($model->attributes, 'test');
             if (!$model->hasErrors() && !$model->save()) {
                 Yii::error($model->errors, '_error');
-
             }
 
             if ($model->step == 2) {
@@ -659,9 +666,9 @@ class OrderController extends Controller
         }
 
         if ($model->deliveryCost) {
-            Yii::info('Есть доставка', 'test');
+            Yii::debug('Есть доставка', 'test');
             if ($model->delivery_act_number == 'error') {
-                Yii::info('Ошибка формирования Акта, формируем заново', 'test');
+                Yii::debug('Ошибка формирования Акта, формируем заново', 'test');
                 //Если ошибка формирования Акта услуг
                 //Формируем акт оказания услуг (доставка)
                 if (!$model->makeDeliveryAct()) {
@@ -729,13 +736,13 @@ class OrderController extends Controller
         $model = Order::findOne($order_id);
 
         $productsDataProvider = $model->getProductDataProvider($product_id, [$blank_id]);
-        $model->search_product_id =$product_id;
+        $model->search_product_id = $product_id;
 
         $blank_model = OrderBlank::findOne($blank_id);
 
-        Yii::info($productsDataProvider->getModels()[$blank_model->number], 'test');
+        Yii::debug($productsDataProvider->getModels()[$blank_model->number], 'test');
         if ($is_mobile) {
-            Yii::info($model->attributes, 'test');
+            Yii::debug($model->attributes, 'test');
             return [
                 'success' => true,
                 'data' => $this->renderAjax('_nomenclature_mobile', [
@@ -784,11 +791,11 @@ class OrderController extends Controller
                 'obtn_id' => $obtn_id
             ]);
         }
-        Yii::info($model->attributes, 'test');
+        Yii::debug($model->attributes, 'test');
 
-        if (!$count){
+        if (!$count) {
             //Если выставлено кол-во продукта в ноль
-            if ($model->id){
+            if ($model->id) {
                 //Если запись есть в базе
                 $model->delete();
             }

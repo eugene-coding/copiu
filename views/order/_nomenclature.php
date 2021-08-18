@@ -34,7 +34,7 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
             /** @var array $product */
             foreach ($dataProvider as $product): ?>
                 <?php
-                Yii::info($product, 'test');
+                Yii::debug($product, 'test');
                 if (!$product) {
                     continue;
                 }

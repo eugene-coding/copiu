@@ -61,7 +61,7 @@ class LoginForm extends Model
     {
         if (!$this->hasErrors()) {
             $user = $this->getUser();
-//            Yii::info($user->attributes, 'test');
+//            Yii::debug($user->attributes, 'test');
 
             if (!$user || !$user->validatePassword($this->password)) {
                 $this->addError($attribute, 'Неверный логин или пароль.');
@@ -124,10 +124,10 @@ class LoginForm extends Model
         if (Users::isAdmin()) return ['success' => true];
 
         $user = $this->getUser();
-        Yii::info($user->attributes, 'test');
+        Yii::debug($user->attributes, 'test');
 
         $buyer = $user->buyer;
-        Yii::info($buyer->attributes, 'test');
+        Yii::debug($buyer->attributes, 'test');
 
         if ($buyer){
             //Проверяем деактивацию
@@ -152,31 +152,31 @@ class LoginForm extends Model
         if ($user->is_active){
             //Сессия активна
             //Проверяем время сессии
-            Yii::info('Сессия активна', 'test');
+            Yii::debug('Сессия активна', 'test');
             if (!$user->sessionIsActiveByTime()){
-                Yii::info('Время сессии вышло', 'test');
+                Yii::debug('Время сессии вышло', 'test');
                 //У сессии вышло время
                 //Переписываем своими данными
                 $user::setActivity();
             } else {
-                Yii::info('Время сессии НЕ вышло', 'test');
+                Yii::debug('Время сессии НЕ вышло', 'test');
                 //Время сессии не вышло
                 //Проверяем IP
-                Yii::info("IP в базе: " . $user->activity_ip, 'test');
-                Yii::info("IP: " . $_SERVER['REMOTE_ADDR'], 'test');
+                Yii::debug("IP в базе: " . $user->activity_ip, 'test');
+                Yii::debug("IP: " . $_SERVER['REMOTE_ADDR'], 'test');
                 if ($user->activity_ip != $_SERVER['REMOTE_ADDR']){
-                    Yii::info('IP не совпадают, сессия занята другим человеком', 'test');
+                    Yii::debug('IP не совпадают, сессия занята другим человеком', 'test');
                     //IP не совпадают, сессия занята другим человеком
                     return [
                         'success' => false,
                         'error' => 'Сессия занята, попробуйте позже'
                     ];
                 } else {
-                    Yii::info('IP совпадают, сессия занята этим же человеком', 'test');
+                    Yii::debug('IP совпадают, сессия занята этим же человеком', 'test');
                 }
             }
         } else {
-            Yii::info('Сессия не активна. Устанвливаем активность', 'test');
+            Yii::debug('Сессия не активна. Устанвливаем активность', 'test');
             //Сессия не активна
             $user::setActivity();
         }

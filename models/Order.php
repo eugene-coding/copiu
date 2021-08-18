@@ -28,11 +28,13 @@ use yii\db\StaleObjectException;
  * @property string|null $invoice_number Номер накладной
  * @property string|null $delivery_act_number Номер Акта оказанных услуг
  * @property string $buyer_name Наименование покупателя
+ * @property string $delivery_address_id Адрес доставки
  *
  * @property Buyer $buyer
  * @property OrderToNomenclature[] $orderToNomenclature;
  * @property double $deliveryCost;
  * @property OrderBlankToNomenclature[] $orderBlankToNomenclature;
+ * @property BuyerAddress[] $address;
  */
 class Order extends ActiveRecord
 {
@@ -64,7 +66,7 @@ class Order extends ActiveRecord
             [['buyer_id', 'status', 'step'], 'integer'],
             [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to', 'count'], 'safe'],
             [['total_price'], 'number'],
-            [['comment', 'blanks', 'invoice_number', 'delivery_act_number'], 'string'],
+            [['comment', 'blanks', 'invoice_number', 'delivery_act_number', 'delivery_address_id'], 'string'],
             [
                 ['buyer_id'],
                 'exist',
@@ -96,6 +98,7 @@ class Order extends ActiveRecord
             'invoice_number' => 'Накладная',
             'delivery_act_number' => 'Акт оказания услуг (доставка)',
             'buyer_name' => 'Покупатель',
+            'delivery_address_id' => 'Адрес доставки',
         ];
     }
 
@@ -211,7 +214,7 @@ class Order extends ActiveRecord
             ];
         }
 
-        Yii::info($items, 'test');
+        Yii::debug($items, 'test');
 
         $blank = $obtn->ob;
 
@@ -231,11 +234,11 @@ class Order extends ActiveRecord
             'items' => $items,
             'defaultStoreId' => Settings::getValueByKey('store_outer_id'),
         ];
-        Yii::info($params, 'test');
+        Yii::debug($params, 'test');
 
         $helper = new IikoApiHelper();
         $result = $helper->makeExpenseInvoice($params);
-        Yii::info($result, 'test');
+        Yii::debug($result, 'test');
 
         $xml = null;
         try {
@@ -294,7 +297,7 @@ class Order extends ActiveRecord
             'status' => 'PROCESSED',
             'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', strtotime($this->target_date)),
         ];
-        Yii::info($params, 'test');
+        Yii::debug($params, 'test');
         //Проверяем наличие параметров
         foreach ($params as $item) {
             if (!$item) {
@@ -305,7 +308,7 @@ class Order extends ActiveRecord
 
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
-        Yii::info($result, 'test');
+        Yii::debug($result, 'test');
         $xml = simplexml_load_string($result);
 
         if ((string)$xml->returnValue->additionalInfo) {
@@ -376,8 +379,8 @@ class Order extends ActiveRecord
         if (isset($this->count) && is_array($this->count)) {
             foreach ($this->count as $obtn_id => $count) {
                 $obtn = OrderBlankToNomenclature::findOne($obtn_id);
-//                Yii::info($this->count, 'test');
-//                Yii::info($obtn_id . ' => ' . $count, 'test');
+//                Yii::debug($this->count, 'test');
+//                Yii::debug($obtn_id . ' => ' . $count, 'test');
                 if (!$count) {
                     //В случае если заказ скопирован, нужно удалить позицию из базы, т.к. кол-во продукта равно нулю
                     $otn_model = OrderToNomenclature::find()
@@ -494,8 +497,8 @@ class Order extends ActiveRecord
                 'attributes' => ['name'],
             ],
         ]);
-        Yii::info($data, 'test');
-//        Yii::info($productsDataProvider, 'test');
+        Yii::debug($data, 'test');
+//        Yii::debug($productsDataProvider, 'test');
 
         return $productsDataProvider;
     }
@@ -549,5 +552,14 @@ class Order extends ActiveRecord
         }
 
         return $list;
+    }
+
+    /**
+     * Адрес доставки. Связь с BuyerAddress
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAddress()
+    {
+        return $this->hasOne(BuyerAddress::class, ['id' => 'delivery_address_id'])->inverseOf('order');
     }
 }

@@ -104,7 +104,7 @@ class Container extends ActiveRecord
     {
         $exists_containers = Container::find()->select(['id'])->column();
         foreach ($containers as $container) {
-            Yii::info($container, 'test');
+            Yii::debug($container, 'test');
             $container_id = $container['id'];
 
             if (in_array($container_id, $exists_containers)) {
@@ -115,13 +115,13 @@ class Container extends ActiveRecord
                     'nomenclature_id' => $nomenclature_id,
                 ]);
             }
-            Yii::info($container_model->attributes, 'test');
+            Yii::debug($container_model->attributes, 'test');
             $container_model->name = $container['name'];
             $container_model->count = $container['count'];
             $container_model->weight = $container['containerWeight'];
             $container_model->full_weight = $container['fullContainerWeight'];
             $container_model->deleted = $container['deleted'];
-            Yii::info($container_model->attributes, 'test');
+            Yii::debug($container_model->attributes, 'test');
 
             if (!$container_model->save()) {
                 Yii::error($container_model->errors, '_error');
