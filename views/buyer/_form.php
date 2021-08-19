@@ -106,17 +106,3 @@ Yii::debug($addresses, 'test');
 
     </div>
 
-<?php
-$js = <<<JS
-$(document).on('click', '#add-address-btn', function () {
-    let list = $('.addresses-list');
-    let div = list.find('.address-element:first');
-    div.clone().appendTo(list).slideDown();
-});
-$(document).on('click', '.remove-address-btn', function () {
-    let element = $(this).parents('.address-element');
-    element.remove();
-});
-
-JS;
-$this->registerJs($js);

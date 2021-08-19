@@ -170,11 +170,19 @@ try {
                 </div>
                 <div class="col-md-12">
                     <?php if ($model->buyer->addresses): ?>
-                        <?= $form->field($model,'delivery_address_id')
-                            ->dropDownList(BuyerAddress::getList($model->buyer_id), [
-                                    'prompt' => 'Выберите адрес доставки'
-                            ])
-                            ->label('Адрес доставки') ?>
+                        <?php
+                        try {
+                            echo $form->field($model, 'delivery_address_id')
+                                ->widget(\kartik\select2\Select2::class, [
+                                    'data' => BuyerAddress::getList($model->buyer_id),
+                                    'options' => [
+                                        'prompt' => 'Выберите адрес доставки'
+                                    ]
+                                ])
+                                ->label('Адрес доставки');
+                        } catch (Exception $e) {
+                            echo $e->getMessage();
+                        } ?>
                     <?php endif; ?>
                 </div>
                 <div class="col-xs-12">
@@ -187,7 +195,7 @@ try {
                             'id' => 'order-comment',
                             'class' => 'form-control',
                             'rows' => 5,
-                            'placeholder' => 'Комментарий должен содержать не более 255 символов'
+                            'placeholder' => 'Комментарий должен содержать не более 200 символов'
                         ]) ?>
                 </div>
             </div>
@@ -275,7 +283,7 @@ $script = <<<JS
        $(document).on('keyup', '#order-comment', function() {
            let length = $(this).val().length; 
            let c_symbols = $('.count-symbol');
-           if (length > 255){
+           if (length > 200){
                 c_symbols.addClass('text-danger');
                 c_symbols.html('(' + $(this).val().length + ' симв.)');
            } else if(length > 0) {

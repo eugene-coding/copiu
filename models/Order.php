@@ -34,7 +34,7 @@ use yii\db\StaleObjectException;
  * @property OrderToNomenclature[] $orderToNomenclature;
  * @property double $deliveryCost;
  * @property OrderBlankToNomenclature[] $orderBlankToNomenclature;
- * @property BuyerAddress[] $address;
+ * @property BuyerAddress $address;
  */
 class Order extends ActiveRecord
 {
@@ -63,10 +63,10 @@ class Order extends ActiveRecord
     public function rules()
     {
         return [
-            [['buyer_id', 'status', 'step'], 'integer'],
+            [['buyer_id', 'status', 'step', 'delivery_address_id'], 'integer'],
             [['created_at', 'target_date', 'delivery_time_from', 'delivery_time_to', 'count'], 'safe'],
             [['total_price'], 'number'],
-            [['comment', 'blanks', 'invoice_number', 'delivery_act_number', 'delivery_address_id'], 'string'],
+            [['comment', 'blanks', 'invoice_number', 'delivery_act_number'], 'string'],
             [
                 ['buyer_id'],
                 'exist',
@@ -219,10 +219,28 @@ class Order extends ActiveRecord
         $blank = $obtn->ob;
 
         if ($blank->show_number_in_comment) {
-            $comment = 'ТОРГ12 ' . $blank->number . ". Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
+            $comment = 'ТОРГ12 '
+                . $blank->number
+                . ". Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
         } else {
             $comment = "ТОРГ12 Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
         }
+
+        //Проверяем адрес
+        if ($this->delivery_address_id){
+            $addr = $this->address->address ?? '';
+            if ($addr){
+                $comment .= " Адрес: {$addr}";
+            }
+        }
+
+        //проверяем длину коммента
+        Yii::debug('Comment length: ' . mb_strlen($this->comment), 'test');
+        if (mb_strlen($comment) > 255){
+            $comment = mb_substr($comment, 0 , 254);
+        }
+        Yii::debug('Comment length after: ' . mb_strlen($comment), 'test');
+        Yii::debug('Comment after: ' . $comment, 'test');
 
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
@@ -560,6 +578,6 @@ class Order extends ActiveRecord
      */
     public function getAddress()
     {
-        return $this->hasOne(BuyerAddress::class, ['id' => 'delivery_address_id'])->inverseOf('order');
+        return $this->hasOne(BuyerAddress::class, ['id' => 'delivery_address_id']); //->inverseOf('order');
     }
 }

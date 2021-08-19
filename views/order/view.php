@@ -24,6 +24,12 @@ $counter = 1;
                         . Yii::$app->formatter->asTime($model->delivery_time_to),
                     'label' => 'Время доставки',
                 ],
+                [
+                    'attribute' => 'delivery_address_id',
+                    'value' => $model->address->address,
+                    'label' => 'Адрес доставки',
+                    'visible' => (bool)$model->delivery_address_id,
+                ],
                 'total_price:currency',
                 [
                     'attribute' => 'delivery',
