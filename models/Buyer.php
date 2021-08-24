@@ -109,7 +109,7 @@ class Buyer extends ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if ($this->addresses){
+        if ($this->addresses_list){
             //Удаляем все адреса покупателя
             BuyerAddress::deleteAll(['buyer_id' => $this->id]);
             //Заново заносим все адреса
@@ -121,6 +121,7 @@ class Buyer extends ActiveRecord
                         'address' => $address
                     ]
                 );
+                Yii::debug($model->attributes, 'test');
                 if (!$model->save()){
                     Yii::error($model->errors, '_error');
                 };
