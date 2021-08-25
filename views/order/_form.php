@@ -268,8 +268,7 @@ $script = <<<JS
               $('.step-2-content').html(response);
           });
       }
-  
-    $(document).on('click', '#next-btn', function() {
+      $(document).on('click', '#next-btn', function() {
         $(this).hide();
         $('#fake-next-btn').show();
     });
@@ -280,7 +279,7 @@ $script = <<<JS
         $(this).hide();
         $('#fake-next-btn').show();
     });
-       $(document).on('keyup', '#order-comment', function() {
+      $(document).on('keyup', '#order-comment', function() {
            let length = $(this).val().length; 
            let c_symbols = $('.count-symbol');
            if (length > 200){
