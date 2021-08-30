@@ -42,7 +42,7 @@ class SiteController extends Controller
                 'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['sync-nomenclature', 'get-nomenclature', 'sync'],
+                        'actions' => ['sync-nomenclature', 'get-nomenclature', 'sync', 'offline'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -726,5 +726,11 @@ class SiteController extends Controller
         $this->actionGetPriceForPriceCategory();
         OrderBlank::sync();
         return 'Готово';
+    }
+
+    public function actionOffline()
+    {
+        $this->layout = '//main-login';
+        return $this->render('offline');
     }
 }

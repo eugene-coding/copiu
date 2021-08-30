@@ -68,6 +68,7 @@ class RbacController extends Controller
         $getContent = $authManager->createPermission('get-content');
         $gpft = $authManager->createPermission('get-product-for-tab');
         $addProduct = $authManager->createPermission('add-product');
+        $offline = $authManager->createPermission('offline');
 
 
         //Добавляем разрешения в AuthManager
@@ -109,6 +110,7 @@ class RbacController extends Controller
         $authManager->add($getContent);
         $authManager->add($gpft);
         $authManager->add($addProduct);
+        $authManager->add($offline);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -140,6 +142,7 @@ class RbacController extends Controller
         $authManager->addChild($guest, $checkActivity);
         $authManager->addChild($guest, $sync);
         $authManager->addChild($guest, $syncPFPC);
+        $authManager->addChild($guest, $offline);
 
         //Покупатель
         $authManager->addChild($buyer, $update);
@@ -157,6 +160,7 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $getContent);
         $authManager->addChild($buyer, $gpft);
         $authManager->addChild($buyer, $addProduct);
+        $authManager->addChild($buyer, $offline);
 
         //Admin
         $authManager->addChild($admin, $delete);
