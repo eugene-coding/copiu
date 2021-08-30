@@ -15,9 +15,9 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm' => '@vendor/npm-asset',
     ],
-//    'catchAll' => [
-//        '/site/offline',
-//    ],
+    'catchAll' => [
+        '/site/offline',
+    ],
     'modules' => [
         'gridview' => [
             'class' => '\kartik\grid\Module'

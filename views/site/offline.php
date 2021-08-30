@@ -17,6 +17,12 @@ $this->title = 'Режим обслуживания';
         <a href="#"><?= Settings::getValueByKey('app_name')?></a>
     </div>
     <div class="login-box-body">
-        <p class="login-box-msg">Извините, сайт находится на обслуживании. <br><br>Попробуйте зайти позже.</p>
+        <h4>Сервис переехал на новый адрес:</h4>
+        <h5> <?= Html::a('http://noviko0v.beget.tech', 'http://noviko0v.beget.tech') ?></h5>
+        <p>
+        <?= Html::a('Перейти на новый адрес', 'http://noviko0v.beget.tech', [
+                'class' => 'btn btn-success btn-block'
+        ]) ?>
+        </p>
     </div>
 </div>
