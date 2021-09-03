@@ -87,3 +87,8 @@
     border-radius: 10px;
     padding: 5px;
 }
+
+.required label:after {
+    content: " *";
+    color: red;
+}

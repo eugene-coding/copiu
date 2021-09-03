@@ -539,4 +539,28 @@
         </key>
         <comment>Адреса покупателей</comment>
     </table>
+    <table x="905" y="592" name="order_draft">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="order_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="order" row="id" />
+        </row>
+        <row name="plan_send_date" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Планируемая дата отправки</comment>
+        </row>
+        <row name="sended_at" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Дата и время отправки заказа в Айку</comment>
+        </row>
+        <row name="name" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Черновики заказов</comment>
+    </table>
 </sql>

@@ -45,6 +45,8 @@ class Order extends ActiveRecord
     const STATUS_ORDER_DRAFT = 5;
     const STATUS_ORDER_WAITING = 6;
 
+    const SCENARIO_DRAFT = 'draft';
+
     public $count;
     public $step = 1;
     public $error_delivery_time;
@@ -77,7 +79,8 @@ class Order extends ActiveRecord
                 'targetAttribute' => ['buyer_id' => 'id']
             ],
             ['search_product_id', 'integer'],
-            [['comment'], 'string', 'length' => [0, 255], 'message' => '«Комментарий» должен содержать максимум 255 символов.']
+            [['comment'], 'string', 'length' => [0, 255], 'message' => '«Комментарий» должен содержать максимум 255 символов.'],
+            [['comment', 'target_date', 'count'], 'required', 'on' => self::SCENARIO_DRAFT]
         ];
     }
 
