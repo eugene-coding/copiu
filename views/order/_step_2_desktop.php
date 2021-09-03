@@ -1,12 +1,13 @@
 <?php
 
 
-/* @var $productsDataProvider \yii\data\ActiveDataProvider */
-
+/* @var $productsDataProvider \yii\data\ArrayDataProvider */
+/* @var $favoriteDataProvider \yii\data\ArrayDataProvider */
 /* @var $model app\models\Order */
 
 use app\models\OrderBlank;
 use app\models\OrderToNomenclature;
+use app\models\User;
 use kartik\select2\Select2;
 use yii\helpers\Html;
 
@@ -18,6 +19,14 @@ $product_sum = $product_sum ? $product_sum : 0;
     <div>
         <!-- Навигационные вкладки -->
         <ul class="nav nav-tabs" role="tablist">
+            <!--Избранное-->
+            <?php if (User::favoriteExists()): ?>
+                <li role="presentation">
+                    <a href="#tab-favorite" aria-controls="favorite"
+                       role="tab" data-toggle="tab">Избранное</a>
+                </li>
+            <?php endif; ?>
+            <!--Остальные-->
             <?php
             foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
@@ -32,8 +41,21 @@ $product_sum = $product_sum ? $product_sum : 0;
         </ul>
 
         <!-- Вкладки панелей -->
-
         <div class="tab-content">
+            <!-- Избранное -->
+            <?php foreach ($favoriteDataProvider->getModels() as $tab_id => $products): ?>
+                <div role="tabpanel" class="tab-pane" id="tab-favorite">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <?= $this->render('_nomenclature', [
+                                'model' => $model,
+                                'dataProvider' => $products,
+                            ]) ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            <!--Остальные-->
             <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
                 <div role="tabpanel" class="tab-pane" id="tab-<?= $tab_model->id ?>">

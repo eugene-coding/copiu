@@ -8,6 +8,7 @@ use app\models\query\OrderQuery;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\ActiveRecord;
+use yii\db\Exception;
 use yii\db\StaleObjectException;
 
 /**
@@ -80,7 +81,7 @@ class Order extends ActiveRecord
             ],
             ['search_product_id', 'integer'],
             [['comment'], 'string', 'length' => [0, 255], 'message' => '«Комментарий» должен содержать максимум 255 символов.'],
-            [['comment', 'target_date', 'count'], 'required', 'on' => self::SCENARIO_DRAFT]
+            [['comment', 'count'], 'required', 'on' => self::SCENARIO_DRAFT]
         ];
     }
 
@@ -473,10 +474,23 @@ class Order extends ActiveRecord
      * Создает провайдер для таблицы с продуктами
      * @param integer|null $product_id
      * @param array $blanks Массив с номерами бланков
+     * @param ArrayDataProvider|null $favoriteDataProvider Избранные продукты
      * @return ArrayDataProvider
      */
-    public function getProductDataProvider($product_id = null, $blanks = [])
+    public function getProductDataProvider($product_id = null, $blanks = [], ArrayDataProvider $favoriteDataProvider = null)
     {
+        $favorite_obtn_ids = [];
+        if ($favoriteDataProvider){
+            //Если есть избранное
+            $user = User::getUser();
+            $buyer = $user->buyer;
+
+            $favorite_obtn_ids = FavoriteProduct::find()
+                ->select(['obtn_id'])
+                ->andWhere(['buyer_id' => $buyer->id])
+                ->column();
+        }
+
         if (!$blanks) {
             $blanks = explode(',', $this->blanks);
         }
@@ -488,6 +502,13 @@ class Order extends ActiveRecord
 
         /** @var OrderBlankToNomenclature $obtn */
         foreach ($order_blanks_to_nomenclatures as $obtn) {
+            //Исключаем избранные продукты
+            if ($favorite_obtn_ids){
+                if (in_array($obtn->id, $favorite_obtn_ids)){
+                    //если продукт в избранном - пропускаем
+                    continue;
+                }
+            }
 
             /** @var Nomenclature $product */
             $product = $obtn->n;
@@ -502,6 +523,15 @@ class Order extends ActiveRecord
                 'obtn_id' => $obtn->id,
             ]);
 
+            //Избранное
+            $user = User::getUser();
+            $buyer = $user->buyer;
+
+            $is_favorite = FavoriteProduct::find()
+                ->andWhere(['buyer_id' => $buyer->id])
+                ->andWhere(['obtn_id' => $obtn->id])
+                ->exists();
+
             $data[$obtn->ob->number][] = [
                 'id' => $product->id,
                 'name' => $product->name,
@@ -511,6 +541,7 @@ class Order extends ActiveRecord
                 'obtn_id' => $obtn->id,
                 'description' => $product->description,
                 'min_quantity' => $obtn->quantity,
+                'is_favorite' => (int)$is_favorite,
             ];
         }
 
@@ -585,5 +616,139 @@ class Order extends ActiveRecord
     public function getAddress()
     {
         return $this->hasOne(BuyerAddress::class, ['id' => 'delivery_address_id']); //->inverseOf('order');
+    }
+
+    /**
+     * Копирует заказ
+     * @param int $id Идентификатор копируемого заказа
+     * @return Order|bool
+     */
+    public static function copy($id)
+    {
+        $order_basis = Order::findOne($id);
+        $order = new Order();
+        $order->buyer_id = $order_basis->buyer_id;
+
+        //Бланки заказов
+        $order_blanks = explode(',', $order_basis->blanks);
+        $blank_ids = null;
+
+        if ($order_blanks) {
+            //Заново получаем id бланков, т.к. их может уже не быть
+            $blank_ids = OrderBlank::find()->select(['id'])->andWhere(['IN', 'id', $order_blanks])->column();
+        }
+
+        if (!$blank_ids) {
+            //Бланки заказов уже удалены из системы
+            Yii::$app->session->addFlash('error',
+                'Ошибка при копировании заказа. Бланки заказов, указанные в заказе-источнике, не найдены');
+            return false;
+        }
+
+        $order->status = 1;
+        $order->blanks = implode(',', $blank_ids);
+        $order->comment = $order_basis->comment;
+
+        if (!$order->save()) {
+            Yii::error($order->errors, '_error');
+            Yii::$app->session->addFlash('error', 'Ошибка при копировании заказа. ' . json_encode($order->errors));
+            return false;
+        }
+
+        //Добавляем продукты в новый заказ
+        $rows = [];
+
+        $query = OrderToNomenclature::find()
+            ->andWhere(['order_id' => $order_basis->id]);
+
+        /** @var OrderToNomenclature $item */
+        foreach ($query->each() as $item) {
+            /** @var OrderBlankToNomenclature $obtn */
+            $obtn = $item->obtn;
+            $rows[] = [
+                $order->id,
+                $obtn->getPriceForOrder($order->id), //Цену рассчитываем заново, т.к. цена может измениться
+                $item->count,
+                $obtn->id,
+            ];
+        }
+
+        try {
+            Yii::$app->db->createCommand()->batchInsert(OrderToNomenclature::tableName(), [
+                'order_id',
+                'price',
+                'count',
+                'obtn_id',
+            ], $rows)->execute();
+        } catch (Exception $e) {
+            Yii::error($e->getMessage(), '_error');
+            Yii::$app->session->addFlash('error',
+                'Ошибка при сохранении нового заказа. ' . $e->getMessage());
+        }
+        return $order;
+    }
+
+    public function getFavoriteDataProvider()
+    {
+        $data = [];
+        $user = User::getUser();
+        $buyer = $user->buyer;
+
+        //Получаем продукты из выбранных бланков
+        $obtn_ids = FavoriteProduct::find()
+            ->select(['obtn_id'])
+            ->andWhere(['buyer_id' => $buyer->id])
+            ->column();
+
+        $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()
+            ->andWhere(['IN', 'id', $obtn_ids])
+            ->all();
+
+        /** @var OrderBlankToNomenclature $obtn */
+        foreach ($order_blanks_to_nomenclatures as $obtn) {
+
+            if (!$obtn->blankTab->is_active) {
+                continue;
+            }
+
+            /** @var Nomenclature $product */
+            $product = $obtn->n;
+
+            //Избранное
+            $user = User::getUser();
+            $buyer = $user->buyer;
+
+
+            $favorite = FavoriteProduct::find()
+                ->andWhere(['buyer_id' => $buyer->id])
+                ->andWhere(['obtn_id' => $obtn->id])
+                ->one();
+
+//            if ($favorite) {
+//                $count = $favorite->count;
+//            } else {
+//                $count = 0;
+//            }
+
+            $data[$obtn->blank_tab_id][] = [
+                'id' => $product->id,
+                'name' => $product->name,
+//                'count' => $count,
+                'price' => $product->getPriceForBuyer($obtn->container_id),
+                'measure' => $product->findMeasure($obtn),
+                'obtn_id' => $obtn->id,
+                'is_favorite' => $favorite ? 1 : 0,
+            ];
+
+        }
+        $favoriteDataProvider = new ArrayDataProvider([
+            'allModels' => $data,
+            'pagination' => false,
+            'sort' => [
+                'attributes' => ['name'],
+            ],
+        ]);
+
+        return $favoriteDataProvider;
     }
 }

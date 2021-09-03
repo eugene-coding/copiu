@@ -563,4 +563,41 @@
         </key>
         <comment>Черновики заказов</comment>
     </table>
+    <table x="51" y="29" name="cfest">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Кофефест</comment>
+    </table>
+    <table x="657" y="752" name="favorite_product">
+        <row name="id" null="1" autoincrement="1">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="buyer_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="buyer" row="id" />
+        </row>
+        <row name="obtn_id" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><relation table="order_blank_to_nomenclature" row="id" />
+        </row>
+        <row name="count" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Количество</comment>
+        </row>
+        <row name="status" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Статус записи. Актуальна(по умолчанию)/Не актуальна</comment>
+        </row>
+        <row name="note" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <key type="PRIMARY" name="">
+            <part>id</part>
+        </key>
+        <comment>Избранные продукты</comment>
+    </table>
 </sql>

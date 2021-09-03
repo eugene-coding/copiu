@@ -17,6 +17,7 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
         <thead>
         <tr>
             <th>#</th>
+            <th>Избр.</th>
             <th>Наименование</th>
             <th>Описание</th>
             <th>Количество</th>
@@ -41,6 +42,15 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                 ?>
                 <tr>
                 <td aria-label="#"><?= $counter ?></td>
+                <td aria-label="Избр." class="text-center">
+                    <?= Html::a($product['is_favorite'] ? '<i class="fa fa-fw fa-star"></i>': '<i class="fa fa-fw fa-star-o"></i>',
+                            ['/order/order-update', 'id' => $model->id],[
+                                    'id' => 'change-favorite-btn',
+                                    'data-href' => '/favorite-product/change?id=' . $product['obtn_id'],
+                                    'class' => 'text-warning',
+                                    'title' => $product['is_favorite'] ? 'Нажмите для исключения из избранного': 'Нажмите для включения в избранное',
+                            ]); ?>
+                </td>
                 <td aria-label="Наименование"><?= $product['name'] ?></td>
                 <td aria-label="Описание">
                     <div class="description" style="max-width: 200px">

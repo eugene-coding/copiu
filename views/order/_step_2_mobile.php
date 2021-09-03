@@ -1,14 +1,24 @@
 <?php
 
 use app\models\OrderBlank;
+use app\models\User;
 use kartik\select2\Select2;
 use yii\bootstrap\Html;
 
-/* @var $productsDataProvider \yii\data\ActiveDataProvider */
+/* @var $productsDataProvider \yii\data\ArrayDataProvider */
+/* @var $favoriteDataProvider \yii\data\ArrayDataProvider */
 /* @var $model app\models\Order */
 
 ?>
 <ul class="nav nav-tabs">
+    <!--Избранное-->
+    <?php if (User::favoriteExists()): ?>
+        <li role="presentation">
+            <a href="#tab-favorite" aria-controls="favorite"
+               role="tab" data-toggle="tab">Избранное</a>
+        </li>
+    <?php endif; ?>
+    <!--Остальные-->
     <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
         <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
         <li role="presentation">
@@ -21,6 +31,20 @@ use yii\bootstrap\Html;
 </ul>
 <!--Контент вкладок -->
 <div class="tab-content">
+    <!-- Избранное -->
+    <?php foreach ($favoriteDataProvider->getModels() as $tab_id => $products): ?>
+        <div role="tabpanel" class="tab-pane" id="tab-favorite">
+            <div class="row">
+                <div class="col-md-12">
+                    <?= $this->render('_nomenclature_mobile', [
+                        'model' => $model,
+                        'products' => $products,
+                    ]) ?>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    <!--Остальные-->
     <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
         <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
         <div role="tabpanel" class="tab-pane" id="tab-<?= $tab_model->id ?>">

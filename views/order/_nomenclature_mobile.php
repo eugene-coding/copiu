@@ -3,6 +3,7 @@
 /* @var $model app\models\Order */
 
 use app\models\Settings;
+use yii\helpers\Html;
 
 /* @var $blank_id integer */
 /* @var $dataProvider array */
@@ -14,6 +15,19 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
 
 <?php foreach ($dataProvider as $product): ?>
     <div class="card">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="favorite-star text-right">
+                    <?= Html::a($product['is_favorite'] ? '<i class="fa fa-fw fa-star fa-2x"></i>' : '<i class="fa fa-fw fa-star-o fa-2x"></i>',
+                        ['/order/order-update', 'id' => $model->id], [
+                            'id' => 'change-favorite-btn',
+                            'data-href' => '/favorite-product/change?id=' . $product['obtn_id'],
+                            'class' => 'text-warning',
+                            'title' => $product['is_favorite'] ? 'Нажмите для исключения из избранного' : 'Нажмите для включения в избранное',
+                        ]); ?>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12 card-name">
                 <?php if ($product['description']): ?>

@@ -708,17 +708,21 @@ class OrderController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
-        $productsDataProvider = $model->getProductDataProvider();
+
+        $favoriteDataProvider = $model->getFavoriteDataProvider();
+        $productsDataProvider = $model->getProductDataProvider($favoriteDataProvider);
 
         if ($is_mobile) {
             return $this->renderAjax('_step_2_mobile', [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
+                'favoriteDataProvider' => $favoriteDataProvider,
             ]);
         } else {
             return $this->renderAjax('_step_2_desktop', [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
+                'favoriteDataProvider' => $favoriteDataProvider,
             ]);
         }
     }

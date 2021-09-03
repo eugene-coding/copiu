@@ -56,7 +56,6 @@ class RbacController extends Controller
         $showErrors = $authManager->createPermission('show-errors');
         $showOrderErrorSettings = $authManager->createPermission('show-order-error-settings');
         $checkActivity = $authManager->createPermission('check-activity');
-
         $orderCreate = $authManager->createPermission('order-create');
         $orderUpdate = $authManager->createPermission('order-update');
         $cancel = $authManager->createPermission('cancel');
@@ -70,6 +69,10 @@ class RbacController extends Controller
         $addProduct = $authManager->createPermission('add-product');
         $offline = $authManager->createPermission('offline');
         $delDraft = $authManager->createPermission('delete-draft');
+        $resetDraft = $authManager->createPermission('reset-draft');
+        $toQueue = $authManager->createPermission('to-queue');
+        $sendDrafts = $authManager->createPermission('send-drafts');
+
 
         //Добавляем разрешения в AuthManager
 
@@ -112,6 +115,9 @@ class RbacController extends Controller
         $authManager->add($addProduct);
         $authManager->add($offline);
         $authManager->add($delDraft);
+        $authManager->add($resetDraft);
+        $authManager->add($toQueue);
+        $authManager->add($sendDrafts);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -144,6 +150,7 @@ class RbacController extends Controller
         $authManager->addChild($guest, $sync);
         $authManager->addChild($guest, $syncPFPC);
         $authManager->addChild($guest, $offline);
+        $authManager->addChild($guest, $sendDrafts);
 
         //Покупатель
         $authManager->addChild($buyer, $update);
@@ -162,7 +169,10 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $gpft);
         $authManager->addChild($buyer, $addProduct);
         $authManager->addChild($buyer, $offline);
-        $authManager->addChild($delDraft, $offline);
+        $authManager->addChild($buyer, $delDraft);
+        $authManager->addChild($buyer, $resetDraft);
+        $authManager->addChild($buyer, $toQueue);
+        $authManager->addChild($buyer, $sendDrafts);
 
         //Admin
         $authManager->addChild($admin, $delete);

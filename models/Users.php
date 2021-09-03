@@ -166,6 +166,10 @@ class Users extends ActiveRecord
 
     }
 
+    /**
+     * Получает покупателя для пользовтеля
+     * @return \yii\db\ActiveQuery
+     */
     public function getBuyer()
     {
         return $this->hasOne(Buyer::class, ['user_id' => 'id']);
@@ -238,9 +242,28 @@ class Users extends ActiveRecord
         return $ip == $_SERVER['REMOTE_ADDR'];
     }
 
+    /**
+     * @return null|static
+     */
     public static function getUser()
     {
         return Users::findOne(Yii::$app->user->identity->id);
+    }
+
+    /**
+     * Есть избранное или нет
+     * @return bool
+     */
+    public static function favoriteExists()
+    {
+        $user = self::getUser();
+        $buyer = $user->buyer;
+
+        if (FavoriteProduct::getListForBayer($buyer->id)){
+            return true;
+        }
+
+        return false;
     }
 
 

@@ -90,6 +90,12 @@ use dmstr\widgets\Menu;
                             'url' => ['/order-draft'],
                             'visible' => Users::isBuyer(),
                         ],
+                        [
+                            'label' => 'Избранное',
+                            'icon' => 'star',
+                            'url' => ['/favorite-product'],
+                            'visible' => Users::isBuyer() && Users::favoriteExists(),
+                        ],
                     ],
                 ]
             );

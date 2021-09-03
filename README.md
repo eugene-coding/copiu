@@ -54,11 +54,19 @@ public function beforeAction($action)
 ```
     https://mysite.ru/site/sync
   ```
-  #### Синхронизация номенклатуры с базой
-  Добавить на выполнение  с периодичностью каждые 2-3 минуты адрес:
+ #### Синхронизация номенклатуры с базой
+Добавить на выполнение  с периодичностью каждые 2-3 минуты адрес:
 ```
-        //Синхронизация номенклатуры
-       https://mysite.ru/site/sync-nomenclature
-        //Синхронизация цен для ценовых категорий
-       https://mysite.ru/site/sync-price-for-price-category
-  ```
+https://mysite.ru/site/sync-nomenclature
+```
+  #### Синхронизация цен для ценовых категорий
+Добавить на выполнение  с периодичностью каждые 2-3 минуты адрес:
+```
+https://mysite.ru/site/sync-price-for-price-category
+```
+    
+  #### Проверка черновиков покупателей
+Периодичность - раз в сутки
+```
+https://mysite.ru/site/send-drafts
+```

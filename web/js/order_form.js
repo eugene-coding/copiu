@@ -45,6 +45,38 @@ $(document).ready(function () {
         $(window).unbind('beforeunload');
     });
 
+    $(document).on('click', '#change-favorite-btn', function (e) {
+        e.preventDefault();
+        let link = $(this);
+        let href = link.attr('data-href');
+        let icon = link.html();
+        let title = link.attr('title');
+        $.get(href)
+            .done(function (response) {
+                if (response.success === true) {
+                    icon = response.data;
+                    link.html(icon)
+                    link.attr('title', response.title);
+                } else {
+                    link.html('<i class="fa fa-fw fa-exclamation-circle text-danger"></i>');
+                    link.attr('title', 'Ошибка работы с избранным');
+                    setTimeout(function () {
+                        link.html(icon);
+                        link.attr('title', title);
+                    }, 3000)
+                }
+            })
+            .fail(function () {
+                link.html('<i class="fa fa-fw fa-exclamation-circle text-danger"></i>');
+                link.attr('title', 'Ошибка работы с избранным');
+                setTimeout(function () {
+                    link.html(icon);
+                    link.attr('title', title);
+                }, 3000)
+            })
+    });
+
+
     $(window).bind('beforeunload', function () {
         var step = $('#order-step').val();
         if (step !== 'undefined' && step > 1 && step < 4) {
@@ -75,6 +107,7 @@ $(document).ready(function () {
             })
 
     });
+
     $(document).on('click', '.search-mobile-btn', function () {
         var btn = $(this);
         var product_id = btn.parents('.search-product').find('select').val();
@@ -98,7 +131,7 @@ $(document).ready(function () {
         var price_d = $(this).parents('tr').find('.product-price').html();
         $(this).parents('.card').find('.total-cost').html((count * price).toFixed(2));
         $(this).parents('tr').find('.total-cost').html((count * price_d).toFixed(2));
-        if (typeof(price) === 'undefined'){
+        if (typeof(price) === 'undefined') {
             price = price_d;
         }
         var order_id = $('#order-step').attr('data-id');
@@ -110,9 +143,9 @@ $(document).ready(function () {
         // });
         $.post('/order/add-product', {
             order_id: order_id,
-            obtn_id:obtn_id,
-            count:count,
-            price:price
+            obtn_id: obtn_id,
+            count: count,
+            price: price
         })
             .done(function (response) {
                 $('.total').html(Number(response.total).toFixed(2));
