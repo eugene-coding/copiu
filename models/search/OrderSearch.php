@@ -47,6 +47,7 @@ class OrderSearch extends Order
         $query = Order::find();
 
         $query->orderBy(['status' => SORT_ASC, 'target_date' => SORT_ASC]);
+        $query->andWhere(['<>', 'status', [Order::STATUS_ORDER_DRAFT, Order::STATUS_ORDER_WAITING]]);
 
         if (!Users::isAdmin()){
             /** @var Users $user */

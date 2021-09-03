@@ -373,6 +373,7 @@ class Order extends ActiveRecord
         $fail_orders = Order::find()
             ->andWhere(['buyer_id' => $buyer->id])
             ->andWhere(['IS', 'invoice_number', null])
+            ->andWhere(['<>', 'status', [self::STATUS_ORDER_DRAFT, self::STATUS_ORDER_WAITING]])
             ->all();
 
         foreach ($fail_orders as $order) {
