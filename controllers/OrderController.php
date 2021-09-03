@@ -710,7 +710,7 @@ class OrderController extends Controller
         $model = Order::findOne($order_id);
 
         $favoriteDataProvider = $model->getFavoriteDataProvider();
-        $productsDataProvider = $model->getProductDataProvider($favoriteDataProvider);
+        $productsDataProvider = $model->getProductDataProvider(null, null, $favoriteDataProvider);
 
         if ($is_mobile) {
             return $this->renderAjax('_step_2_mobile', [

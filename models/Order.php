@@ -80,7 +80,12 @@ class Order extends ActiveRecord
                 'targetAttribute' => ['buyer_id' => 'id']
             ],
             ['search_product_id', 'integer'],
-            [['comment'], 'string', 'length' => [0, 255], 'message' => '«Комментарий» должен содержать максимум 255 символов.'],
+            [
+                ['comment'],
+                'string',
+                'length' => [0, 255],
+                'message' => '«Комментарий» должен содержать максимум 255 символов.'
+            ],
             [['comment', 'count'], 'required', 'on' => self::SCENARIO_DRAFT]
         ];
     }
@@ -233,17 +238,17 @@ class Order extends ActiveRecord
         }
 
         //Проверяем адрес
-        if ($this->delivery_address_id){
+        if ($this->delivery_address_id) {
             $addr = $this->address->address ?? '';
-            if ($addr){
+            if ($addr) {
                 $comment .= " Адрес: {$addr}";
             }
         }
 
         //проверяем длину коммента
         Yii::debug('Comment length: ' . mb_strlen($this->comment), 'test');
-        if (mb_strlen($comment) > 255){
-            $comment = mb_substr($comment, 0 , 254);
+        if (mb_strlen($comment) > 255) {
+            $comment = mb_substr($comment, 0, 254);
         }
         Yii::debug('Comment length after: ' . mb_strlen($comment), 'test');
         Yii::debug('Comment after: ' . $comment, 'test');
@@ -477,19 +482,23 @@ class Order extends ActiveRecord
      * @param ArrayDataProvider|null $favoriteDataProvider Избранные продукты
      * @return ArrayDataProvider
      */
-    public function getProductDataProvider($product_id = null, $blanks = [], ArrayDataProvider $favoriteDataProvider = null)
-    {
+    public function getProductDataProvider(
+        $product_id = null,
+        $blanks = [],
+        ArrayDataProvider $favoriteDataProvider = null
+    ) {
         $favorite_obtn_ids = [];
-        if ($favoriteDataProvider){
-            //Если есть избранное
-            $user = User::getUser();
-            $buyer = $user->buyer;
+        $user = User::getUser();
+        $buyer = $user->buyer;
 
+        if ($favoriteDataProvider) {
+            //Если есть избранное
             $favorite_obtn_ids = FavoriteProduct::find()
                 ->select(['obtn_id'])
                 ->andWhere(['buyer_id' => $buyer->id])
                 ->column();
         }
+//        Yii::debug($favorite_obtn_ids, 'test');
 
         if (!$blanks) {
             $blanks = explode(',', $this->blanks);
@@ -502,18 +511,23 @@ class Order extends ActiveRecord
 
         /** @var OrderBlankToNomenclature $obtn */
         foreach ($order_blanks_to_nomenclatures as $obtn) {
+//            Yii::debug($obtn->attributes, 'test');
             //Исключаем избранные продукты
-            if ($favorite_obtn_ids){
-                if (in_array($obtn->id, $favorite_obtn_ids)){
+            if ($favorite_obtn_ids) {
+                if (in_array($obtn->id, $favorite_obtn_ids)) {
                     //если продукт в избранном - пропускаем
+//                    Yii::debug('Продукт в избранном. Пропускаем', 'test');
                     continue;
                 }
             }
 
             /** @var Nomenclature $product */
             $product = $obtn->n;
+//            Yii::debug('$product_id: ' . $product_id, 'test');
+//            Yii::debug('$product->id: ' . $product->id, 'test');
 
             if ($product_id && $product->id != $product_id) {
+//                Yii::debug('Пропускаем 2', 'test');
                 continue;
             }
 
@@ -524,13 +538,11 @@ class Order extends ActiveRecord
             ]);
 
             //Избранное
-            $user = User::getUser();
-            $buyer = $user->buyer;
-
             $is_favorite = FavoriteProduct::find()
                 ->andWhere(['buyer_id' => $buyer->id])
                 ->andWhere(['obtn_id' => $obtn->id])
                 ->exists();
+//            Yii::debug('$is_favorite: ' . $is_favorite, 'test');
 
             $data[$obtn->ob->number][] = [
                 'id' => $product->id,
@@ -552,6 +564,7 @@ class Order extends ActiveRecord
                 'attributes' => ['name'],
             ],
         ]);
+        Yii::debug('НЕ избранное:', 'test');
         Yii::debug($data, 'test');
 //        Yii::debug($productsDataProvider, 'test');
 
@@ -707,10 +720,6 @@ class Order extends ActiveRecord
         /** @var OrderBlankToNomenclature $obtn */
         foreach ($order_blanks_to_nomenclatures as $obtn) {
 
-            if (!$obtn->blankTab->is_active) {
-                continue;
-            }
-
             /** @var Nomenclature $product */
             $product = $obtn->n;
 
@@ -730,7 +739,7 @@ class Order extends ActiveRecord
 //                $count = 0;
 //            }
 
-            $data[$obtn->blank_tab_id][] = [
+            $data[$obtn->ob->number][] = [
                 'id' => $product->id,
                 'name' => $product->name,
 //                'count' => $count,
@@ -741,6 +750,9 @@ class Order extends ActiveRecord
             ];
 
         }
+        Yii::debug('Избранное.', 'test');
+        Yii::debug($data, 'test');
+
         $favoriteDataProvider = new ArrayDataProvider([
             'allModels' => $data,
             'pagination' => false,

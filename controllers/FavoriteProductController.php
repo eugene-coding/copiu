@@ -319,12 +319,12 @@ class FavoriteProductController extends Controller
                     'success' => false,
                 ];
             }
-            $icon = '<i class="fa fa-fw fa-star fa-2x"></i>';
+            $icon = '<i class="fa fa-fw fa-star"></i>';
             $title = 'Нажмите для исключения из избранного';
         } else {
             //Если было в избранном - убираем
             $model->delete();
-            $icon = '<i class="fa fa-fw fa-star-o fa-2x"></i>';
+            $icon = '<i class="fa fa-fw fa-star-o"></i>';
             $title = 'Нажмите для включения в избранное';
         }
 

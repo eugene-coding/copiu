@@ -43,18 +43,30 @@ $product_sum = $product_sum ? $product_sum : 0;
         <!-- Вкладки панелей -->
         <div class="tab-content">
             <!-- Избранное -->
-            <?php foreach ($favoriteDataProvider->getModels() as $tab_id => $products): ?>
+            <?php Yii::debug('Избранное. Начало', 'test') ?>
+            <?php Yii::debug($favoriteDataProvider->getModels(), 'test') ?>
                 <div role="tabpanel" class="tab-pane" id="tab-favorite">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $this->render('_nomenclature', [
-                                'model' => $model,
-                                'dataProvider' => $products,
-                            ]) ?>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading" style="display: flex; justify-content: space-between;">
+                            <h3 class="panel-title"><i class="glyphicon glyphicon-list"></i> Список избранного для заказа
+                            </h3>
+                            <div class="total-amount">
+                                Итого: <span class="total"><?= $product_sum; ?></span><span>&nbsp;р.</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-sm-12 tab-nomenclature-list">
+                                    <?= $this->render('_nomenclature', [
+                                        'model' => $model,
+                                        'dataProvider' => $favoriteDataProvider->getModels(),
+                                    ]) ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
+            <?php Yii::debug('Избранное. Конец', 'test') ?>
             <!--Остальные-->
             <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>

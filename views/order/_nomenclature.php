@@ -32,11 +32,18 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
         <tbody>
         <?php if ($dataProvider): ?>
             <?php
+            Yii::debug($dataProvider, 'test');
             /** @var array $product */
             foreach ($dataProvider as $product): ?>
                 <?php
+                Yii::debug('$counter1: ' . $counter, 'test');
+                Yii::debug( $product['name'] , 'test');
                 Yii::debug($product, 'test');
+                if (!$product['id'] && $product){
+                    $product = $product[0];
+                }
                 if (!$product) {
+                    Yii::debug('Пропускаем', 'test');
                     continue;
                 }
                 ?>
@@ -59,7 +66,7 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                         ?>
                     </div>
                 </td>
-                <td aria-label="Кол-во"><?= Html::input('number', "Order[count][{$product['obtn_id']}]",
+                    <td aria-label="Кол-во"><?= Html::input('number', "Order[count][{$product['obtn_id']}]",
                         $product['count'],
                         [
                             'data-obtn-id' => $product['obtn_id'],
@@ -74,7 +81,10 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                 <td aria-label="Ед. изм."><?= $product['measure'] ?></td>
                 <td aria-label="Цена" class="product-price"><?= $product['price'] ?></td>
                 <td aria-label="Итого" class="total-cost"><?= $product['count'] * $product['price'] ?></td>
-                <?php $counter++; ?>
+                <?php
+                $counter++;
+                Yii::debug('$counter2: ' . $counter, 'test');
+                ?>
             <?php endforeach; ?>
             </tr>
         <?php else: ?>
