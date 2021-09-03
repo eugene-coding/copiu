@@ -2,21 +2,20 @@
 
 namespace app\controllers;
 
-use Yii;
 use app\models\Users;
-use app\models\search\UsersSearch;
-use yii\filters\AccessControl;
+use Yii;
+use app\models\FavoriteProduct;
+use app\models\search\FavoriteProductSearch;
 use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 
 /**
- * UsersController implements the CRUD actions for Users model.
+ * FavoriteProductController implements the CRUD actions for FavoriteProduct model.
  */
-class UsersController extends Controller
+class FavoriteProductController extends Controller
 {
     /**
      * @inheritdoc
@@ -24,18 +23,8 @@ class UsersController extends Controller
     public function behaviors()
     {
         return [
-            'access' => [
-                'class' => AccessControl::class,
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-
-                ],
-            ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['post'],
                     'bulk-delete' => ['post'],
@@ -45,37 +34,15 @@ class UsersController extends Controller
     }
 
     /**
-     * @param $action
-     * @return bool
-     * @throws ForbiddenHttpException
-     * @throws \yii\web\BadRequestHttpException
-     */
-    public function beforeAction($action)
-    {
-        if (parent::beforeAction($action)) {
-            if (!Yii::$app->user->can($action->id)) {
-                throw new ForbiddenHttpException('Доступ запрещен!');
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Lists all Users models.
+     * Lists all FavoriteProduct models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new UsersSearch();
+        $user = Users::getUser();
+        $searchModel = new FavoriteProductSearch();
+        $searchModel->buyer_id = $user->buyer->id;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        if (Users::isBuyer()){
-            return $this->render('view', [
-                'model' => Users::getUser(),
-            ]);
-        }
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -84,7 +51,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Displays a single Users model.
+     * Displays a single FavoriteProduct model.
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException
@@ -95,7 +62,7 @@ class UsersController extends Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'title' => "Пользователь #" . $id,
+                'title' => "FavoriteProduct #" . $id,
                 'content' => $this->renderAjax('view', [
                     'model' => $this->findModel($id),
                 ]),
@@ -112,7 +79,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Creates a new Users model.
+     * Creates a new FavoriteProduct model.
      * For ajax request will return json object
      * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
@@ -120,7 +87,7 @@ class UsersController extends Controller
     public function actionCreate()
     {
         $request = Yii::$app->request;
-        $model = new Users();
+        $model = new FavoriteProduct();
 
         if ($request->isAjax) {
             /*
@@ -129,7 +96,7 @@ class UsersController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => "Добавление пользователя",
+                    'title' => "Create new FavoriteProduct",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -142,8 +109,8 @@ class UsersController extends Controller
                 if ($model->load($request->post()) && $model->save()) {
                     return [
                         'forceReload' => '#crud-datatable-pjax',
-                        'title' => "Добавление пользователя",
-                        'content' => '<span class="text-success">Create Users success</span>',
+                        'title' => "Create new FavoriteProduct",
+                        'content' => '<span class="text-success">Create FavoriteProduct success</span>',
                         'footer' => Html::button('Закрыть',
                                 ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
                             Html::a('Create More', ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
@@ -151,7 +118,7 @@ class UsersController extends Controller
                     ];
                 } else {
                     return [
-                        'title' => "Добавление пользователя",
+                        'title' => "Create new FavoriteProduct",
                         'content' => $this->renderAjax('create', [
                             'model' => $model,
                         ]),
@@ -178,7 +145,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Updates an existing Users model.
+     * Updates an existing FavoriteProduct model.
      * For ajax request will return json object
      * and for non-ajax request if update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
@@ -197,7 +164,7 @@ class UsersController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => "Редактирование пользователя #" . $id,
+                    'title' => "Редактирование кол-ва продукта",
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
@@ -213,7 +180,7 @@ class UsersController extends Controller
                     ];
                 } else {
                     return [
-                        'title' => "Редактирование пользователя #" . $id,
+                        'title' => "Редактирование кол-ва продукта",
                         'content' => $this->renderAjax('update', [
                             'model' => $model,
                         ]),
@@ -238,7 +205,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Delete an existing Users model.
+     * Delete an existing FavoriteProduct model.
      * For ajax request will return json object
      * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
@@ -251,11 +218,7 @@ class UsersController extends Controller
     public function actionDelete($id)
     {
         $request = Yii::$app->request;
-        if (!Users::isAdmin()){
-            throw new ForbiddenHttpException('Доступ запрещен!');
-        } else {
-            $this->findModel($id)->delete();
-        }
+        $this->findModel($id)->delete();
 
         if ($request->isAjax) {
             /*
@@ -274,7 +237,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Delete multiple existing Users model.
+     * Delete multiple existing FavoriteProduct model.
      * For ajax request will return json object
      * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
      * @return mixed
@@ -308,53 +271,68 @@ class UsersController extends Controller
     }
 
     /**
-     * Finds the Users model based on its primary key value.
+     * Finds the FavoriteProduct model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Users the loaded model
+     * @return FavoriteProduct the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Users::findOne($id)) !== null) {
+        if (($model = FavoriteProduct::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 
-    public function actionProfile()
+    /**
+     * Добавляет или удаляет из избранного
+     * @param int $id Идентиифкатор order_blank_to_nomenclature
+     * @return array
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionChange($id)
     {
-        $request = Yii::$app->request;
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $user = Users::getUser();
+        $buyer = $user->buyer;
 
-        $id = Yii::$app->user->id;
+        $model = FavoriteProduct::find()
+            ->andWhere(['obtn_id' => $id])
+            ->andWhere(['buyer_id' => $buyer->id])
+            ->active()
+            ->one();
 
-        $model = Users::findOne($id);
-
-        if ($request->isAjax) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            if ($request->isGet) {
+        if (!$model) {
+            $model = new FavoriteProduct([
+                'buyer_id' => $buyer->id,
+                'obtn_id' => $id,
+                'count' => 1,
+            ]);
+            if (!$model->save()) {
+                //Если не было в избранном - добавляем
+                Yii::error($model->errors, '_error');
                 return [
-                    'title' => 'Профиль ' . $model->fio,
-                    'content' => $this->renderAjax('profile', [
-                        'model' => $model,
-                    ]),
-                    'footer' => Html::button('Закрыть',
-                            ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
-                        Html::button('Сохранить', ['class' => 'btn btn-primary', 'type' => "submit"])
-                ];
-            } else {
-                $model->load($request->post());
-                $model->save();
-
-                return [
-                    'forceClose' => true,
+                    'success' => false,
                 ];
             }
+            $icon = '<i class="fa fa-fw fa-star fa-2x"></i>';
+            $title = 'Нажмите для исключения из избранного';
+        } else {
+            //Если было в избранном - убираем
+            $model->delete();
+            $icon = '<i class="fa fa-fw fa-star-o fa-2x"></i>';
+            $title = 'Нажмите для включения в избранное';
         }
 
-        return $this->render('profile', [
-            'model' => $model,
-        ]);
+        return [
+            'success' => true,
+            'data' => $icon,
+            'title' => $title,
+        ];
+
     }
 }

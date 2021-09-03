@@ -42,6 +42,8 @@ class Order extends ActiveRecord
     const STATUS_DRAFT = 1;
     const STATUS_WORK = 2;
     const STATUS_DONE = 3;
+    const STATUS_ORDER_DRAFT = 5;
+    const STATUS_ORDER_WAITING = 6;
 
     public $count;
     public $step = 1;

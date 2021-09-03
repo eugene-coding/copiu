@@ -84,6 +84,12 @@ use dmstr\widgets\Menu;
                             'url' => ['/order'],
 //                            'visible' => Users::isBuyer()
                         ],
+                        [
+                            'label' => 'Черновики',
+                            'icon' => 'circle',
+                            'url' => ['/order-draft'],
+                            'visible' => Users::isBuyer(),
+                        ],
                     ],
                 ]
             );

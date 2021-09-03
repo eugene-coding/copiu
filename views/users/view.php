@@ -4,21 +4,22 @@ use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Users */
+
+$this->title = $model->fio;
 ?>
 <div class="users-view">
- 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'fio',
-            'login',
-//            'password',
-            'role',
-            'phone',
-            'email:email',
-            'avatar',
-        ],
-    ]) ?>
+
+    <?php
+    try {
+        echo DetailView::widget([
+            'model' => $model,
+            'attributes' => [
+                'fio',
+                'login',
+            ],
+        ]);
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    } ?>
 
 </div>

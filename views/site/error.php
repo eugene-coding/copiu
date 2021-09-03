@@ -18,14 +18,16 @@ $this->title = $name;
             <h3><?= $name ?></h3>
 
             <p>
-                <?= nl2br(Html::encode($message)) ?>
+                <b>
+                    <?= nl2br(Html::encode($message)) ?>
+                </b>
             </p>
 
             <p>
-                The above error occurred while the Web server was processing your request.
-                Please contact us if you think this is a server error. Thank you.
-                Meanwhile, you may <a href='<?= Yii::$app->homeUrl ?>'>return to dashboard</a> or try using the search
-                form.
+                Вышеуказанная ошибка произошла во время обработки веб-сервером вашего запроса.
+                Пожалуйста, свяжитесь с администрацией и сообщите о времени и действиях, которые привели к данной ошибке. Спасибо.<br><br>
+
+                Вы также можете вернуться на <a href='<?= Yii::$app->homeUrl ?>'>Главную страницу</a>
             </p>
 
             <form class='search-form'>
