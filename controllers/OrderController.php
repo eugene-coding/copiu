@@ -453,6 +453,7 @@ class OrderController extends Controller
             }
 
             if ($model->step === 4) {
+                Yii::debug($model->attributes, 'test');
                 //Формируем накладную
                 $invoice_maked = $model->makeInvoice();
                 if (!$invoice_maked) {

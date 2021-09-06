@@ -103,7 +103,7 @@ class Order extends ActiveRecord
                 'message' => 'Укажите конец периода доставки'
             ],
             [
-                ['comment', 'delivery_address_id', 'delivery_time_from', 'delivery_time_to'],
+                ['comment', 'delivery_time_from', 'delivery_time_to'],
                 'required',
                 'on' => self::SCENARIO_STEP_2
             ]
