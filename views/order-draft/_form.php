@@ -37,17 +37,10 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php } ?>
         <?php $form = ActiveForm::begin(); ?>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6 col-sm-12">
                 <?= $form->field($draft, 'name')->textInput(['placeholder' => 'Введите наименование черновика']) ?>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 col-sm-12">
-                <?= $form->field($order, 'target_date')->input('date') ?>
-            </div>
-            <div class="col-md-6 col-sm-12">
-                <?= $form->field($draft, 'plan_send_date')->input('date') ?>
-            </div>
+
         </div>
         <div class="row">
             <div class="col-xs-12 required form-group">
@@ -81,11 +74,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     <ul class="nav nav-pills nav-justified" role="tablist">
                         <?php
                         foreach ($productsDataProvider->getModels() as $tab_id => $products): ?>
-                            <?php $tab_model = BlankTab::findOne($tab_id); ?>
                             <li role="presentation" style="border: 1px solid grey;">
-                                <a href="#tab-<?= $tab_model->id ?>" aria-controls="<?= $tab_model->id; ?>"
+                                <a href="#tab-<?= $tab_id ?>" aria-controls="<?= $tab_id; ?>"
                                    role="tab" data-toggle="tab">
-                                    <?= $tab_model->name; ?>
+                                    <?= $tab_id; ?>
                                 </a>
                             </li>
                         <?php endforeach; ?>

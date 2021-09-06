@@ -20,7 +20,6 @@ use yii\helpers\ArrayHelper;
  * @property Buyer $buyer
  * @property OrderBlankToNomenclature $obtn
  * @property OrderBlank $blank
- * @property BlankTab $blankTab
  */
 class FavoriteProduct extends ActiveRecord
 {
@@ -127,16 +126,6 @@ class FavoriteProduct extends ActiveRecord
     public function getBlank()
     {
         return $this->hasOne(OrderBlank::class, ['id' => 'ob_id'])
-            ->via('obtn');
-    }
-
-    /**
-     * Вкладка для избранного продукта
-     * @return \yii\db\ActiveQuery
-     */
-    public function getBlankTab()
-    {
-        return $this->hasOne(BlankTab::class, ['id' => 'blank_tab_id'])
             ->via('obtn');
     }
 

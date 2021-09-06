@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Order;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
@@ -13,6 +14,14 @@ use yii\widgets\DetailView;
             'model' => $order,
             'attributes' => [
                 'target_date:date',
+                'delivery_time_from',
+                'delivery_time_to',
+                [
+                    'attribute' => 'delivery_address_id',
+                    'value' => function (Order $model) {
+                        return $model->address->address;
+                    }
+                ],
                 'total_price:currency',
                 'comment:ntext',
             ],

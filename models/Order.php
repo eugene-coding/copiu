@@ -47,6 +47,8 @@ class Order extends ActiveRecord
     const STATUS_ORDER_WAITING = 6;
 
     const SCENARIO_DRAFT = 'draft';
+    const SCENARIO_TO_QUEUE = 'to_queue';
+    const SCENARIO_STEP_2 = 'step_2';
 
     public $count;
     public $step = 1;
@@ -86,7 +88,25 @@ class Order extends ActiveRecord
                 'length' => [0, 255],
                 'message' => '«Комментарий» должен содержать максимум 255 символов.'
             ],
-            [['comment', 'count'], 'required', 'on' => self::SCENARIO_DRAFT]
+            [['comment', 'count'], 'required', 'on' => self::SCENARIO_DRAFT],
+            [['target_date', 'delivery_address_id'], 'required', 'on' => self::SCENARIO_TO_QUEUE],
+            [
+                ['delivery_time_from'],
+                'required',
+                'on' => self::SCENARIO_TO_QUEUE,
+                'message' => 'Укажите начало периода доставки'
+            ],
+            [
+                ['delivery_time_to'],
+                'required',
+                'on' => self::SCENARIO_TO_QUEUE,
+                'message' => 'Укажите конец периода доставки'
+            ],
+            [
+                ['comment', 'delivery_address_id', 'delivery_time_from', 'delivery_time_to'],
+                'required',
+                'on' => self::SCENARIO_STEP_2
+            ]
         ];
     }
 
@@ -482,11 +502,8 @@ class Order extends ActiveRecord
      * @param ArrayDataProvider|null $favoriteDataProvider Избранные продукты
      * @return ArrayDataProvider
      */
-    public function getProductDataProvider(
-        $product_id = null,
-        $blanks = [],
-        ArrayDataProvider $favoriteDataProvider = null
-    ) {
+    public function getProductDataProvider($product_id = null, $blanks = [], $favoriteDataProvider = null)
+    {
         $favorite_obtn_ids = [];
         $user = User::getUser();
         $buyer = $user->buyer;
@@ -661,6 +678,9 @@ class Order extends ActiveRecord
         $order->status = 1;
         $order->blanks = implode(',', $blank_ids);
         $order->comment = $order_basis->comment;
+        $order->delivery_time_from = $order_basis->delivery_time_from;
+        $order->delivery_time_to = $order_basis->delivery_time_to;
+        $order->total_price = $order_basis->total_price;
 
         if (!$order->save()) {
             Yii::error($order->errors, '_error');
@@ -676,11 +696,14 @@ class Order extends ActiveRecord
 
         /** @var OrderToNomenclature $item */
         foreach ($query->each() as $item) {
+
             /** @var OrderBlankToNomenclature $obtn */
             $obtn = $item->obtn;
+            $product = $obtn->n;
             $rows[] = [
                 $order->id,
-                $obtn->getPriceForOrder($order->id), //Цену рассчитываем заново, т.к. цена может измениться
+                $product->getPriceForBuyer($obtn->container_id),
+                //Цену продукта рассчитываем заново, т.к. цена может измениться
                 $item->count,
                 $obtn->id,
             ];
@@ -762,5 +785,36 @@ class Order extends ActiveRecord
         ]);
 
         return $favoriteDataProvider;
+    }
+
+    /**
+     * Проверяет корректность периода доставки
+     * @return Order
+     */
+    public function checkDeliveryPeriod(): Order
+    {
+        if (!$this->delivery_time_to || !$this->delivery_time_from) {
+            $this->addError('delivery_time_to', 'Не выбран период доставки');
+            Yii::$app->session->setFlash('warning', 'Не выбран период доставки');
+        }
+
+        if ($this->delivery_time_from) {
+            $delivery_period = Settings::getValueByKey('delivery_period');
+            $from = date('H', strtotime($this->delivery_time_from));
+            $to = date('H', strtotime($this->delivery_time_to));
+            if (!$to) {
+                $this->delivery_time_to = date('H:i', strtotime($from) + (60 * 60 * $delivery_period));
+                $to = date('H', strtotime($this->delivery_time_to));
+            }
+            if ($from > $to) {
+                Yii::$app->session->setFlash('warning', 'Конечное время доставки должно быть больше начального');
+                $this->addError('error_delivery_time', 'Конечное время должно быть больше начального');
+            } elseif (($to - $from) < $delivery_period) {
+                Yii::$app->session->setFlash('warning', 'Увеличьте период доставки');
+                $this->addError('error_delivery_time', 'Увеличьте период доставки');
+            }
+        }
+
+        return $this;
     }
 }

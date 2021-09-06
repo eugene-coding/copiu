@@ -77,7 +77,7 @@ class BuyerAddress extends ActiveRecord
 
     /**
      * Список адресов для покупателя
-     * @param int $id
+     * @param int $id Идентификатор покупателя
      * @return array
      */
     public static function getList($id)

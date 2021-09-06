@@ -36,7 +36,7 @@ use dmstr\widgets\Alert;
 
     <section class="content">
         <?php try {
-            Alert::widget();
+           echo Alert::widget();
         } catch (Exception $e) {
             echo $e->getMessage();
         } ?>

@@ -398,6 +398,7 @@ class OrderController extends Controller
             $model->orderProcessing();
 
             if ($model->step == 2) {
+                $model->scenario = $model::SCENARIO_STEP_2;
                 Yii::debug($model
                     ->validate('comment') ? 'Валидация комментария успешна' : 'Валидация комментария провалена',
                     'test');
@@ -429,26 +430,11 @@ class OrderController extends Controller
                     $model->addError('delivery_address_id', 'Не указан адрес доставки');
                     Yii::$app->session->setFlash('warning', 'Не указан адрес доставки');
                 }
+                //Проверяем время доставки
+                $model->checkDeliveryPeriod();
             }
 
-            //Проверяем время доставки
-            if ($model->delivery_time_from) {
-                $delivery_period = Settings::getValueByKey('delivery_period');
-                $from = date('H', strtotime($model->delivery_time_from));
-                $to = date('H', strtotime($model->delivery_time_to));
-                if (!$to) {
-                    $model->delivery_time_to = date('H:i', strtotime($from) + (60 * 60 * $delivery_period));
-                    $to = date('H', strtotime($model->delivery_time_to));
-                }
-                if ($from > $to) {
-                    Yii::$app->session->setFlash('warning', 'Конечное время доставки должно быть больше начального');
-                    $model->addError('error_delivery_time', 'Конечное время должно быть больше начального');
-                } elseif (($to - $from) < $delivery_period) {
-                    Yii::$app->session->setFlash('warning', 'Увеличьте период доставки');
-                    $model->addError('error_delivery_time', 'Увеличьте период доставки');
-                }
-            }
-
+            Yii::error($model->errors, '_error');
             if (!$model->hasErrors()) {
                 $model->step++;
             }
@@ -706,6 +692,8 @@ class OrderController extends Controller
      */
     public function actionGetContent($order_id, $is_mobile = null)
     {
+        //TODO: во вкладке избранное если выбрать кол-во продуктов и например не выбрать период, то полсе перезагрузки
+        //TODO: страницы кол-во слетает
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
 

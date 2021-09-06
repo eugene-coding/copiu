@@ -25,10 +25,9 @@ return [
         'filter' => FavoriteProduct::getBlanks(),
         'value' => function (FavoriteProduct $model) {
             $blank = $model->blank;
-            $blank_name = $blank->name ?: $blank->number;
-            $tab_name = $model->blankTab->name;
+            $blank_name = $blank->number;
 
-            return "{$blank_name} / {$tab_name}";
+            return "{$blank_name}";
         },
     ],
     [

@@ -129,7 +129,7 @@ class OrderDraftController extends Controller
         $request = Yii::$app->request;
         $model = new OrderDraft();
         $user = Users::getUser();
-        $blanks = OrderBlank::find()->select('id')->active()->column();
+        $blanks = OrderBlank::find()->select('id')->column();
         $order = new Order([
             'buyer_id' => $user->buyer->id ?? null,
             'blanks' => implode(',', $blanks),
@@ -396,6 +396,9 @@ class OrderDraftController extends Controller
         $order = $draft->order;
         $order->target_date = null;
         $order->status = $order::STATUS_ORDER_DRAFT;
+        $order->delivery_time_from = null;
+        $order->delivery_time_to = null;
+        $order->delivery_address_id = null;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -456,6 +459,24 @@ class OrderDraftController extends Controller
             if ($draft->load($request->post()) && $order->load($request->post())){
                 Yii::debug($draft->attributes, 'test');
                 Yii::debug($order->attributes, 'test');
+
+                $order->scenario = $order::SCENARIO_TO_QUEUE;
+                if (!$order->validate()){
+                    $order->addError('target_date', 'Укажите дату заказа и период доставки');
+                    return [
+                        'title' => "Добавление черновика в очередь",
+                        'content' => $this->renderAjax('_to_queue_form', [
+                            'draft' => $draft,
+                            'order' => $order,
+                            'productsDataProvider' => $productsDataProvider,
+                        ]),
+                        'footer' => Html::button('Закрыть',
+                                ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"]) .
+                            Html::button('Подтвердить', ['class' => 'btn btn-primary', 'type' => "submit"])
+
+                    ];
+                }
+
                 $result = $draft->toQueue($order);
                 if ($result['success']){
                     if (!$draft->save()){
@@ -494,16 +515,5 @@ class OrderDraftController extends Controller
                 ];
             }
         }
-    }
-
-    /**
-     * Проверка планируемой даты отправки черновиков. Если дата наступила:
-     * 1. Копируем заказ
-     * 2. Отправляем запрос в айку для формирования накладной.
-     * 3. Проставляем заказу статус "В работе"
-     */
-    public function actionCheckQueue()
-    {
-
     }
 }

@@ -778,5 +778,6 @@ class SiteController extends Controller
                 }
             }
         }
+        return 'Готово';
     }
 }
