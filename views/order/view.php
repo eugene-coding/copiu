@@ -23,6 +23,7 @@ $counter = 1;
                         . ' до '
                         . Yii::$app->formatter->asTime($model->delivery_time_to),
                     'label' => 'Время доставки',
+                    'format' => 'raw'
                 ],
                 [
                     'attribute' => 'delivery_address_id',
