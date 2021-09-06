@@ -6,14 +6,16 @@ use app\models\Settings;
 use yii\helpers\Html;
 
 /* @var $blank_id integer */
-/* @var $dataProvider array */
+/* @var $products array */
 
 $counter = 1;
 $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
 
+Yii::debug($products, '_test');
+
 ?>
 
-<?php foreach ($dataProvider as $product): ?>
+<?php foreach ($products as $product): ?>
     <div class="card">
         <div class="row">
             <div class="col-md-12">

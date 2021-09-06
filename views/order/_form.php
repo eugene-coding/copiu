@@ -151,21 +151,21 @@ try {
         <!--Интервал, адрес, коментарий-->
         <div class="col-md-4 col-md-push-8">
             <div class="row">
-                <div class="col-xs-12 text-center">Укажите временной интервал доставки</div>
-                <div class="col-xs-6"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
+                <div class="col-md-12 text-center">Укажите временной интервал доставки</div>
+                <div class="col-md-6 col-sm-12"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
                         $model->delivery_time_from,
                         $model->buyer->getDeliveryTimeIntervals('from'), [
                             'class' => 'form-control',
                             'prompt' => '...'
 
                         ]) ?></div>
-                <div class="col-xs-6"><b>По</b><br><?= Html::dropDownList('Order[delivery_time_to]',
+                <div class="col-md-6 col-sm-12"><b>По</b><br><?= Html::dropDownList('Order[delivery_time_to]',
                         $model->delivery_time_to,
                         $model->buyer->getDeliveryTimeIntervals('to'), [
                             'class' => 'form-control',
                             'prompt' => '...',
                         ]) ?></div>
-                <div class="error-time text-center col-xs-12">
+                <div class="error-time text-center col-sm-12">
                     <?= $form->field($model, 'error_delivery_time')->hiddenInput()->label(false) ?>
                 </div>
                 <div class="col-md-12">

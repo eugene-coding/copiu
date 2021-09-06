@@ -125,7 +125,6 @@ $(document).ready(function () {
     });
 
     $(document).on('change', '.count-product', function () {
-        debugger;
         var count = $(this).val();
         var price = $(this).parents('.card').find('.product-price').html();
         var price_d = $(this).parents('tr').find('.product-price').html();

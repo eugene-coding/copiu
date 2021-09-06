@@ -433,8 +433,9 @@ class OrderController extends Controller
                 //Проверяем время доставки
                 $model->checkDeliveryPeriod();
             }
-
-            Yii::error($model->errors, '_error');
+            if ($model->errors) {
+                Yii::error($model->errors, '_error');
+            }
             if (!$model->hasErrors()) {
                 $model->step++;
             }
@@ -699,6 +700,10 @@ class OrderController extends Controller
 
         $favoriteDataProvider = $model->getFavoriteDataProvider();
         $productsDataProvider = $model->getProductDataProvider(null, null, $favoriteDataProvider);
+
+        Yii::debug($favoriteDataProvider->getModels(), '_test');
+        Yii::debug($productsDataProvider->getModels(), '_test');
+
 
         if ($is_mobile) {
             return $this->renderAjax('_step_2_mobile', [

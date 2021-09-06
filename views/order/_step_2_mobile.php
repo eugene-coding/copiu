@@ -13,12 +13,14 @@ use yii\bootstrap\Html;
 <ul class="nav nav-tabs">
     <!--Избранное-->
     <?php if (User::favoriteExists()): ?>
+    <?php Yii::debug('Избранное', 'test'); ?>
         <li role="presentation">
             <a href="#tab-favorite" aria-controls="favorite"
                role="tab" data-toggle="tab">Избранное</a>
         </li>
     <?php endif; ?>
     <!--Остальные-->
+    <?php Yii::debug('Остальные продукты', 'test'); ?>
     <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
         <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
         <li role="presentation">
@@ -97,7 +99,7 @@ use yii\bootstrap\Html;
                                 <?= $this->render('_nomenclature_mobile', [
                                     'model' => $model,
                                     'blank_id' => $tab_model->id,
-                                    'dataProvider' => $products,
+                                    'products' => $products,
                                 ]) ?>
                             </div>
                         </div>
