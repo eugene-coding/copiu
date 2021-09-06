@@ -55,7 +55,7 @@ $(document).ready(function () {
             .done(function (response) {
                 if (response.success === true) {
                     icon = response.data;
-                    link.html(icon)
+                    link.html(icon);
                     link.attr('title', response.title);
                 } else {
                     link.html('<i class="fa fa-fw fa-exclamation-circle text-danger"></i>');

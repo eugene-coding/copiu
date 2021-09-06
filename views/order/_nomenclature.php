@@ -50,7 +50,7 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                 <tr>
                 <td aria-label="#"><?= $counter ?></td>
                 <td aria-label="Избр." class="text-center">
-                    <?= Html::a($product['is_favorite'] ? '<i class="fa fa-fw fa-star"></i>': '<i class="fa fa-fw fa-star-o"></i>',
+                    <?= Html::a($product['is_favorite'] ? '<i class="fa fa-fw fa-star fa-2x"></i>': '<i class="fa fa-fw fa-star-o fa-2x"></i>',
                             ['/order/order-update', 'id' => $model->id],[
                                     'id' => 'change-favorite-btn',
                                     'data-href' => '/favorite-product/change?id=' . $product['obtn_id'],
