@@ -107,7 +107,14 @@ return [
                 }
 
                 return false;
-            }
+            },
+            'update' => function(OrderDraft $model){
+                if ($model->order->status == \app\models\Order::STATUS_ORDER_WAITING){
+                    return false;
+                }
+
+                return true;
+            },
         ]
     ],
 

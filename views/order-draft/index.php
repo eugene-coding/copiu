@@ -47,7 +47,12 @@ CrudAsset::register($this);
                 'responsive' => true,
                 'panel' => [
                     'type' => 'primary',
-                    'heading' => '<i class="glyphicon glyphicon-list"></i> Список черновиков',
+                    'heading' => '<i class="glyphicon glyphicon-list"></i> Список черновиков '
+                        . Html::a('<span class="glyphicon glyphicon-question-sign"></span>',
+                            ['/order-draft/help'], [
+                                'role' => 'modal-remote',
+                                'title' => 'Описание работы'
+                            ]),
 //                    'before' => '<em>* Resize table columns just like a spreadsheet by dragging the column edges.</em>',
                     'after' => '<div class="clearfix"></div>',
                 ]

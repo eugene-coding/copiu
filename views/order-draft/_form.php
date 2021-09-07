@@ -11,23 +11,14 @@ use yii\widgets\ActiveForm;
 /* @var $order app\models\Order */
 /* @var $productsDataProvider \yii\data\ArrayDataProvider */
 
-try {
-    $this->registerJsFile('/js/order_form.js', [
-        'depends' => [
-            'yii\web\YiiAsset',
-            'yii\bootstrap\BootstrapAsset',
-        ]
-    ]);
-} catch (\yii\base\InvalidConfigException $e) {
-    echo $e->getMessage();
-}
-
 $this->title = $draft->isNewRecord ? 'Добавление черновика заказа' : 'Редактирование черновика заказа';
-$this->params['breadcrumbs'][] = 'Черновики заказов';
+$this->params['breadcrumbs'][] = 'Черновики заказов ';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
     <div class="order-draft-form">
+
+        <?php $form = ActiveForm::begin(); ?>
         <?php if (!Yii::$app->request->isAjax) { ?>
             <div class="col-md-2 col-sm-12 col-md-offset-10">
                 <div class="form-group">
@@ -35,12 +26,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
             </div>
         <?php } ?>
-        <?php $form = ActiveForm::begin(); ?>
         <div class="row">
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-12">
                 <?= $form->field($draft, 'name')->textInput(['placeholder' => 'Введите наименование черновика']) ?>
             </div>
-
         </div>
         <div class="row">
             <div class="col-xs-12 required form-group">

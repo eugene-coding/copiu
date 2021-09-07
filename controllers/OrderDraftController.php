@@ -133,7 +133,6 @@ class OrderDraftController extends Controller
         $order = new Order([
             'buyer_id' => $user->buyer->id ?? null,
             'blanks' => implode(',', $blanks),
-            'scenario' => Order::SCENARIO_DRAFT
         ]);
         $productsDataProvider = $order->getProductDataProvider();
 
@@ -157,6 +156,7 @@ class OrderDraftController extends Controller
 
                 ];
             } else {
+                $order->scenario = $order::SCENARIO_DRAFT;
                 if ($model->load($request->post()) && $model->save()) {
                     return [
                         'forceReload' => '#crud-datatable-pjax',
@@ -515,5 +515,20 @@ class OrderDraftController extends Controller
                 ];
             }
         }
+    }
+
+    /**
+     * Выводит тест помощи по разделу
+     * @return array
+     */
+    public function actionHelp()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'title' => "Работа с черновиками заказов",
+            'content' => $this->renderAjax('help'),
+            'footer' => Html::button('Закрыть',
+                    ['class' => 'btn btn-default pull-left', 'data-dismiss' => "modal"])
+        ];
     }
 }

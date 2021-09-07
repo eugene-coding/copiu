@@ -72,6 +72,7 @@ class RbacController extends Controller
         $resetDraft = $authManager->createPermission('reset-draft');
         $toQueue = $authManager->createPermission('to-queue');
         $sendDrafts = $authManager->createPermission('send-drafts');
+        $help = $authManager->createPermission('help');
 
 
         //Добавляем разрешения в AuthManager
@@ -118,6 +119,7 @@ class RbacController extends Controller
         $authManager->add($resetDraft);
         $authManager->add($toQueue);
         $authManager->add($sendDrafts);
+        $authManager->add($help);
 
         //Добавляем правила, основанные на UserExt->group === $user->group
         $userGroupRule = new UserGroupRule();
@@ -173,6 +175,7 @@ class RbacController extends Controller
         $authManager->addChild($buyer, $resetDraft);
         $authManager->addChild($buyer, $toQueue);
         $authManager->addChild($buyer, $sendDrafts);
+        $authManager->addChild($buyer, $help);
 
         //Admin
         $authManager->addChild($admin, $delete);

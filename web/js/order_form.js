@@ -76,7 +76,6 @@ $(document).ready(function () {
             })
     });
 
-
     $(window).bind('beforeunload', function () {
         var step = $('#order-step').val();
         if (step !== 'undefined' && step > 1 && step < 4) {
@@ -133,8 +132,10 @@ $(document).ready(function () {
         if (typeof(price) === 'undefined') {
             price = price_d;
         }
-        var order_id = $('#order-step').attr('data-id');
+        var order_id = $(this).attr('data-order-id');
         var obtn_id = $(this).attr('data-obtn-id');
+
+        console.log('Order ID: ' + order_id);
 
         // var total = 0;
         // $('.total-cost').each(function (index, value) {

@@ -5,7 +5,6 @@ use yii\helpers\Html;
 
 /* @var $model app\models\Order */
 /* @var $dataProvider array */
-/* @var $blank_id integer */
 
 $counter = 1;
 
@@ -61,14 +60,13 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                 <td aria-label="Наименование"><?= $product['name'] ?></td>
                 <td aria-label="Описание">
                     <div class="description" style="max-width: 200px">
-                        <?php
-                        echo $product['description'] ?: 'нет';
-                        ?>
+                        <?= $product['description'] ?: 'нет'; ?>
                     </div>
                 </td>
                     <td aria-label="Кол-во"><?= Html::input('number', "Order[count][{$product['obtn_id']}]",
                         $product['count'],
                         [
+                            'data-order-id' => $model->id,
                             'data-obtn-id' => $product['obtn_id'],
                             'class' => 'form-control count-product',
                             'min' => 0,
