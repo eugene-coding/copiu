@@ -460,9 +460,13 @@ class OrderController extends Controller
                     $model->invoice_number = 'error';
                     $model->status = $model::STATUS_DRAFT;
                     $model->save();
+                } else {
+                    //Накладная сформировалась
+                    $model->status = $model::STATUS_WORK;
                 }
 
                 if ($model->deliveryCost && $invoice_maked) {
+                    //Есть сумма доставки и накладная сформирована
                     //Формируем акт оказания услуг (доставка)
                     if (!$model->makeDeliveryAct()) {
                         $model->delivery_act_number = 'error';
