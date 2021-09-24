@@ -457,22 +457,30 @@ class OrderController extends Controller
                 //Формируем накладную
                 $invoice_maked = $model->makeInvoice();
                 if (!$invoice_maked) {
+                    Yii::info('Ошибка формирования накладной', 'test');
                     $model->invoice_number = 'error';
                     $model->status = $model::STATUS_ERROR;
                     $model->save();
                 } else {
                     //Накладная сформировалась
+                    Yii::info('Накладная успешно сформирована', 'test');
                     $model->status = $model::STATUS_WORK;
                 }
 
                 if ($model->deliveryCost && $invoice_maked) {
                     //Есть есть доставка (сумма доставки расчитана) и накладная сформирована
                     //Формируем акт оказания услуг (доставка)
+                    Yii::info('Сумма доставки расчитана и накладная сформирована', 'test');
                     if (!$model->makeDeliveryAct()) {
+                        Yii::info('Акт не сформирован', 'test');
                         $model->delivery_act_number = 'error';
                         $model->status = $model::STATUS_ERROR;
                         $model->save();
+                    } else {
+                        Yii::info('Акт сформирован', 'test');
                     }
+                } else {
+                    Yii::info('Нет доставки или сумма доставки 0 руб.', 'test');
                 }
             }
 

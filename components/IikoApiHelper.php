@@ -267,6 +267,8 @@ class IikoApiHelper
      */
     public function makeExpenseInvoice($params)
     {
+        Yii::info('Создание расходной накладной', 'test');
+        Yii::info($params, 'test');
         $dom = new domDocument('1.0', 'utf-8');
         $root = $dom->createElement('document');
         $dom->appendChild($root);
@@ -315,7 +317,9 @@ class IikoApiHelper
             //Сохраняем в файл
             try {
                 file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '.xml', $this->post_data);
+                Yii::info('Файл' . $params['documentNumber'] . '.xml сохранен', 'test');
             } catch (\Exception $e) {
+                Yii::info('Ошибка: ' . $e->getMessage(), 'test');
                 Yii::error($e->getMessage(), 'test');
             }
         }
@@ -323,18 +327,27 @@ class IikoApiHelper
         $this->headers = [
             'Content-Type: application/xml'
         ];
-        \Yii::debug($this->post_data, 'test');
+        Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
+        Yii::info('Отправка запроса...', 'test');
+
         $result = $this->send('POST');
+        Yii::info('Запрос отправлен, ответ получен:', 'test');
+        Yii::info($result, 'test');
+
         if (YII_ENV_DEV) {
             //Сохраняем ответ в файл
             try {
+                Yii::info('Сохранение файла ответа...', 'test');
                 file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '_response.xml', $result);
+                Yii::info('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml', 'test');
             } catch (\Exception $e) {
+                Yii::info('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
                 Yii::error($e->getMessage(), 'test');
             }
         }
+        Yii::info('Завершение создания накладной.', 'test');
 
 //        Yii::debug($result, 'test');
         return $result;
