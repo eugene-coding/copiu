@@ -88,10 +88,10 @@ class OrderController extends Controller
             Yii::$app->user->logout();
             return $this->goHome();
         }
+        Order::clean();
+
         $searchModel = new OrderSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        Order::clean();
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -458,7 +458,7 @@ class OrderController extends Controller
                 $invoice_maked = $model->makeInvoice();
                 if (!$invoice_maked) {
                     $model->invoice_number = 'error';
-                    $model->status = $model::STATUS_DRAFT;
+                    $model->status = $model::STATUS_ERROR;
                     $model->save();
                 } else {
                     //Накладная сформировалась
@@ -466,11 +466,11 @@ class OrderController extends Controller
                 }
 
                 if ($model->deliveryCost && $invoice_maked) {
-                    //Есть сумма доставки и накладная сформирована
+                    //Есть есть доставка (сумма доставки расчитана) и накладная сформирована
                     //Формируем акт оказания услуг (доставка)
                     if (!$model->makeDeliveryAct()) {
                         $model->delivery_act_number = 'error';
-                        $model->status = $model::STATUS_DRAFT;
+                        $model->status = $model::STATUS_ERROR;
                         $model->save();
                     }
                 }
@@ -487,24 +487,22 @@ class OrderController extends Controller
      * Отменяет (удаляет) заказ
      * @param int $id Идентификатор заказа
      * @return Response
-     * @throws \Exception
      * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     public function actionCancel($id = null)
     {
         if ($id) {
             $model = Order::findOne($id);
-
-            try {
-                if (!$model->delete()) {
-                    \Yii::error($model->errors, '_error');
+            if ($model->status == $model::STATUS_IN_PROGRESS) {
+                try {
+                    if (!$model->delete()) {
+                        \Yii::error($model->errors, '_error');
+                    }
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage(), '_error');
                 }
-            } catch (\Exception $e) {
-                Yii::error($e->getMessage(), '_error');
             }
         }
-
         return $this->redirect('index');
     }
 
@@ -564,7 +562,7 @@ class OrderController extends Controller
             return $this->redirect('index');
         }
 
-        $order->status = 1;
+        $order->status = $order::STATUS_IN_PROGRESS;
         $order->blanks = implode(',', $blank_ids);
         $order->comment = $order_basis->comment;
         $order->delivery_time_from = $order_basis->delivery_time_from;
@@ -575,15 +573,6 @@ class OrderController extends Controller
             Yii::$app->session->addFlash('error', 'Ошибка при копировании заказа. ' . json_encode($order->errors));
             return $this->redirect('index');
         }
-
-//        //Получаем список ID продуктов из бланков заказа-источника (удаленные бланки не попадают в выдачу)
-//        $basis_product_ids = OrderBlankToNomenclature::find()
-//            ->select(['n_id'])
-//            ->andWhere([
-//                'IN',
-//                'ob_id',
-//                $blank_ids
-//            ])->column();
 
         //Добавляем продукты в новый заказ
         $rows = [];
@@ -648,7 +637,7 @@ class OrderController extends Controller
             //Если ошибка формирования накладной
             if (!$model->makeInvoice()) {
                 $model->invoice_number = 'error';
-                $model->status = $model::STATUS_DRAFT;
+                $model->status = $model::STATUS_ERROR;
             } else {
                 if ($model->deliveryCost && $model->delivery_act_number && $model->delivery_act_number != 'error') {
                     $model->status = $model::STATUS_WORK;
@@ -665,7 +654,7 @@ class OrderController extends Controller
                 //Формируем акт оказания услуг (доставка)
                 if (!$model->makeDeliveryAct()) {
                     $model->delivery_act_number = 'error';
-                    $model->status = $model::STATUS_DRAFT;
+                    $model->status = $model::STATUS_ERROR;
                 } else {
                     if ($model->invoice_number && $model->invoice_number != 'error') {
                         $model->status = $model::STATUS_WORK;
@@ -819,6 +808,89 @@ class OrderController extends Controller
             'success' => true,
             'total' => $total ?: 0,
         ];
+    }
+
+    /**
+     * Выставляет заказу статус Черновик
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionToDraft($id)
+    {
+        $order = $this->findModel($id);
+        $order->status = $order::STATUS_DRAFT;
+        if (!$order->save()) {
+            Yii::error($order->errors, '_error');
+        }
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return [
+            'success' => true,
+        ];
+    }
+
+    /**
+     * Удаляет черновик
+     * @param $id
+     * @return array|Response
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionDeleteDraft($id)
+    {
+        $request = Yii::$app->request;
+
+        $order = $this->findModel($id);
+
+        if ($order->status == $order::STATUS_DRAFT) {
+            $order->delete();
+        }
+
+        if ($request->isAjax) {
+            /*
+            *   Process for ajax request
+            */
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
+            /*
+            *   Process for non-ajax request
+            */
+            return $this->redirect(['index']);
+        }
+    }
+
+    /**
+     * Переход к редактированию черновика
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionUpdateDraft($id)
+    {
+
+        $request = Yii::$app->request;
+        $order = $this->findModel($id);
+
+        if ($request->isPost) {
+            $order->load($request->post());
+            $result = OrderBlank::getOrdersByDate($order->target_date);
+            Yii::debug($result, 'test');
+            if ($result['success']) {
+                return $this->redirect(['/order/order-update', 'id' => $order->id]);
+            } else {
+                //Если ошибка
+                $order->addError('target_date', $result['error']);
+            }
+        }
+        return $this->render('_form', [
+            'model' => $order,
+        ]);
+
+
     }
 
 }

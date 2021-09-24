@@ -762,7 +762,7 @@ class SiteController extends Controller
                     if (!$order->makeInvoice()) {
                         //Если накладная не создалась
                         $order->invoice_number = 'error';
-                        $order->status = $order::STATUS_DRAFT;
+                        $order->status = $order::STATUS_ERROR;
                     } else {
                         $order->status = $order::STATUS_WORK;
                     }

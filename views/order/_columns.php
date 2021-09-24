@@ -76,7 +76,7 @@ return [
 
             $status = Order::getStatusList()[$model->status];
 
-            if ($status == $model::getStatusList()[$model::STATUS_DRAFT]) {
+            if ($status == $model::getStatusList()[$model::STATUS_ERROR]) {
                 return $status . '<br><small class="text-warning">Повторите формирование документов</small>';
             } else {
                 return $status;
@@ -86,7 +86,7 @@ return [
     ],
     [
         'class' => 'kartik\grid\ActionColumn',
-        'template' => '{re-make-documents} {copy-order} {view} {delete}',
+        'template' => '{re-make-documents} {copy-order} {update} {view} {delete}',
         'dropdown' => false,
         'vAlign' => 'middle',
         'urlCreator' => function ($action, $model, $key, $index) {
@@ -94,8 +94,7 @@ return [
         },
         'buttons' => [
             're-make-documents' => function ($url, Order $model) {
-                if ($model->status == $model::STATUS_DRAFT &&
-                    ($model->invoice_number == 'error' || $model->delivery_act_number == 'error')) {
+                if ($model->status == $model::STATUS_ERROR) {
                     return Html::a('<i class="glyphicon glyphicon-repeat text-danger"></i>',
                         ['/order/re-make-documents', 'id' => $model->id],
                         [
@@ -103,9 +102,13 @@ return [
                             'data-pjax' => 0,
                         ]);
                 }
+                return null;
             },
             'copy-order' => function ($url, Order $model) {
-                if ($model->status != $model::STATUS_DRAFT && Settings::checkSettings()['success'] && Users::isBuyer()) {
+                if ($model->status != $model::STATUS_DRAFT
+                    && $model->status != $model::STATUS_ERROR
+                    && Settings::checkSettings()['success']
+                    && Users::isBuyer()) {
                     return Html::a('<i class="glyphicon glyphicon-copy"></i>',
                         ['/order/copy-order', 'basis_order_id' => $model->id],
                         [
@@ -113,9 +116,13 @@ return [
                             'data-pjax' => 0,
                         ]);
                 }
+                return null;
             },
             'delete' => function ($url, Order $model) {
                 if ($model->status == $model::STATUS_DRAFT || $model->status == $model::STATUS_DONE) {
+                    if ($model->status == $model::STATUS_DRAFT){
+                        $url = Url::toRoute(['/order/delete-draft', 'id' => $model->id]);
+                    }
                     return Html::a('<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>',
                         $url, [
                             'role' => 'modal-remote',
@@ -130,26 +137,36 @@ return [
                             'data-confirm-cancel' => 'Отмена',
                         ]);
                 }
+                return null;
             },
-            'update' => function ($url, Order $model) {
-                if ($model->status == $model::STATUS_DRAFT) {
-                    return Html::a('<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>',
-                        $url);
-                }
-            }
+            'update' =>  function ($url, Order $model) {
+                return Html::a('<i class="glyphicon glyphicon-pencil"></i>',
+                    ['/order/update-draft', 'id' => $model->id],
+                    [
+                        'title' => 'Редактирование заказа',
+                        'data-pjax' => 0,
+                    ]);
+            },
         ],
         'viewOptions' => ['role' => 'modal-remote', 'title' => 'View', 'data-toggle' => 'tooltip'],
         'updateOptions' => ['role' => 'modal-remote', 'title' => 'Редактировать', 'data-toggle' => 'tooltip'],
         'deleteOptions' => [
             'role' => 'modal-remote',
-            'title' => 'Delete',
+            'title' => 'Удалить',
             'data-confirm' => false,
             'data-method' => false,// for overide yii data api
             'data-request-method' => 'post',
             'data-toggle' => 'tooltip',
-            'data-confirm-title' => 'Are you sure?',
-            'data-confirm-message' => 'Are you sure want to delete this item'
+            'data-confirm-title' => 'Вы уверены?',
+            'data-confirm-message' => 'Действительно удалить заказ?',
+            'data-confirm-ok' => 'Удалить',
+            'data-confirm-cancel' => 'Отмена',
         ],
+        'visibleButtons' => [
+            'update' => function (Order $model) {
+                return $model->status == $model::STATUS_DRAFT;
+            }
+        ]
     ],
 
 ];   

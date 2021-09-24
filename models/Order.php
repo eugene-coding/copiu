@@ -45,6 +45,8 @@ class Order extends ActiveRecord
     const STATUS_DONE = 3;
     const STATUS_ORDER_DRAFT = 5;
     const STATUS_ORDER_WAITING = 6;
+    const STATUS_ERROR = 7;
+    const STATUS_IN_PROGRESS = 8;
 
     const SCENARIO_DRAFT = 'draft';
     const SCENARIO_TO_QUEUE = 'to_queue';
@@ -55,6 +57,8 @@ class Order extends ActiveRecord
     public $error_delivery_time;
     public $buyer_name;
     public $search_product_id;
+    public $order_warning_html;
+
 
     /**
      * {@inheritdoc}
@@ -106,7 +110,8 @@ class Order extends ActiveRecord
                 ['comment', 'delivery_time_from', 'delivery_time_to'],
                 'required',
                 'on' => self::SCENARIO_STEP_2
-            ]
+            ],
+            ['order_warning_html', 'string'],
         ];
     }
 
@@ -168,6 +173,7 @@ class Order extends ActiveRecord
     {
         return [
             self::STATUS_DRAFT => 'Черновик',
+            self::STATUS_ERROR => 'Ошибка',
             self::STATUS_WORK => 'В работе',
             self::STATUS_DONE => 'Завершен',
         ];
@@ -393,26 +399,28 @@ class Order extends ActiveRecord
      */
     public static function clean()
     {
+        Yii::debug('This is Clean() start', 'test');
         $user = Users::findOne(Yii::$app->user->identity->id);
         $buyer = $user->buyer;
 
-        $fail_orders = Order::find()
+        $not_finished_orders = Order::find()
             ->andWhere(['buyer_id' => $buyer->id])
-            ->andWhere(['IS', 'invoice_number', null])
-            ->andWhere(['<>', 'status', [self::STATUS_ORDER_DRAFT, self::STATUS_ORDER_WAITING]])
+            ->andWhere(['status' => self::STATUS_IN_PROGRESS])
             ->all();
+        Yii::debug($not_finished_orders, 'test');
 
-        foreach ($fail_orders as $order) {
+        /** @var Order $order */
+        foreach ($not_finished_orders as $order) {
+            Yii::debug($order->attributes, 'test');
             try {
                 $order->delete();
-            } catch (StaleObjectException $e) {
-                Yii::error($e->getMessage(), 'error');
             } catch (\Exception $e) {
                 Yii::error($e->getMessage(), 'error');
             } catch (\Throwable $e) {
                 Yii::error($e->getMessage(), 'error');
             }
         }
+        Yii::debug('This is Clean() end', 'test');
     }
 
     /**

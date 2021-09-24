@@ -152,4 +152,17 @@ $(document).ready(function () {
             });
     });
 
+    $(document).on('click', '#save-to-draft-btn', function () {
+        let order_id = $('#order-id').val();
+        //console.log(order_id);
+        $.get('/order/to-draft', {id:order_id})
+            .done(function (response) {
+                console.log(response);
+                if (response.success = true){
+                    $(window).unbind('beforeunload');
+                    location.href = '/order'
+                }
+            })
+    });
+
 });

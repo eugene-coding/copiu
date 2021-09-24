@@ -449,4 +449,44 @@ class OrderBlank extends ActiveRecord
 
         return $products;
     }
+
+    /**
+     * @param string $date Дата
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function getOrdersByDate($date)
+    {
+        $model = new OrderBlank();
+
+        if (!$date) {
+            return [
+                'success' => false,
+                'error' => 'Не выбрана дата',
+            ];
+        }
+
+        if (strtotime($date) < time()) {
+            $data = $model->getAllBlanksInfo();
+            return [
+                'success' => false,
+                'error' => 'Дата заказа уже наступила. Заказ невозможен',
+                'warning' => $data
+            ];
+        }
+
+        $target_date = date('Y-m-d', strtotime($_POST['date']));
+
+        $blanks = $model->getBlanksByDate($target_date);
+        $data = $model->blanksToTable($blanks, $target_date);
+
+        if (!$data) {
+            $data = 'Бланки заказов отсуствуют';
+        }
+
+        return [
+            'success' => true,
+            'data' => $data,
+        ];
+    }
 }

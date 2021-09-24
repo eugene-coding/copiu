@@ -59,31 +59,42 @@ try {
 <?php if ($model->step != 5): ?>
     <div class="buttons" style="margin-bottom: 2rem">
     <div class="row">
-        <div class="col-md-2 col-xs-4">
+        <div class="col-md-2 col-xs-6">
             <?= Html::a('Отмена', ['/order/cancel', 'id' => $model->id], [
                 'class' => 'btn btn-default btn-block',
                 'title' => 'Отменить формирование закзаза',
             ]) ?>
         </div>
         <?php if ($model->step == 2 || $model->step == 3): ?>
-        <div class="col-md-2 col-xs-4">
+        <div class="col-md-2 col-xs-6">
             <?= Html::button('Назад', [
                 'class' => 'btn btn-info btn-block to-back',
                 'title' => 'Вернуться к предыдущему шагу',
                 'onClick' => 'history.go(-1);'
             ]) ?>
         </div>
-        <div class="col-md-6 col-xs-4">
+        <div class="col-md-6">
             <?php else: ?>
-            <div class="col-md-8 col-xs-4">
+            <div class="col-md-8">
                 <?php endif; ?>
             </div>
-            <div class="col-md-2 col-xs-4">
+            <?php if ($model->step == 3): ?>
+                <div class="col-md-3">
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <?= Html::button('Сохранить как черновик', [
+                        'id' => 'save-to-draft-btn',
+                        'class' => 'btn btn-primary btn-block',
+                        'title' => 'Сохранить заказ в черновики',
+                    ]) ?>
+                </div>
+            <?php endif; ?>
+            <div class="col-md-2 col-sm-12">
                 <?= Html::submitButton('Далее', [
                     'class' => 'btn btn-success btn-block',
                     'id' => 'next-btn',
                     'title' => 'Сохранить и продолжить',
-                    'style' => $model->step == 1 ? 'display: none;' : '',
+                    'style' => ($model->step == 1 && !$model->target_date) ? 'display: none;' : '',
                 ]) ?>
                 <?= Html::button('<i class="fa fa-spinner fa-pulse fa-fw"></i>',
                     [
@@ -95,7 +106,9 @@ try {
         </div>
         <hr>
     </div>
-    <?= $form->field($model, 'status')->hiddenInput(['value' => $model::STATUS_DRAFT])->label(false) ?>
+    <?= $form->field($model, 'status')->hiddenInput([
+            'value' => $model->status == $model::STATUS_DRAFT ?:$model::STATUS_IN_PROGRESS
+    ])->label(false) ?>
 <?php endif; ?>
 <?php if ($model->step == 1): ?>
     <div class="row">
@@ -116,6 +129,7 @@ try {
                     'pluginEvents' => [
                         'changeDate' => 'function(e) {  
                                     setTimeout(function(){
+                                        $(".help-block").html("");
                                         $("#confirm-order-date").trigger("click");
                                     }, 500);
                                 }',
@@ -204,7 +218,8 @@ try {
             <div class="row step-2-content" style="margin-top: 10px">
                 <div class="col-md-offset-3 col-md-6">
                     <div class="progress">
-                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
+                        <div class="progress-bar progress-bar-striped active" role="progressbar"
+                             aria-valuenow="100"
                              aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                             <span>Загрузка...</span>
                         </div>
@@ -241,6 +256,7 @@ try {
 
     <div class="row">
         <div class="col-xs-12">
+            <?= $form->field($model, 'id')->hiddenInput()->label(false) ?>
             <?= $form->field($model, 'buyer_id')->hiddenInput()->label(false) ?>
             <?= $form->field($model, 'step')->hiddenInput([
                 'id' => 'order-step',
@@ -268,10 +284,6 @@ $script = <<<JS
               $('.step-2-content').html(response);
           });
       }
-      $(document).on('click', '#next-btn', function() {
-        $(this).hide();
-        $('#fake-next-btn').show();
-    });
       $(document).on('click', '#next-btn', function() {
         $(this).parents('.buttons').find('button').attr('disabled', true);
         $(this).parents('.buttons').find('a').attr('disabled', true);
