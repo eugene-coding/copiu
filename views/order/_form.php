@@ -90,12 +90,21 @@ try {
                 </div>
             <?php endif; ?>
             <div class="col-md-2 col-sm-12">
-                <?= Html::submitButton('Далее', [
-                    'class' => 'btn btn-success btn-block',
-                    'id' => 'next-btn',
-                    'title' => 'Сохранить и продолжить',
-                    'style' => ($model->step == 1 && !$model->target_date) ? 'display: none;' : '',
-                ]) ?>
+                <?php if ($model->step == 3): ?>
+                    <?= Html::submitButton('Отправить в работу', [
+                        'class' => 'btn btn-success btn-block',
+                        'id' => 'next-btn',
+                        'title' => 'Сохранить и отправить',
+                    ]) ?>
+                <?php else: ?>
+                    <?= Html::submitButton('Далее', [
+                        'class' => 'btn btn-success btn-block',
+                        'id' => 'next-btn',
+                        'title' => 'Сохранить и продолжить',
+                        'style' => ($model->step == 1 && !$model->target_date) ? 'display: none;' : '',
+                    ]) ?>
+                <?php endif; ?>
+
                 <?= Html::button('<i class="fa fa-spinner fa-pulse fa-fw"></i>',
                     [
                         'class' => 'btn btn-success btn-block disabled',
