@@ -287,8 +287,8 @@ XML;
         $root = $dom->createElement('args');
         $dom->appendChild($root);
 
-        $entities_version = $dom->createElement('entities-version', $params['entities_version']);
-        $root->appendChild($entities_version);
+//        $entities_version = $dom->createElement('entities-version', $params['entities_version']);
+//        $root->appendChild($entities_version);
 
         $client_type = $dom->createElement('client-type', 'BACK');
         $root->appendChild($client_type);
