@@ -275,6 +275,7 @@ XML;
      */
     public function makeActOfServices($params)
     {
+        Yii::info('Создание Акта услуг', 'test');
         $document_eid = $this->getGUID();
         $item_eid = $this->getGUID();
 //        $invoice_eid = $this->getGUID();
@@ -420,27 +421,33 @@ XML;
         $root->appendChild($suppressWarnings);
 
         $this->post_data = $dom->saveXML();
-        if (YII_ENV_DEV) {
+//        if (YII_ENV_DEV) {
             //Сохраняем в файл
             try {
                 file_put_contents('uploads/out_act/' . $params['documentNumber'] . '.xml', $this->post_data);
             } catch (\Exception $e) {
                 Yii::error($e->getMessage(), 'test');
             }
-        }
+//        }
 
         Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
         $response = $this->send('POST');
-        if (YII_ENV_DEV) {
+//        if (YII_ENV_DEV) {
             //Сохраняем в файл
             try {
+                Yii::info('Сохранение файла ответа...', 'test');
                 file_put_contents('uploads/out_act/' . $params['documentNumber'] . '_response.xml', $response);
+                Yii::info('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml', 'test');
             } catch (\Exception $e) {
+                Yii::info('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
                 Yii::error($e->getMessage(), 'test');
             }
-        }
+//        }
+
+        Yii::info('Завершение создания Акта услуг.', 'test');
+
         return $response;
     }
 

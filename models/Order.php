@@ -363,7 +363,9 @@ class Order extends ActiveRecord
 
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
-        Yii::debug($result, 'test');
+        Yii::info('Ответ на запрос создания акта доставки:', 'test');
+        Yii::info($result, 'test');
+
         $xml = simplexml_load_string($result);
 
         if ((string)$xml->returnValue->additionalInfo) {
@@ -375,7 +377,6 @@ class Order extends ActiveRecord
             return false;
         } else {
             $this->delivery_act_number = (string)$xml->returnValue->documentNumber;
-
             if (!$this->save()) {
                 Yii::error($this->errors, '_error');
                 return false;

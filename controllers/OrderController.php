@@ -460,7 +460,6 @@ class OrderController extends Controller
                     Yii::info('Ошибка формирования накладной', 'test');
                     $model->invoice_number = 'error';
                     $model->status = $model::STATUS_ERROR;
-                    $model->save();
                 } else {
                     //Накладная сформировалась
                     Yii::info('Накладная успешно сформирована', 'test');
@@ -475,13 +474,14 @@ class OrderController extends Controller
                         Yii::info('Акт не сформирован', 'test');
                         $model->delivery_act_number = 'error';
                         $model->status = $model::STATUS_ERROR;
-                        $model->save();
                     } else {
                         Yii::info('Акт сформирован', 'test');
                     }
                 } else {
                     Yii::info('Нет доставки или сумма доставки 0 руб.', 'test');
                 }
+
+                $model->save(false);
             }
 
             return $this->render('_form', [

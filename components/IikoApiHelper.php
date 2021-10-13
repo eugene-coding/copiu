@@ -313,7 +313,7 @@ class IikoApiHelper
 //        $dom->save($path);
 
         $this->post_data = $dom->saveXML();
-        if (YII_ENV_DEV) {
+//        if (YII_ENV_DEV) {
             //Сохраняем в файл
             try {
                 file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '.xml', $this->post_data);
@@ -322,7 +322,7 @@ class IikoApiHelper
                 Yii::info('Ошибка: ' . $e->getMessage(), 'test');
                 Yii::error($e->getMessage(), 'test');
             }
-        }
+//        }
 
         $this->headers = [
             'Content-Type: application/xml'
@@ -336,7 +336,7 @@ class IikoApiHelper
         Yii::info('Запрос отправлен, ответ получен:', 'test');
         Yii::info($result, 'test');
 
-        if (YII_ENV_DEV) {
+//        if (YII_ENV_DEV) {
             //Сохраняем ответ в файл
             try {
                 Yii::info('Сохранение файла ответа...', 'test');
@@ -346,7 +346,7 @@ class IikoApiHelper
                 Yii::info('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
                 Yii::error($e->getMessage(), 'test');
             }
-        }
+//        }
         Yii::info('Завершение создания накладной.', 'test');
 
 //        Yii::debug($result, 'test');
