@@ -1,4 +1,6 @@
 <?php
+
+use app\models\Settings;
 use yii\widgets\Breadcrumbs;
 use dmstr\widgets\Alert;
 
@@ -48,5 +50,5 @@ use dmstr\widgets\Alert;
     <div class="pull-right hidden-xs">
         <b>Версия</b> 2.0.14
     </div>
-    <strong><?= Yii::$app->name?> &copy; 2021
+    <strong><?= Settings::getValueByKey('app_name');?> &copy; 2021
 </footer>
