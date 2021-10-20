@@ -64,9 +64,3 @@ https://mysite.ru/site/sync-nomenclature
 ```
 https://mysite.ru/site/sync-price-for-price-category
 ```
-    
-  #### Проверка черновиков покупателей
-Периодичность - раз в сутки
-```
-https://mysite.ru/site/send-drafts
-```

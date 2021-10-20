@@ -96,6 +96,12 @@ try {
                         'id' => 'next-btn',
                         'title' => 'Сохранить и отправить',
                     ]) ?>
+                <?php elseif($model->step == 4): ?>
+                    <?= Html::a('Далее', ['/order'],[
+                        'class' => 'btn btn-success btn-block',
+                        'id' => 'next-btn',
+                        'title' => 'Продолжить',
+                    ]) ?>
                 <?php else: ?>
                     <?= Html::submitButton('Далее', [
                         'class' => 'btn btn-success btn-block',

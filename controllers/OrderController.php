@@ -480,7 +480,8 @@ class OrderController extends Controller
                 } else {
                     Yii::info('Нет доставки или сумма доставки 0 руб.', 'test');
                 }
-
+                Yii::debug('Модель перед сохранением:', 'test');
+                Yii::debug($model->attributes, 'test');
                 $model->save(false);
             }
 
