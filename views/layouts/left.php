@@ -68,6 +68,7 @@ use dmstr\widgets\Menu;
                             'icon' => 'share',
                             'url' => '#',
                             'items' => [
+                                ['label' => 'Лог заказов', 'icon' => 'file-code-o', 'url' => ['/order-logging'],],
                                 ['label' => 'Gii', 'icon' => 'file-code-o', 'url' => ['/gii'],],
                                 ['label' => 'Debug', 'icon' => 'dashboard', 'url' => ['/debug'],],
                                 [

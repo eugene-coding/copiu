@@ -143,7 +143,23 @@ class Order extends ActiveRecord
         //Общая сумма заказа (без доставки)
         $this->total_price = OrderToNomenclature::getTotalPrice($this->id);
 
+        if (!$insert){
+            $this->log(OrderLogging::ACTION_ORDER_STEP);
+            if ($this->oldAttributes['status'] != $this->attributes['status']){
+                $this->log(OrderLogging::ACTION_ORDER_CHANGE_STATUS, 'Предыдущий статус: ' . $this->oldAttributes['status']);
+            }
+        }
+
         return parent::beforeSave($insert);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if ($insert){
+            $this->log(OrderLogging::ACTION_ORDER_CREATE);
+        }
     }
 
     /**
@@ -298,7 +314,9 @@ class Order extends ActiveRecord
         $xml = null;
         try {
             $xml = simplexml_load_string($result);
+            $this->log(OrderLogging::ACTION_ORDER_CREATE_INVOICE, 'Ответ: ' . $result . PHP_EOL);
         } catch (\Exception $e) {
+            $this->errlog();
             Yii::error($result, '_error');
             Yii::error($e->getMessage(), '_error');
             return false;
@@ -367,6 +385,7 @@ class Order extends ActiveRecord
         Yii::info($result, 'test');
 
         $xml = simplexml_load_string($result);
+        $this->log(OrderLogging::ACTION_ORDER_CREATE_DELIVERY_ACT, 'Ответ: ' . $result);
 
         if ((string)$xml->returnValue->additionalInfo) {
             Yii::warning((string)$xml->returnValue->additionalInfo, 'test');
@@ -825,5 +844,24 @@ class Order extends ActiveRecord
         }
 
         return $this;
+    }
+
+    /**
+     * Логирование событий
+     * @param int $action_type Тип действия
+     * @param string $description Описание
+     */
+    public function log($action_type, $description = null)
+    {
+        if (is_array($description)){
+            $description = json_encode($description);
+        }
+        OrderLogging::log($this, $action_type, $description . PHP_EOL);
+    }
+
+    public function errlog()
+    {
+        $description = Yii::$app->requestedRoute . PHP_EOL . json_encode($this->errors);
+        OrderLogging::log($this, OrderLogging::ACTION_ORDER_ERROR, $description);
     }
 }

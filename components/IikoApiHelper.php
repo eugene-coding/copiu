@@ -315,8 +315,9 @@ class IikoApiHelper
         $this->post_data = $dom->saveXML();
 //        if (YII_ENV_DEV) {
             //Сохраняем в файл
+        $path = 'uploads/out_invoice/' . $params['documentNumber'] . '.xml';
             try {
-                file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '.xml', $this->post_data);
+                file_put_contents($path, $this->post_data);
                 Yii::info('Файл' . $params['documentNumber'] . '.xml сохранен', 'test');
             } catch (\Exception $e) {
                 Yii::info('Ошибка: ' . $e->getMessage(), 'test');

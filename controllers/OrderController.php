@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Nomenclature;
 use app\models\OrderBlank;
 use app\models\OrderBlankToNomenclature;
+use app\models\OrderLogging;
 use app\models\OrderToNomenclature;
 use app\models\Settings;
 use app\models\Users;
@@ -140,8 +141,11 @@ class OrderController extends Controller
      */
     public function actionDelete($id)
     {
+        $model = $this->findModel($id);
+
+        $model->log(OrderLogging::ACTION_ORDER_DELETE);
         $request = Yii::$app->request;
-        $this->findModel($id)->delete();
+        $model->delete();
 
         if ($request->isAjax) {
             /*
@@ -156,40 +160,6 @@ class OrderController extends Controller
             return $this->redirect(['index']);
         }
 
-
-    }
-
-    /**
-     * Delete multiple existing Order model.
-     * For ajax request will return json object
-     * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
-     * @return mixed
-     * @throws NotFoundHttpException
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
-     */
-    public function actionBulkDelete()
-    {
-        $request = Yii::$app->request;
-        $pks = explode(',', $request->post('pks')); // Array or selected records primary keys
-        foreach ($pks as $pk) {
-            $model = $this->findModel($pk);
-            $model->delete();
-        }
-
-        if ($request->isAjax) {
-            /*
-            *   Process for ajax request
-            */
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
-        } else {
-            /*
-            *   Process for non-ajax request
-            */
-            return $this->redirect(['index']);
-        }
 
     }
 
@@ -460,6 +430,8 @@ class OrderController extends Controller
                     Yii::info('Ошибка формирования накладной', 'test');
                     $model->invoice_number = 'error';
                     $model->status = $model::STATUS_ERROR;
+                    $model->log(OrderLogging::ACTION_ORDER_ERROR,
+                        'Ошибка формирования накладной' . PHP_EOL);
                 } else {
                     //Накладная сформировалась
                     Yii::info('Накладная успешно сформирована', 'test');
@@ -506,9 +478,12 @@ class OrderController extends Controller
                 try {
                     if (!$model->delete()) {
                         \Yii::error($model->errors, '_error');
+                        $model->errlog();
                     }
                 } catch (\Exception $e) {
                     Yii::error($e->getMessage(), '_error');
+                    $model->errlog();
+
                 }
             }
         }
@@ -619,6 +594,8 @@ class OrderController extends Controller
                 'Ошибка при сохранении нового заказа. ' . json_encode($e->getMessage()));
             return $this->redirect('index');
         }
+
+        $order->log(OrderLogging::ACTION_ORDER_COPY, $order->getProductList());
 
         $request = Yii::$app->request;
         if ($request->isPost) {
@@ -831,7 +808,9 @@ class OrderController extends Controller
         $order->status = $order::STATUS_DRAFT;
         if (!$order->save()) {
             Yii::error($order->errors, '_error');
+            $order->errlog();
         }
+        $order->log(OrderLogging::ACTION_ORDER_CREATE_DRAFT);
         Yii::$app->response->format = Response::FORMAT_JSON;
         return [
             'success' => true,
