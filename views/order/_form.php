@@ -97,7 +97,7 @@ try {
                         'title' => 'Сохранить и отправить',
                     ]) ?>
                 <?php elseif($model->step == 4): ?>
-                    <?= Html::a('Далее', ['/order'],[
+                    <?= Html::a('Завершить', ['/order'],[
                         'class' => 'btn btn-success btn-block',
                         'id' => 'next-btn',
                         'title' => 'Продолжить',
@@ -263,9 +263,6 @@ try {
                 <h4 class="text-danger">Ошибка создания акта оказания услуг</h4>
             <?php endif; ?>
         <?php endif; ?>
-        <?= Html::a('Завершить', ['/order'], [
-            'class' => 'btn btn-success'
-        ]) ?>
     </div>
 <?php endif; ?>
 
