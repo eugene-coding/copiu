@@ -432,7 +432,8 @@ XML;
 
         Yii::debug($this->post_data, 'test');
 
-        $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
+//        $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
+        $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocument';
         $response = $this->send('POST');
 //        if (YII_ENV_DEV) {
             //Сохраняем в файл
