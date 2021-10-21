@@ -111,21 +111,26 @@ class Buyer extends ActiveRecord
 
         if ($this->addresses_list){
             //Удаляем все адреса покупателя
-            BuyerAddress::deleteAll(['buyer_id' => $this->id]);
-            //Заново заносим все адреса
-            foreach ($this->addresses_list as $address){
-                if (!$address) continue;
-                $model = new BuyerAddress(
-                    [
-                        'buyer_id' => $this->id,
-                        'address' => $address
-                    ]
-                );
-                Yii::debug($model->attributes, 'test');
-                if (!$model->save()){
-                    Yii::error($model->errors, '_error');
-                };
+            try {
+                BuyerAddress::deleteAll(['buyer_id' => $this->id]);
+                //Заново заносим все адреса
+                foreach ($this->addresses_list as $address){
+                    if (!$address) continue;
+                    $model = new BuyerAddress(
+                        [
+                            'buyer_id' => $this->id,
+                            'address' => $address
+                        ]
+                    );
+                    Yii::debug($model->attributes, 'test');
+                    if (!$model->save()){
+                        Yii::error($model->errors, '_error');
+                    };
+                }
+            } catch (\Exception $e){
+                Yii::error($e->getMessage(), '_error');
             }
+
         }
     }
 
