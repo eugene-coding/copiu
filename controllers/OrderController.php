@@ -529,7 +529,6 @@ class OrderController extends Controller
 
         $order = new Order();
         $order->buyer_id = $order_basis->buyer_id;
-        $order->log(OrderLogging::ACTION_ORDER_COPY, 'Базовый заказ: ' . $order_basis->id);
 
         //Бланки заказов
         $order_blanks = explode(',', $order_basis->blanks);
@@ -558,6 +557,7 @@ class OrderController extends Controller
             Yii::$app->session->addFlash('error', 'Ошибка при копировании заказа. ' . json_encode($order->errors));
             return $this->redirect('index');
         }
+        $order->log(OrderLogging::ACTION_ORDER_COPY, 'Базовый заказ: ' . $order_basis->id);
 
         //Добавляем продукты в новый заказ
         $rows = [];
