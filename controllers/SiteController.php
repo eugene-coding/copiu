@@ -11,9 +11,7 @@ use app\models\Department;
 use app\models\Measure;
 use app\models\NGroup;
 use app\models\Nomenclature;
-use app\models\Order;
 use app\models\OrderBlank;
-use app\models\OrderDraft;
 use app\models\PriceCategory;
 use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
@@ -736,48 +734,48 @@ class SiteController extends Controller
         return $this->render('offline');
     }
 
-    /**
-     * Отправляет заказ, если дата настала.
-     */
-    public function actionSendDrafts()
-    {
-        set_time_limit(60 * 60);
-        //Получаем актуальные черновики (у которых задана плаируемая дата отправки и нет даты отправки)
-        $drafts = OrderDraft::find()
-            ->andWhere(['IS NOT', 'plan_send_date', null])
-            ->andWhere(['IS', 'send_at', null])
-            ->all();
-
-        /** @var OrderDraft $draft */
-        foreach ($drafts as $draft) {
-            Yii::debug($draft->attributes, 'test');
-            if ($draft->plan_send_date == date('Y-m-d', time())) {
-                //Копируем заказ
-                $order = Order::copy($draft->order_id);
-                $draft_order = $draft->order;
-                if ($order) {
-                    $order->target_date = $draft_order->target_date;
-                    $order->total_price = $draft_order->total_price;
-                    //Формируем накладную
-                    if (!$order->makeInvoice()) {
-                        //Если накладная не создалась
-                        $order->invoice_number = 'error';
-                        $order->status = $order::STATUS_ERROR;
-                    } else {
-                        $order->status = $order::STATUS_WORK;
-                    }
-                    if (!$order->save()){
-                        Yii::error($order->errors, '_error');
-                    }
-                    $draft->send_at = date('Y-m-d H:i:s', time());
-                    if (!$draft->save()){
-                        Yii::error($draft->errors, '_error');
-                    }
-                } else {
-                    return Yii::$app->session['error'];
-                }
-            }
-        }
-        return 'Готово';
-    }
+//    /**
+//     * Отправляет заказ, если дата настала.
+//     */
+//    public function actionSendDrafts()
+//    {
+//        set_time_limit(60 * 60);
+//        //Получаем актуальные черновики (у которых задана плаируемая дата отправки и нет даты отправки)
+//        $drafts = OrderDraft::find()
+//            ->andWhere(['IS NOT', 'plan_send_date', null])
+//            ->andWhere(['IS', 'send_at', null])
+//            ->all();
+//
+//        /** @var OrderDraft $draft */
+//        foreach ($drafts as $draft) {
+//            Yii::debug($draft->attributes, 'test');
+//            if ($draft->plan_send_date == date('Y-m-d', time())) {
+//                //Копируем заказ
+//                $order = Order::copy($draft->order_id);
+//                $draft_order = $draft->order;
+//                if ($order) {
+//                    $order->target_date = $draft_order->target_date;
+//                    $order->total_price = $draft_order->total_price;
+//                    //Формируем накладную
+//                    if (!$order->makeInvoice()) {
+//                        //Если накладная не создалась
+//                        $order->invoice_number = 'error';
+//                        $order->status = $order::STATUS_ERROR;
+//                    } else {
+//                        $order->status = $order::STATUS_WORK;
+//                    }
+//                    if (!$order->save()){
+//                        Yii::error($order->errors, '_error');
+//                    }
+//                    $draft->send_at = date('Y-m-d H:i:s', time());
+//                    if (!$draft->save()){
+//                        Yii::error($draft->errors, '_error');
+//                    }
+//                } else {
+//                    return Yii::$app->session['error'];
+//                }
+//            }
+//        }
+//        return 'Готово';
+//    }
 }

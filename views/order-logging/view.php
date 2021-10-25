@@ -15,24 +15,37 @@ use yii\widgets\DetailView;
             'attributes' => [
                 'id',
                 'created_at',
-                'user_id',
+                [
+                    'attribute' => 'user_id',
+                    'value' => '#' . $model->user_id . '. ' . $model->user->fio
+                ],
                 'order_id',
                 [
                     'attribute' => 'order_info',
-                    'value' => function(OrderLogging $model){
+                    'value' => function (OrderLogging $model) {
                         $order = $model->order ?? null;
                         $str = '';
-                        if ($order){
+                        if ($order) {
                             $str = 'Заказ от ' . Yii::$app->formatter->asDate($order->created_at) . '<br>';
-                            $str .= 'Заказ на ' . Yii::$app->formatter->asDate($order->created_at) . '<br>';
+                            $str .= 'Заказ на ' . Yii::$app->formatter->asDate($order->target_date) . '<br>';
                             $str .= 'Сумма ' . Yii::$app->formatter->asCurrency($order->total_price) . '<br>';
                         }
                         return $str;
                     },
                     'format' => 'raw'
                 ],
-                'action_type',
-                'description:ntext',
+                [
+                    'attribute' => 'action_type',
+                    'value' => OrderLogging::getActionList()[$model->action_type],
+                ],
+                [
+                    'attribute' => 'description',
+                    'value' => function (OrderLogging $model){
+                        if ($model->action_type != $model::ACTION_ORDER_COPY){
+                            return $model->description;
+                        }
+                    },
+                ],
             ],
         ]);
     } catch (Exception $e) {
@@ -40,5 +53,9 @@ use yii\widgets\DetailView;
     } ?>
 
     <?php \yii\helpers\VarDumper::dump(json_decode($model->model, true), 10, true) ?>
-
+    <?php
+    if ($model->action_type == $model::ACTION_ORDER_COPY){
+        \yii\helpers\VarDumper::dump(json_decode($model->description, true), 10, true);
+    }
+    ?>
 </div>

@@ -563,14 +563,14 @@
         </key>
         <comment>Черновики заказов</comment>
     </table>
-    <table x="51" y="29" name="cfest">
+    <table x="51" y="29" name="bbrot">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
-        <comment>Кофефест</comment>
+        <comment>Хлеб с маслом</comment>
     </table>
     <table x="657" y="752" name="favorite_product">
         <row name="id" null="1" autoincrement="1">

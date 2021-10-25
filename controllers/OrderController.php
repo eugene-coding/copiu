@@ -574,7 +574,6 @@ class OrderController extends Controller
 
             $rows[] = [
                 $order->id,
-                $obtn->getPriceForOrder($order->id), //Цену рассчитываем заново, т.к. цена может измениться
                 $item->count,
                 $obtn->id,
             ];
@@ -584,7 +583,6 @@ class OrderController extends Controller
         try {
             Yii::$app->db->createCommand()->batchInsert(OrderToNomenclature::tableName(), [
                 'order_id',
-                'price',
                 'count',
                 'obtn_id',
             ], $rows)->execute();
@@ -595,7 +593,13 @@ class OrderController extends Controller
             return $this->redirect('index');
         }
 
-        $order->log(OrderLogging::ACTION_ORDER_COPY, $order->getProductList());
+        $products = [];
+        /** @var OrderBlankToNomenclature $obtn */
+        foreach ($order->getObtns() as $obtn) {
+            array_push($products, $obtn->n->attributes);
+        }
+
+        $order->log(OrderLogging::ACTION_ORDER_COPY, $products);
 
         $request = Yii::$app->request;
         if ($request->isPost) {
