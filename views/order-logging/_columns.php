@@ -60,7 +60,7 @@ return [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'description',
         'value' => function (OrderLogging $model) {
-            return $model->action_type == $model::ACTION_ORDER_COPY ? 'Подробности в карточке' : $model->description;
+            return $model->isJson($model->description) ? 'Подробности в карточке' : $model->description;
         },
     ],
     [

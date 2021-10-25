@@ -864,4 +864,5 @@ class Order extends ActiveRecord
         $description = Yii::$app->requestedRoute . PHP_EOL . json_encode($this->errors);
         OrderLogging::log($this, OrderLogging::ACTION_ORDER_ERROR, $description);
     }
+
 }

@@ -526,9 +526,10 @@ class OrderController extends Controller
     public function actionCopyOrder($basis_order_id)
     {
         $order_basis = Order::findOne($basis_order_id);
+
         $order = new Order();
         $order->buyer_id = $order_basis->buyer_id;
-
+        $order->log(OrderLogging::ACTION_ORDER_COPY, 'Базовый заказ: ' . $order_basis->id);
 
         //Бланки заказов
         $order_blanks = explode(',', $order_basis->blanks);

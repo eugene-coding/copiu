@@ -41,8 +41,10 @@ use yii\widgets\DetailView;
                 [
                     'attribute' => 'description',
                     'value' => function (OrderLogging $model){
-                        if ($model->action_type != $model::ACTION_ORDER_COPY){
+                        if (!$model->isJson($model->description)){
                             return $model->description;
+                        } else {
+                            return 'Данные в JSON';
                         }
                     },
                 ],
@@ -54,7 +56,7 @@ use yii\widgets\DetailView;
 
     <?php \yii\helpers\VarDumper::dump(json_decode($model->model, true), 10, true) ?>
     <?php
-    if ($model->action_type == $model::ACTION_ORDER_COPY){
+    if ($model->isJson($model->description)){
         \yii\helpers\VarDumper::dump(json_decode($model->description, true), 10, true);
     }
     ?>
