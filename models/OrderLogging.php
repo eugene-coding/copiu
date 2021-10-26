@@ -34,6 +34,7 @@ class OrderLogging extends ActiveRecord
     const ACTION_ORDER_CANCEL = 9;
     const ACTION_ORDER_ERROR = 10;
     const ACTION_ORDER_CREATE_DRAFT = 11;
+    const ACTION_ORDER_ADD_PRODUCT = 12;
 
     public $order_info;
 
@@ -153,6 +154,7 @@ class OrderLogging extends ActiveRecord
             self::ACTION_ORDER_CANCEL => 'Отмена',
             self::ACTION_ORDER_ERROR => 'Ошибка',
             self::ACTION_ORDER_CREATE_DRAFT => 'Создание черновика',
+            self::ACTION_ORDER_ADD_PRODUCT => 'Изменение кол-ва продукта',
         ];
     }
 

@@ -773,7 +773,6 @@ class OrderController extends Controller
                 'obtn_id' => $obtn_id
             ]);
         }
-        Yii::debug($model->attributes, 'test');
 
         if (!$count) {
             //Если выставлено кол-во продукта в ноль
@@ -789,6 +788,15 @@ class OrderController extends Controller
                 Yii::error($model->errors, '_error');
             }
         }
+        Yii::debug($model->attributes, 'test');
+
+        //Только для логирования
+        $order = $model->order;
+        $obtn = OrderBlankToNomenclature::findOne($obtn_id);
+        $product = $obtn->n;
+
+        $order->log(OrderLogging::ACTION_ORDER_ADD_PRODUCT,
+            $product->num . ' ' . $product->name . ' кол-во: ' . $count);
 
         $total = OrderToNomenclature::find()
             ->select(['SUM(REPLACE(price,",",".") * count)'])
