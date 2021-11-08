@@ -1,6 +1,7 @@
 <?php
 
 use app\models\OrderBlank;
+use app\models\OrderLogging;
 use app\models\User;
 use kartik\select2\Select2;
 use yii\bootstrap\Html;
@@ -8,6 +9,8 @@ use yii\bootstrap\Html;
 /* @var $productsDataProvider \yii\data\ArrayDataProvider */
 /* @var $favoriteDataProvider \yii\data\ArrayDataProvider */
 /* @var $model app\models\Order */
+
+$model->log(OrderLogging::ACTION_ORDER_STEP, 'Мобильная версия')
 
 ?>
 <ul class="nav nav-tabs">

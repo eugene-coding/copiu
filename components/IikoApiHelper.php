@@ -331,24 +331,24 @@ class IikoApiHelper
         Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
-        Yii::info('Отправка запроса...', 'test');
+        Yii::debug('Отправка запроса...', 'test');
 
         $result = $this->send('POST');
-        Yii::info('Запрос отправлен, ответ получен:', 'test');
-        Yii::info($result, 'test');
+        Yii::debug('Запрос отправлен, ответ получен:', 'test');
+        Yii::debug($result, 'test');
 
 //        if (YII_ENV_DEV) {
             //Сохраняем ответ в файл
             try {
-                Yii::info('Сохранение файла ответа...', 'test');
+                Yii::debug('Сохранение файла ответа...', 'test');
                 file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '_response.xml', $result);
-                Yii::info('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml', 'test');
+                Yii::debug('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml', 'test');
             } catch (\Exception $e) {
-                Yii::info('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
+                Yii::debug('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
                 Yii::error($e->getMessage(), 'test');
             }
 //        }
-        Yii::info('Завершение создания накладной.', 'test');
+        Yii::debug('Завершение создания накладной.', 'test');
 
 //        Yii::debug($result, 'test');
         return $result;

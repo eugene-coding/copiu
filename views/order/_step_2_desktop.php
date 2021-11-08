@@ -6,6 +6,7 @@
 /* @var $model app\models\Order */
 
 use app\models\OrderBlank;
+use app\models\OrderLogging;
 use app\models\OrderToNomenclature;
 use app\models\User;
 use kartik\select2\Select2;
@@ -13,6 +14,8 @@ use yii\helpers\Html;
 
 $product_sum = OrderToNomenclature::getTotalPrice($model->id);
 $product_sum = $product_sum ? $product_sum : 0;
+
+$model->log(OrderLogging::ACTION_ORDER_STEP, 'Десктопная версия')
 ?>
 
 <div class="col-md-12">
