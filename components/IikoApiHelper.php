@@ -93,7 +93,7 @@ class IikoApiHelper
     protected function send($type = 'GET')
     {
         Yii::debug('Request string: ' . $this->request_string, 'test');
-        Yii::debug('Headers: ' . $this->headers, 'test');
+        Yii::debug('Headers: ' . json_encode($this->headers), 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
@@ -218,7 +218,7 @@ class IikoApiHelper
         $sum = 0;
         $rdb = Settings::getValueByKey('revenue_debit_account');
         foreach ($info as $item) {
-            if ($item['account'] == $rdb){
+            if ($item['account'] == $rdb) {
                 $sum -= isset($item['sum']) ? $item['sum'] : 0;
             }
         }
@@ -314,15 +314,15 @@ class IikoApiHelper
 
         $this->post_data = $dom->saveXML();
 //        if (YII_ENV_DEV) {
-            //Сохраняем в файл
+        //Сохраняем в файл
         $path = 'uploads/out_invoice/' . $params['documentNumber'] . '.xml';
-            try {
-                file_put_contents($path, $this->post_data);
-                Yii::info('Файл' . $params['documentNumber'] . '.xml сохранен', 'test');
-            } catch (\Exception $e) {
-                Yii::info('Ошибка: ' . $e->getMessage(), 'test');
-                Yii::error($e->getMessage(), 'test');
-            }
+        try {
+            file_put_contents($path, $this->post_data);
+            Yii::info('Файл' . $params['documentNumber'] . '.xml сохранен', 'test');
+        } catch (\Exception $e) {
+            Yii::info('Ошибка: ' . $e->getMessage(), 'test');
+            Yii::error($e->getMessage(), 'test');
+        }
 //        }
 
         $this->headers = [
@@ -337,20 +337,57 @@ class IikoApiHelper
         Yii::debug('Запрос отправлен, ответ получен:', 'test');
         Yii::debug($result, 'test');
 
-//        if (YII_ENV_DEV) {
-            //Сохраняем ответ в файл
-            try {
-                Yii::debug('Сохранение файла ответа...', 'test');
-                file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '_response.xml', $result);
-                Yii::debug('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml', 'test');
-            } catch (\Exception $e) {
-                Yii::debug('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
-                Yii::error($e->getMessage(), 'test');
-            }
-//        }
+        //Сохраняем ответ в файл
+        try {
+            Yii::debug('Сохранение файла ответа...', 'test');
+            file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '_response.xml', $result);
+            Yii::debug('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml',
+                'test');
+        } catch (\Exception $e) {
+            Yii::debug('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
+            Yii::error($e->getMessage(), 'test');
+        }
         Yii::debug('Завершение создания накладной.', 'test');
 
+        //Запрашивем созданную накладную и записываем в ответ в файл
+        //TODO после выявления проблемы с не совпадением продуктов в системе и в Айке - убрать все что ниже, кроем return
+        sleep(2);
+        $invoice = $this->getExpenseInvoice($params['documentNumber']);
+        $invoice_path = 'uploads/out_invoice/' . $params['documentNumber'] . '_created_invoice' . '.xml';
+        try {
+            Yii::debug('Сохранение запрошенной накладной...', 'test');
+            file_put_contents($invoice_path, $invoice);
+            Yii::debug('Сохранение запрошенной накладной. Успешно. Файл: '
+                . $params['documentNumber']
+                . '_created_invoice' . '.xml',
+                'test');
+        } catch (\Exception $e) {
+            Yii::debug('Сохранение запрошенной накладной. Ошибка: ' . $e->getMessage(), 'test');
+            Yii::error($e->getMessage(), 'test');
+        }
 //        Yii::debug($result, 'test');
+        return $result;
+    }
+
+    /**
+     * Получает расходную накладную по ее номеру
+     * @param string $num Номер накладной
+     * @return string
+     */
+    public function getExpenseInvoice($num)
+    {
+        $params = [
+            'key' => $this->token,
+            'number' => $num,
+            'currentYear' => 'true'
+        ];
+
+        $query = http_build_query($params);
+
+        $this->request_string = $this->base_url . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
+
+        $result = $this->send('GET');
+
         return $result;
     }
 }
