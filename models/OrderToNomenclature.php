@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -72,6 +73,7 @@ class OrderToNomenclature extends ActiveRecord
             $old_obtn_id = $this->oldAttributes['obtn_id'];
             if ($this->obtn_id != $old_obtn_id) {
                 //Атрибут изменен
+                Yii::warning('Изменение obtn_id!', '_error');
                 $order = $this->order ?? null;
                 OrderLogging::log($order, OrderLogging::ACTION_CONTROL,
                     'В таблице "order_to_nomenclature" изменено поле "obtn_id". ' .
