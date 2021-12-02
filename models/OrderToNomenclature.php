@@ -66,6 +66,21 @@ class OrderToNomenclature extends ActiveRecord
         ];
     }
 
+    public function beforeSave($insert)
+    {
+        if (!$insert) {
+            $old_obtn_id = $this->oldAttributes['obtn_id'];
+            if ($this->obtn_id != $old_obtn_id) {
+                //Атрибут изменен
+                $order = $this->order ?? null;
+                OrderLogging::log($order, OrderLogging::ACTION_CONTROL,
+                    'В таблице "order_to_nomenclature" изменено поле "obtn_id". ' .
+                    'Старое значение: ' . $old_obtn_id . ', новое значение: ' . $this->obtn_id);
+            }
+        }
+        return parent::beforeSave($insert);
+    }
+
     /**
      * Gets query for [[OrderBlankToNomenclature]].
      *

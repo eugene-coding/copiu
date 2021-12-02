@@ -35,6 +35,7 @@ class OrderLogging extends ActiveRecord
     const ACTION_ORDER_ERROR = 10;
     const ACTION_ORDER_CREATE_DRAFT = 11;
     const ACTION_ORDER_ADD_PRODUCT = 12;
+    const ACTION_CONTROL = 13;
 
     public $order_info;
 
@@ -126,12 +127,12 @@ class OrderLogging extends ActiveRecord
      */
     public static function log(Order $order, $action, $description)
     {
-
+        $attributes = $order->attributes ?? '';
         $model = new OrderLogging([
             'user_id' => Yii::$app->user->identity->id,
             'order_id' => $order->id,
             'action_type' => $action,
-            'model' => json_encode($order->attributes),
+            'model' => json_encode($attributes),
             'description' => $description,
         ]);
 
@@ -155,6 +156,7 @@ class OrderLogging extends ActiveRecord
             self::ACTION_ORDER_ERROR => 'Ошибка',
             self::ACTION_ORDER_CREATE_DRAFT => 'Создание черновика',
             self::ACTION_ORDER_ADD_PRODUCT => 'Изменение кол-ва продукта',
+            self::ACTION_CONTROL => 'Контроль работы',
         ];
     }
 
