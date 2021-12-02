@@ -45,7 +45,7 @@ class IikoApiHelper
         } else {
             $token_is_expired = false;
         }
-        Yii::debug('Token expired: ' . (int)$token_is_expired, 'test');
+        //Yii::debug('Token expired: ' . (int)$token_is_expired, 'test');
 
         if (!$this->token || $token_is_expired) {
             $this->login();
@@ -92,8 +92,8 @@ class IikoApiHelper
 
     protected function send($type = 'GET')
     {
-        Yii::debug('Request string: ' . $this->request_string, 'test');
-        Yii::debug('Headers: ' . json_encode($this->headers), 'test');
+        //Yii::debug('Request string: ' . $this->request_string, 'test');
+        //Yii::debug('Headers: ' . json_encode($this->headers), 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);
@@ -109,7 +109,7 @@ class IikoApiHelper
 
         $response = curl_exec($ch);
 
-        Yii::debug(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
+        //Yii::debug(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
 
         curl_close($ch);
         if ($response === false) {
@@ -139,7 +139,7 @@ class IikoApiHelper
 
         $path_file = 'uploads/list_items.json';
         $put_result = file_put_contents($path_file, $result);
-        Yii::debug($put_result, 'test');
+        //Yii::debug($put_result, 'test');
 
         return $path_file;
 //        return json_decode($result, 'true');
@@ -213,7 +213,7 @@ class IikoApiHelper
         $result = $this->send();
 
         $info = json_decode($result, 'true');
-        Yii::debug($info, 'test');
+       //Yii::debug($info, 'test');
 
         $sum = 0;
         $rdb = Settings::getValueByKey('revenue_debit_account');
@@ -253,10 +253,10 @@ class IikoApiHelper
             . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
         $result = $this->send();
 
-        \Yii::debug($result, 'test');
+       //Yii::debug($result, 'test');
         $result = simplexml_load_string($result);
         $json = json_encode($result);
-        \Yii::debug(json_decode($json, 'true'), 'test');
+       //Yii::debug(json_decode($json, 'true'), 'test');
         return json_decode($json, 'true');
     }
 
@@ -328,26 +328,26 @@ class IikoApiHelper
         $this->headers = [
             'Content-Type: application/xml'
         ];
-        Yii::debug($this->post_data, 'test');
+       //Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
-        Yii::debug('Отправка запроса...', 'test');
+       //Yii::debug('Отправка запроса...', 'test');
 
         $result = $this->send('POST');
-        Yii::debug('Запрос отправлен, ответ получен:', 'test');
-        Yii::debug($result, 'test');
+       //Yii::debug('Запрос отправлен, ответ получен:', 'test');
+       //Yii::debug($result, 'test');
 
         //Сохраняем ответ в файл
         try {
-            Yii::debug('Сохранение файла ответа...', 'test');
+           //Yii::debug('Сохранение файла ответа...', 'test');
             file_put_contents('uploads/out_invoice/' . $params['documentNumber'] . '_response.xml', $result);
-            Yii::debug('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml',
-                'test');
+           //Yii::debug('Сохранение файла ответа. Успешно. Файл: ' . $params['documentNumber'] . '_response.xml',
+                //'test');
         } catch (\Exception $e) {
-            Yii::debug('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
+           //Yii::debug('Сохранение файла ответа. Ошибка: ' . $e->getMessage(), 'test');
             Yii::error($e->getMessage(), 'test');
         }
-        Yii::debug('Завершение создания накладной.', 'test');
+       //Yii::debug('Завершение создания накладной.', 'test');
 
         //Запрашивем созданную накладную и записываем в ответ в файл
         //TODO после выявления проблемы с не совпадением продуктов в системе и в Айке - убрать все что ниже, кроем return
@@ -355,14 +355,14 @@ class IikoApiHelper
         $invoice = $this->getExpenseInvoice($params['documentNumber']);
         $invoice_path = 'uploads/out_invoice/' . $params['documentNumber'] . '_created_invoice' . '.xml';
         try {
-            Yii::debug('Сохранение запрошенной накладной...', 'test');
+           //Yii::debug('Сохранение запрошенной накладной...', 'test');
             file_put_contents($invoice_path, $invoice);
-            Yii::debug('Сохранение запрошенной накладной. Успешно. Файл: '
-                . $params['documentNumber']
-                . '_created_invoice' . '.xml',
-                'test');
+           //Yii::debug('Сохранение запрошенной накладной. Успешно. Файл: '
+//                . $params['documentNumber']
+//                . '_created_invoice' . '.xml',
+//                'test');
         } catch (\Exception $e) {
-            Yii::debug('Сохранение запрошенной накладной. Ошибка: ' . $e->getMessage(), 'test');
+           //Yii::debug('Сохранение запрошенной накладной. Ошибка: ' . $e->getMessage(), 'test');
             Yii::error($e->getMessage(), 'test');
         }
 //        Yii::debug($result, 'test');

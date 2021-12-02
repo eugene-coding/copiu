@@ -101,7 +101,7 @@ class SiteController extends Controller
     /**
      * Displays homepage.
      *
-     * @return string
+     * @return string|Response
      */
     public function actionIndex()
     {
@@ -246,7 +246,7 @@ class SiteController extends Controller
 
         Settings::setValueByKey('entities_version', $data['entities_version']);
 
-        Yii::debug($data, 'test');
+        //Yii::debug($data, 'test');
 
         if (isset($data['success']) && $data['success'] === false) {
             return $data;
@@ -370,7 +370,7 @@ class SiteController extends Controller
         set_time_limit(600);
 
         $path_json = 'uploads/list_items.json';
-        Yii::debug('Файл найден: ' . (int)is_file($path_json), 'test');
+        //Yii::debug('Файл найден: ' . (int)is_file($path_json), 'test');
 
         if (!is_file($path_json)) {
             return 'Файл не найден';
@@ -378,12 +378,12 @@ class SiteController extends Controller
             $json = file_get_contents($path_json);
 
             $data = json_decode($json, true);
-            Yii::debug('Всего записей: ' . count($data), 'test');
+            //Yii::debug('Всего записей: ' . count($data), 'test');
 
             $next_chunk = (int)Settings::getValueByKey('sync_nomenclature_next_chunk');
             $chunk_data = array_chunk($data, 500);
             $count_chunk = count($chunk_data);
-            Yii::debug('Всего чанков: ' . $count_chunk, 'test');
+            //Yii::debug('Всего чанков: ' . $count_chunk, 'test');
 
             if ($next_chunk === null) {
                 $next_chunk = 0;
@@ -401,8 +401,8 @@ class SiteController extends Controller
 
                 return 'Импорт номенклатуры завершен';
             } else {
-                Yii::debug('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
-                Yii::debug($chunk_data[$next_chunk], 'test');
+                //Yii::debug('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
+                //Yii::debug($chunk_data[$next_chunk], 'test');
             }
 
             $result = Nomenclature::import($chunk_data[$next_chunk]);
@@ -508,7 +508,7 @@ class SiteController extends Controller
         $next_chunk = (int)Settings::getValueByKey('sync_price_next_chunk');
         $chunk_data = array_chunk($data['returnValue']['v'], 500);
         $count_chunk = count($chunk_data);
-        Yii::debug('Всего чанков: ' . $count_chunk, 'test');
+        //Yii::debug('Всего чанков: ' . $count_chunk, 'test');
 
         if ($next_chunk === null) {
             $next_chunk = 0;
@@ -525,7 +525,7 @@ class SiteController extends Controller
 
             return 'Импорт цен для ценовых категорий завершен';
         } else {
-            Yii::debug('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
+            //Yii::debug('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
 //            Yii::debug($chunk_data[$next_chunk], 'test');
         }
 
@@ -570,14 +570,14 @@ class SiteController extends Controller
                 'error' => 'Файл не найден',
             ];
         }
-        Yii::debug('Файл найден.', 'test');
+        //Yii::debug('Файл найден.', 'test');
 
         $xml = simplexml_load_file($path_xml, "SimpleXMLElement", LIBXML_NOCDATA);
         /** @var array $rows_to_add Массив для вставки одним запросом */
         $rows_to_add = [];
 
         foreach ($xml->returnValue->v as $item) {
-            Yii::debug('Продукт: ' . (string)$item->i->product, 'test');
+            //Yii::debug('Продукт: ' . (string)$item->i->product, 'test');
             $product_in_response = (string)$item->i->product;
             $arr_prices = json_decode(json_encode($item->i->pricesForCategories), true);
 //            Yii::debug($arr_prices, 'test');
@@ -592,7 +592,7 @@ class SiteController extends Controller
                 $cat_to_prices = [];
             }
 
-            Yii::debug($cat_to_prices, 'test');
+            //Yii::debug($cat_to_prices, 'test');
 
             $product_in_db = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
             $category_in_db = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');

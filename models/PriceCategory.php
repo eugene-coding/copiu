@@ -85,9 +85,9 @@ class PriceCategory extends ActiveRecord
                 if (!$pc_model->save()) {
                     Yii::error($pc_model->attributes, '_error');
                     Yii::error($pc_model->errors, '_error');
-                    Yii::debug('PriceCategory NOT updated', 'test');
+                   //Yii::debug('PriceCategory NOT updated', 'test');
                 } else {
-                    Yii::debug('PriceCategory updated', 'test');
+                   //Yii::debug('PriceCategory updated', 'test');
                 }
                 $updated++;
             }

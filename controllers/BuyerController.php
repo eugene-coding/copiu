@@ -205,7 +205,7 @@ class BuyerController extends Controller
                 ];
             } else {
                 if ($model->load($request->post())) {
-                    Yii::debug($model->attributes, 'test');
+                    //Yii::debug($model->attributes, 'test');
                     if (!$model->user_id) {
                         $user_model->load($request->post());
                         //Проверяем указан ли логин

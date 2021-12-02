@@ -46,8 +46,8 @@ $model->log(OrderLogging::ACTION_ORDER_STEP, 'Десктопная версия'
         <!-- Вкладки панелей -->
         <div class="tab-content">
             <!-- Избранное -->
-            <?php Yii::debug('Избранное. Начало', 'test') ?>
-            <?php Yii::debug($favoriteDataProvider->getModels(), 'test') ?>
+            <?php//Yii::debug('Избранное. Начало', 'test') ?>
+            <?php//Yii::debug($favoriteDataProvider->getModels(), 'test') ?>
                 <div role="tabpanel" class="tab-pane" id="tab-favorite">
                     <div class="panel panel-primary">
                         <div class="panel-heading" style="display: flex; justify-content: space-between;">
@@ -69,7 +69,7 @@ $model->log(OrderLogging::ACTION_ORDER_STEP, 'Десктопная версия'
                         </div>
                     </div>
                 </div>
-            <?php Yii::debug('Избранное. Конец', 'test') ?>
+            <?php//Yii::debug('Избранное. Конец', 'test') ?>
             <!--Остальные-->
             <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
                 <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>

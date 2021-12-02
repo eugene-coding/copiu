@@ -252,7 +252,7 @@ class Nomenclature extends ActiveRecord
                 }
             }
         }
-        Yii::debug($containers, 'test');
+        //Yii::debug($containers, 'test');
         $actual_container_ids = [];
 
         //Обновляем контейнеры
@@ -435,7 +435,7 @@ class Nomenclature extends ActiveRecord
                 Container::deleteAll(['nomenclature_id' => $nom_id]);
             }
         }
-        Yii::debug('Обновление номенклатуры. Ок', 'test');
+        //Yii::debug('Обновление номенклатуры. Ок', 'test');
 
         return true;
     }

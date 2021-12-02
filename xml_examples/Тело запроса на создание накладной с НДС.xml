@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<args>
+	<entities-version>4975794</entities-version>
+	<client-type>BACK</client-type>
+	<enable-warnings>true</enable-warnings>
+	<client-call-id>50e1103e-4899-4250-9834-4346e530dc8a</client-call-id>
+	<license-hash>1127825829</license-hash>
+	<restrictions-state-hash>59669</restrictions-state-hash>
+	<obtained-license-connections-ids>da86e32d-7aac-4203-a660-58c65708b737</obtained-license-connections-ids>
+	<request-watchdog-check-results>true</request-watchdog-check-results>
+	<use-raw-entities>true</use-raw-entities>
+	<document cls="OutgoingService" eid="ece4fa4a-5483-4e4d-b8fb-d8ea3236b81c">
+		<revenueDebitAccount>56729828-f09b-d58e-04be-ed0f2e4e10e1</revenueDebitAccount>
+		<isAutomatic>false</isAutomatic>
+		<editable>true</editable>
+		<department cls="Department">f5460b95-c588-b515-0164-21bb6182000d</department>
+		<revenueAccount>15fb045f-db6a-269d-6473-023f3c936fcf</revenueAccount>
+		<incomingDate>2021-11-22T00:00:00.000+03:00</incomingDate>
+		<supplier>c952d2a3-aed6-49fa-9981-b0c217fb0b4a</supplier>
+		<items>
+			<i cls="OutgoingServiceItem" eid="8e3f7269-41ba-4fc6-983d-4817b4fe7c5e">
+				<account>15fb045f-db6a-269d-6473-023f3c936fcf</account>
+				<invoice cls="OutgoingService" eid="ece4fa4a-5483-4e4d-b8fb-d8ea3236b81c"/>
+				<code>124277</code>
+				<price>100</price>
+				<priceWithoutNds>83.33</priceWithoutNds>
+				<sum>100</sum>
+				<ndsPercent>20</ndsPercent>
+				<sumWithoutNds>83.33</sumWithoutNds>
+				<discountSum>0</discountSum>
+				<amountUnit>cd19b5ea-1b32-a6e5-1df7-5d2784a0549a</amountUnit>
+				<containerId>00000000-0000-0000-0000-000000000000</containerId>
+				<num>1</num>
+				<product>b31f3799-5cf2-414d-b7d2-25cf8abc0152</product>
+				<amount>1</amount>
+				<id>8e3f7269-41ba-4fc6-983d-4817b4fe7c5e</id>
+			</i>
+		</items>
+		<invoice/>
+		<dateIncoming>2021-11-22T23:00:00.000+03:00</dateIncoming>
+		<documentNumber>0032</documentNumber>
+		<status>PROCESSED</status>
+		<revision>0</revision>
+		<id>ece4fa4a-5483-4e4d-b8fb-d8ea3236b81c</id>
+	</document>
+	<suppressWarnings cls="java.util.ArrayList">
+		<i>SUPPLIER_PRICE_DEVIATION_LIMIT_EXCEEDED</i>
+	</suppressWarnings>
+</args>

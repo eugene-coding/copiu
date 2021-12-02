@@ -199,7 +199,7 @@ class Users extends ActiveRecord
      */
     public static function sessionIsActive()
     {
-        Yii::debug('sessionIsActive()', 'test');
+        //Yii::debug('sessionIsActive()', 'test');
        $user = Users::findOne(Yii::$app->user->identity->id);
        return $user->is_active;
     }
@@ -210,12 +210,12 @@ class Users extends ActiveRecord
      */
     public function sessionIsActiveByTime()
     {
-        Yii::debug('sessionIsActiveByTime()', 'test');
+        //Yii::debug('sessionIsActiveByTime()', 'test');
         /** @var int $max_non_activity Максимальное время неактивности, секунд */
         $max_non_activity = 10 * 60;
-        Yii::debug($this->attributes, 'test');
-        Yii::debug("Максимальное время неактивности: 10 минут", 'test');
-        Yii::debug("С момента полседней активности прошло: " . (time() - strtotime($this->last_activity))/60 . ' мин.', 'test');
+        //Yii::debug($this->attributes, 'test');
+        //Yii::debug("Максимальное время неактивности: 10 минут", 'test');
+        //Yii::debug("С момента полседней активности прошло: " . (time() - strtotime($this->last_activity))/60 . ' мин.', 'test');
 
         if ((time() - strtotime($this->last_activity)) > $max_non_activity) {
             //Прошло больше максимально возможного времени неактивности
@@ -235,8 +235,8 @@ class Users extends ActiveRecord
             return true;
         }
         $ip = $this->getUser()->activity_ip;
-        Yii::debug("IP в базе: " . $ip, 'test');
-        Yii::debug("IP: " . $_SERVER['REMOTE_ADDR'], 'test');
+        //Yii::debug("IP в базе: " . $ip, 'test');
+        //Yii::debug("IP: " . $_SERVER['REMOTE_ADDR'], 'test');
 
 
         return $ip == $_SERVER['REMOTE_ADDR'];

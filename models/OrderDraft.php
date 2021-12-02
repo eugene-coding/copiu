@@ -3,7 +3,6 @@
 namespace app\models;
 
 use app\models\query\OrderDraftQuery;
-use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -89,7 +88,7 @@ class OrderDraft extends ActiveRecord
     public function toQueue($order)
     {
         $blanks = explode(',', $order->blanks);
-        Yii::debug($blanks, 'test');
+        //Yii::debug($blanks, 'test');
 
         //Получаем максимальный лимит из всех бланков текущего заказа
         $day_limit = 0;
@@ -98,11 +97,11 @@ class OrderDraft extends ActiveRecord
             if (!$blank) continue;
             if ($day_limit < $blank->day_limit) $day_limit = $blank->day_limit;
         }
-        Yii::debug('Day limit: ' . $day_limit, 'test');
+        //Yii::debug('Day limit: ' . $day_limit, 'test');
 
         //Получаем минимальную дату (относительно целевой даты), раньше ее заказывать нельзя
         $min_date = date('Y-m-d', strtotime($order->target_date . ' -' . $day_limit .' day'));
-        Yii::debug('Min date: ' . $min_date, 'test');
+        //Yii::debug('Min date: ' . $min_date, 'test');
 
         if ($min_date <= date('Y-m-d', time())){
             $order->addError('target_date', 'Заказ на выбранную дату невозможен. Выберите более позднюю дату заказа');

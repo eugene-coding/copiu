@@ -1,6 +1,7 @@
 <?php
 
 /* @var $model app\models\Order */
+/* @var $form yii\widgets\ActiveForm */
 
 ?>
 
@@ -24,7 +25,7 @@
                     Доставка: <?= Yii::$app->formatter->asCurrency($model->deliveryCost); ?>
                     <br>
                     <br>
-                    Адрес доставки: <?= \yii\helpers\Html::encode($model->address->address) ?>
+                    Адрес доставки: <?= \yii\helpers\Html::encode($model->address->address ?? '') ?>
                     <br>
                     <br>
 

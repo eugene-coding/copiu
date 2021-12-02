@@ -16,14 +16,14 @@ $model->log(OrderLogging::ACTION_ORDER_STEP, 'Мобильная версия')
 <ul class="nav nav-tabs">
     <!--Избранное-->
     <?php if (User::favoriteExists()): ?>
-    <?php Yii::debug('Избранное', 'test'); ?>
+    <?php //Yii::debug('Избранное', 'test'); ?>
         <li role="presentation">
             <a href="#tab-favorite" aria-controls="favorite"
                role="tab" data-toggle="tab">Избранное</a>
         </li>
     <?php endif; ?>
     <!--Остальные-->
-    <?php Yii::debug('Остальные продукты', 'test'); ?>
+    <?php //Yii::debug('Остальные продукты', 'test'); ?>
     <?php foreach ($productsDataProvider->getModels() as $tab_name => $products): ?>
         <?php $tab_model = OrderBlank::findOne(['number' => $tab_name]); ?>
         <li role="presentation">

@@ -105,12 +105,12 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $product_outer_id = (string)$item->i->product;
 
             if (!$product_outer_id) {
-                Yii::debug('Нет ID продукта. Пропускаем', 'test');
+                //Yii::debug('Нет ID продукта. Пропускаем', 'test');
                 $skipped++;
                 continue;
             }
 
-            Yii::debug('Product outer ID: ' . $product_outer_id, 'test');
+            //Yii::debug('Product outer ID: ' . $product_outer_id, 'test');
             $categories_and_prices = [];
             if ($item->i->pricesForCategories) {
                 $categories_and_prices = json_decode(json_encode($item->i->pricesForCategories), true);
@@ -125,7 +125,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
             }
 
             if (!$categories) {
-                Yii::debug('Нет категорий. Пропускаем', 'test');
+                //Yii::debug('Нет категорий. Пропускаем', 'test');
                 $skipped++;
                 continue;
             }
@@ -145,7 +145,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     /** @var array $base_cat_outer_ids Внешине ключи категорий в базе */
 
                     if (!in_array($cat_outer_id, $base_cat_outer_ids)) {
-                        Yii::debug('Категория не найдена. Пропускаем', 'test');
+                        //Yii::debug('Категория не найдена. Пропускаем', 'test');
                         continue;
                     }
 
@@ -153,7 +153,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
 //                    $product = Nomenclature::findOne(['outer_id' => $product_outer_id]);
 
                     if (!in_array($product_outer_id, $base_product_outer_ids)) {
-                        Yii::debug("Продукт {$product_outer_id} не найден. Пропускаем", 'test');
+                        //Yii::debug("Продукт {$product_outer_id} не найден. Пропускаем", 'test');
                         continue;
                     }
 
@@ -169,7 +169,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                         ])->exists();
 
                     if ($exists) {
-                        Yii::debug($model->errors, 'test');
+                        //Yii::debug($model->errors, 'test');
                         $model = PriceCategoryToNomenclature::find()
                             ->andWhere(['pc_id' => $model->pc_id, 'n_id' => $model->n_id])->one();
                     }
@@ -230,7 +230,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $categories = [];
             $prices = [];
             $info = $item['i'];
-            Yii::debug($info, 'test');
+            //Yii::debug($info, 'test');
             $product_outer_id = $info['product'];
             $prices_and_categories = $info['pricesForCategories'];
 
@@ -241,12 +241,12 @@ class PriceCategoryToNomenclature extends ActiveRecord
 //                Yii::warning(round((double)$info['price'][0]), 'test');
 //            }
 
-            $product_id = $products_in_base[$product_outer_id];
+            $product_id = $products_in_base[$product_outer_id] ?? null;
 //            Yii::debug('Product ID: ' . $product_id, 'test');
 
             if (!$product_id) {
                 //Продукт не найден в номенклатуре, пропускаем
-                Yii::debug('Продукт не найден в номенклатуре, пропускаем', 'test');
+                //Yii::debug('Продукт не найден в номенклатуре, пропускаем', 'test');
                 continue;
             }
 
@@ -254,7 +254,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 //Если нет ни категорий ни цен
                 $price = round((double)$info['price'], 2);
                 if ($price){
-                    Yii::debug('New Default Price: ' . $price, 'test');
+                    //Yii::debug('New Default Price: ' . $price, 'test');
                     //Пишем цену в цену по умолчанию для продукта
                     $target_product = Nomenclature::find()->andWhere(['outer_id' => $product_outer_id])->one();
                     if ($price != $target_product->default_price){
@@ -262,9 +262,9 @@ class PriceCategoryToNomenclature extends ActiveRecord
                         if (!$target_product->save()){
                             Yii::error($target_product->errors, '_error');
                         }
-                        Yii::debug('Price changed', 'test');
+                        //Yii::debug('Price changed', 'test');
                     } else {
-                        Yii::debug('Price skipped', 'test');
+                        //Yii::debug('Price skipped', 'test');
                     }
                 }
                 continue;
@@ -285,9 +285,9 @@ class PriceCategoryToNomenclature extends ActiveRecord
             } else {
                 $prices = $prep_price;
             }
-            Yii::debug($prices_and_categories, 'test');
-            Yii::debug($categories, 'test');
-            Yii::debug($prices, 'test');
+            //Yii::debug($prices_and_categories, 'test');
+            //Yii::debug($categories, 'test');
+            //Yii::debug($prices, 'test');
 
             for ($i = 0; $i < count($categories); $i++) {
 
@@ -298,9 +298,9 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 $pctn_in_base_cat = array_values($pctn_to_category);
                 $pctn_in_base_nom = array_values($pctn_to_nomenclature);
 
-                Yii::debug('Категория: ' . $category_id . ' Продукт: ' . $product_id, 'test');
-                Yii::debug((int)in_array($category_id, $pctn_in_base_cat), 'test');
-                Yii::debug((int)in_array($product_id, $pctn_in_base_nom), 'test');
+                //Yii::debug('Категория: ' . $category_id . ' Продукт: ' . $product_id, 'test');
+                //Yii::debug((int)in_array($category_id, $pctn_in_base_cat), 'test');
+                //Yii::debug((int)in_array($product_id, $pctn_in_base_nom), 'test');
 
                 if (!$category_id || !$product_id) {
                     continue;
@@ -310,7 +310,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     && in_array($product_id, $pctn_in_base_nom)) {
                     //Если и продукт и категория есть в базе, поверяем принадлежат ли они одной записи
 
-                    Yii::debug('Категория найдена', 'test');
+                    //Yii::debug('Категория найдена', 'test');
                     $pctn_model = PriceCategoryToNomenclature::find()
                         ->andWhere([
                             'pc_id' => $category_id,
@@ -332,10 +332,10 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     ]);
                 }
                 $pctn_model->price = $prices[$i];
-                Yii::debug($pctn_model->attributes, 'test');
+                //Yii::debug($pctn_model->attributes, 'test');
 
                 if (!$pctn_model->save()) {
-                    Yii::debug('Ошибка сохранения', 'test');
+                    //Yii::debug('Ошибка сохранения', 'test');
                     Yii::error($pctn_model->errors, '_error');
                 }
             }
@@ -351,10 +351,10 @@ class PriceCategoryToNomenclature extends ActiveRecord
      * @param array $prod_outer_ids UIID продукта
      * @return array
      */
-    public static function syncForProducts($prod_outer_ids)
+    public static function syncForProducts(array $prod_outer_ids): array
     {
 //        Yii::warning('syncForProducts', 'test');
-
+        Yii::debug($prod_outer_ids, 'test');
         $products = ArrayHelper::map(Nomenclature::find()
             ->select(['id', 'outer_id'])
             ->andWhere(['IN', 'outer_id', $prod_outer_ids])
@@ -385,7 +385,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 continue;
             }
 
-            $product_id = $products[$arr['product']];
+            $product_id = $products[$arr['product']] ?? null;
 //            Yii::debug($product_id, 'test');
 
             if (!$product_id) {
@@ -422,7 +422,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                     ->one();
 
                 if (!$price_category_id){
-                    Yii::debug("Категория {$categories[$i]} не найдена в базе", 'test');
+                    //Yii::debug("Категория {$categories[$i]} не найдена в базе", 'test');
                 }
 
                 if (!$model && $price_category_id) {
@@ -434,7 +434,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
 
                 if ($model){
                     $model->price = $prices[$i];
-                    Yii::debug($model->attributes, 'test');
+                    //Yii::debug($model->attributes, 'test');
                     if (!$model->save()) {
                         Yii::error($model->errors, '_error');
                     }

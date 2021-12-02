@@ -31,12 +31,12 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
         <tbody>
         <?php if ($dataProvider): ?>
             <?php
-            Yii::debug($dataProvider, 'test');
+           //Yii::debug($dataProvider, 'test');
             /** @var array $product */
             foreach ($dataProvider as $product): ?>
                 <?php
-                Yii::debug('$counter1: ' . $counter, 'test');
-                Yii::debug( $product['name'] , 'test');
+               //Yii::debug('$counter1: ' . $counter, 'test');
+               //Yii::debug( $product['name'] , 'test');
                 Yii::debug($product, 'test');
                 if (!$product['id'] && $product){
                     $product = $product[0];

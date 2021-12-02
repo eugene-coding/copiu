@@ -122,7 +122,7 @@ class Buyer extends ActiveRecord
                             'address' => $address
                         ]
                     );
-                    Yii::debug($model->attributes, 'test');
+                    //Yii::debug($model->attributes, 'test');
                     if (!$model->save()){
                         Yii::error($model->errors, '_error');
                     };
@@ -176,13 +176,13 @@ class Buyer extends ActiveRecord
     {
         $rows = [];
         $exists_buyer = Buyer::find()->select(['outer_id'])->column();
-        Yii::debug($exists_buyer, 'test');
+        //Yii::debug($exists_buyer, 'test');
 
         $price_categories = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
 
         foreach ($data as $buyer) {
-            Yii::debug($buyer, 'test');
-            Yii::debug('Buyer outer_id: ' . $buyer['id'], 'test');
+            //Yii::debug($buyer, 'test');
+            //Yii::debug('Buyer outer_id: ' . $buyer['id'], 'test');
             $outer_id = (string)$buyer['id'];
             $outer_price_category = (string)$buyer['price_category'];
 
@@ -253,8 +253,8 @@ class Buyer extends ActiveRecord
         $to_setting = Settings::getValueByKey('delivery_max_time');
         $to = (int)explode(':', $to_setting)[0];
 
-        Yii::debug('From: ' . $from, 'test');
-        Yii::debug('To: ' . $to, 'test');
+        //Yii::debug('From: ' . $from, 'test');
+        //Yii::debug('To: ' . $to, 'test');
 
         switch ($type) {
             case 'from':
@@ -276,7 +276,7 @@ class Buyer extends ActiveRecord
             $result_arr[$val . ':00'] = $val;
         }
 
-        Yii::debug($result_arr, 'test');
+        //Yii::debug($result_arr, 'test');
 
         return $result_arr;
     }

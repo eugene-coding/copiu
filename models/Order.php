@@ -267,7 +267,7 @@ class Order extends ActiveRecord
             ];
         }
 
-        Yii::debug($items, 'test');
+       //Yii::debug($items, 'test');
 
         $blank = $obtn->ob;
 
@@ -288,12 +288,12 @@ class Order extends ActiveRecord
         }
 
         //проверяем длину коммента
-        Yii::debug('Comment length: ' . mb_strlen($this->comment), 'test');
+       //Yii::debug('Comment length: ' . mb_strlen($this->comment), 'test');
         if (mb_strlen($comment) > 255) {
             $comment = mb_substr($comment, 0, 254);
         }
-        Yii::debug('Comment length after: ' . mb_strlen($comment), 'test');
-        Yii::debug('Comment after: ' . $comment, 'test');
+       //Yii::debug('Comment length after: ' . mb_strlen($comment), 'test');
+       //Yii::debug('Comment after: ' . $comment, 'test');
 
         $params = [
             'documentNumber' => $this->getInvoiceNumber(),
@@ -305,11 +305,11 @@ class Order extends ActiveRecord
             'items' => $items,
             'defaultStoreId' => Settings::getValueByKey('store_outer_id'),
         ];
-        Yii::debug($params, 'test');
+       //Yii::debug($params, 'test');
 
         $helper = new IikoApiHelper();
         $result = $helper->makeExpenseInvoice($params);
-        Yii::debug($result, 'test');
+       //Yii::debug($result, 'test');
 
         $xml = null;
         try {
@@ -370,7 +370,7 @@ class Order extends ActiveRecord
             'status' => 'PROCESSED',
             'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', strtotime($this->target_date)),
         ];
-        Yii::debug($params, 'test');
+       //Yii::debug($params, 'test');
         //Проверяем наличие параметров
         foreach ($params as $item) {
             if (!$item) {
@@ -419,28 +419,30 @@ class Order extends ActiveRecord
      */
     public static function clean()
     {
-        Yii::debug('This is Clean() start', 'test');
+       //Yii::debug('This is Clean() start', 'test');
         $user = Users::findOne(Yii::$app->user->identity->id);
         $buyer = $user->buyer;
 
-        $not_finished_orders = Order::find()
-            ->andWhere(['buyer_id' => $buyer->id])
-            ->andWhere(['status' => self::STATUS_IN_PROGRESS])
-            ->all();
-        Yii::debug($not_finished_orders, 'test');
+        if ($buyer){
+            $not_finished_orders = Order::find()
+                ->andWhere(['buyer_id' => $buyer->id])
+                ->andWhere(['status' => self::STATUS_IN_PROGRESS])
+                ->all();
+           //Yii::debug($not_finished_orders, 'test');
 
-        /** @var Order $order */
-        foreach ($not_finished_orders as $order) {
-            Yii::debug($order->attributes, 'test');
-            try {
-                $order->delete();
-            } catch (\Exception $e) {
-                Yii::error($e->getMessage(), 'error');
-            } catch (\Throwable $e) {
-                Yii::error($e->getMessage(), 'error');
+            /** @var Order $order */
+            foreach ($not_finished_orders as $order) {
+               //Yii::debug($order->attributes, 'test');
+                try {
+                    $order->delete();
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage(), 'error');
+                } catch (\Throwable $e) {
+                    Yii::error($e->getMessage(), 'error');
+                }
             }
+           //Yii::debug('This is Clean() end', 'test');
         }
-        Yii::debug('This is Clean() end', 'test');
     }
 
     /**
@@ -566,7 +568,7 @@ class Order extends ActiveRecord
                 }
             }
 
-            /** @var Nomenclature $product */
+            /** Nomenclature $product */
             $product = $obtn->n;
 //            Yii::debug('$product_id: ' . $product_id, 'test');
 //            Yii::debug('$product->id: ' . $product->id, 'test');
@@ -592,7 +594,7 @@ class Order extends ActiveRecord
             $data[$obtn->ob->number][] = [
                 'id' => $product->id,
                 'name' => $product->name,
-                'count' => $order_to_nomenclature->count,
+                'count' => $order_to_nomenclature->count ?? 0,
                 'price' => $product->getPriceForBuyer($obtn->container_id),
                 'measure' => $product->findMeasure($obtn),
                 'obtn_id' => $obtn->id,
@@ -609,8 +611,8 @@ class Order extends ActiveRecord
                 'attributes' => ['name'],
             ],
         ]);
-        Yii::debug('НЕ избранное:', 'test');
-        Yii::debug($data, 'test');
+       //Yii::debug('НЕ избранное:', 'test');
+       //Yii::debug($data, 'test');
 //        Yii::debug($productsDataProvider, 'test');
 
         return $productsDataProvider;
@@ -801,8 +803,8 @@ class Order extends ActiveRecord
             ];
 
         }
-        Yii::debug('Избранное.', 'test');
-        Yii::debug($data, 'test');
+       //Yii::debug('Избранное.', 'test');
+       //Yii::debug($data, 'test');
 
         $favoriteDataProvider = new ArrayDataProvider([
             'allModels' => $data,

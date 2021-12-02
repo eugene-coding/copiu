@@ -306,7 +306,7 @@ class OrderController extends Controller
         $model = new Order();
         $user = Users::findOne(Yii::$app->user->identity->id);
         $model->buyer_id = $user->buyer->id;
-        Yii::debug($model->attributes, 'test');
+        //Yii::debug($model->attributes, 'test');
 
         if ($request->isPost) {
             $model->load($request->post());
@@ -363,16 +363,16 @@ class OrderController extends Controller
         } else {
             $model->load($request->post());
 
-            Yii::debug($model->attributes, 'test');
+            //Yii::debug($model->attributes, 'test');
 
             $model->orderProcessing();
 
             if ($model->step == 2) {
                 $model->scenario = $model::SCENARIO_STEP_2;
-                Yii::debug($model
-                    ->validate('comment') ? 'Валидация комментария успешна' : 'Валидация комментария провалена',
-                    'test');
-                Yii::debug($model->errors ?: 'Ошибок нет', 'test');
+                //Yii::debug($model
+//                    ->validate('comment') ? 'Валидация комментария успешна' : 'Валидация комментария провалена',
+//                    'test');
+                //Yii::debug($model->errors ?: 'Ошибок нет', 'test');
                 $total_count = $model->getTotalCountProducts();
                 $comment_required = Settings::getValueByKey('comment_required');
                 $model->comment = trim($model->comment);
@@ -410,8 +410,8 @@ class OrderController extends Controller
                 $model->step++;
             }
 
-            Yii::debug('Шаг перед сохранением: ' . $model->step, 'test');
-            Yii::debug($model->attributes, 'test');
+            //Yii::debug('Шаг перед сохранением: ' . $model->step, 'test');
+            //Yii::debug($model->attributes, 'test');
             if (!$model->hasErrors() && !$model->save()) {
                 Yii::error($model->errors, '_error');
             }
@@ -423,7 +423,7 @@ class OrderController extends Controller
             }
 
             if ($model->step === 4) {
-                Yii::debug($model->attributes, 'test');
+                //Yii::debug($model->attributes, 'test');
                 //Формируем накладную
                 $invoice_maked = $model->makeInvoice();
                 if (!$invoice_maked) {
@@ -452,8 +452,8 @@ class OrderController extends Controller
                 } else {
                     Yii::info('Нет доставки или сумма доставки 0 руб.', 'test');
                 }
-                Yii::debug('Модель перед сохранением:', 'test');
-                Yii::debug($model->attributes, 'test');
+                //Yii::debug('Модель перед сохранением:', 'test');
+                //Yii::debug($model->attributes, 'test');
                 $model->save(false);
             }
 
@@ -638,9 +638,9 @@ class OrderController extends Controller
         }
 
         if ($model->deliveryCost) {
-            Yii::debug('Есть доставка', 'test');
+            //Yii::debug('Есть доставка', 'test');
             if ($model->delivery_act_number == 'error') {
-                Yii::debug('Ошибка формирования Акта, формируем заново', 'test');
+                //Yii::debug('Ошибка формирования Акта, формируем заново', 'test');
                 //Если ошибка формирования Акта услуг
                 //Формируем акт оказания услуг (доставка)
                 if (!$model->makeDeliveryAct()) {
@@ -686,8 +686,8 @@ class OrderController extends Controller
         $favoriteDataProvider = $model->getFavoriteDataProvider();
         $productsDataProvider = $model->getProductDataProvider(null, null, $favoriteDataProvider);
 
-        Yii::debug($favoriteDataProvider->getModels(), '_test');
-        Yii::debug($productsDataProvider->getModels(), '_test');
+        //Yii::debug($favoriteDataProvider->getModels(), '_test');
+        //Yii::debug($productsDataProvider->getModels(), '_test');
 
 
         if ($is_mobile) {
@@ -722,9 +722,9 @@ class OrderController extends Controller
 
         $blank_model = OrderBlank::findOne($blank_id);
 
-        Yii::debug($productsDataProvider->getModels()[$blank_model->number], 'test');
+        //Yii::debug($productsDataProvider->getModels()[$blank_model->number], 'test');
         if ($is_mobile) {
-            Yii::debug($model->attributes, 'test');
+            //Yii::debug($model->attributes, 'test');
             return [
                 'success' => true,
                 'data' => $this->renderAjax('_nomenclature_mobile', [
@@ -788,7 +788,7 @@ class OrderController extends Controller
                 Yii::error($model->errors, '_error');
             }
         }
-        Yii::debug($model->attributes, 'test');
+        //Yii::debug($model->attributes, 'test');
 
         //Только для логирования
         $order = $model->order;
@@ -879,7 +879,7 @@ class OrderController extends Controller
         if ($request->isPost) {
             $order->load($request->post());
             $result = OrderBlank::getOrdersByDate($order->target_date);
-            Yii::debug($result, 'test');
+            //Yii::debug($result, 'test');
             if ($result['success']) {
                 return $this->redirect(['/order/order-update', 'id' => $order->id]);
             } else {

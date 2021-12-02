@@ -49,9 +49,9 @@ use yii\widgets\DetailView;
                 <?php /** @var \app\models\OrderBlankToNomenclature $obtn */
                 foreach ($order->getObtns() as $obtn):?>
                     <?php
-                    Yii::debug($obtn->attributes, 'test');
+                   //Yii::debug($obtn->attributes, 'test');
                     $product = $obtn->n;
-                    Yii::debug($product->attributes, 'test');
+                   //Yii::debug($product->attributes, 'test');
                     $count = $obtn->getCount($order->id);
                     $price = $obtn->getPriceForOrder($order->id);
                     ?>

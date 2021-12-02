@@ -154,7 +154,7 @@ class OrderBlankController extends Controller
             } else {
                 if ($model->load($request->post())) {
                     $exists = $model->blankExistsInIiko();
-                    Yii::debug($exists, 'test');
+                    //Yii::debug($exists, 'test');
                     if (!$exists) {
                         //Накладная не найдена
                         $model->addError('number', 'Накладная с указанным номером и датой не найдена');
@@ -235,7 +235,7 @@ class OrderBlankController extends Controller
         $model->buyers = ArrayHelper::map($model->buyerToOrderBlanks, 'buyer_id', 'name');
         $model->buyers = array_keys($model->buyers);
 
-        Yii::debug($model->buyers, 'test');
+        //Yii::debug($model->buyers, 'test');
         if ($request->isAjax) {
             /*
             *   Process for ajax request

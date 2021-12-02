@@ -157,7 +157,7 @@ class Settings extends ActiveRecord
         foreach ($settings as $setting) {
             if (in_array($setting->key, $target_keys)) {
                 if (!$setting->value) {
-                    Yii::debug($setting->key . ' In array: ' . (int)in_array($setting->key, $key_to_sync), 'test');
+                    //Yii::debug($setting->key . ' In array: ' . (int)in_array($setting->key, $key_to_sync), 'test');
                     if (in_array($setting->key, array_keys($key_to_sync))) {
                         $errors[$setting->key] = 'Не выполнена синхронизация (Раздел "Синхронизация"): <b>'
                             . $key_to_sync[$setting->key] . '</b>';

@@ -457,8 +457,8 @@ class OrderDraftController extends Controller
             ];
         } else {
             if ($draft->load($request->post()) && $order->load($request->post())){
-                Yii::debug($draft->attributes, 'test');
-                Yii::debug($order->attributes, 'test');
+                //Yii::debug($draft->attributes, 'test');
+                //Yii::debug($order->attributes, 'test');
 
                 $order->scenario = $order::SCENARIO_TO_QUEUE;
                 if (!$order->validate()){

@@ -27,7 +27,7 @@ $counter = 1;
                 ],
                 [
                     'attribute' => 'delivery_address_id',
-                    'value' => $model->address->address,
+                    'value' => $model->address->address ?? null,
                     'label' => 'Адрес доставки',
                     'visible' => (bool)$model->delivery_address_id,
                 ],
@@ -67,9 +67,9 @@ $counter = 1;
                     <?php /** @var OrderBlankToNomenclature $obtn */
                     foreach ($model->getObtns() as $obtn): ?>
                         <?php
-                        Yii::debug($obtn->attributes, 'test');
+                        //Yii::debug($obtn->attributes, 'test');
                         $product = $obtn->n;
-                        Yii::debug($product->attributes, 'test');
+                        //Yii::debug($product->attributes, 'test');
                         $count = $obtn->getCount($model->id);
                         $price = $obtn->getPriceForOrder($model->id);
                         ?>

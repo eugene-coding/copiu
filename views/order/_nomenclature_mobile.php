@@ -11,10 +11,10 @@ use yii\helpers\Html;
 $counter = 1;
 $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
 
-Yii::debug($products, '_test');
+//Yii::debug($products, '_test');
 
 ?>
-
+<?php if (isset($products)): ?>
 <?php foreach ($products as $product): ?>
     <div class="card">
         <div class="row">
@@ -73,6 +73,7 @@ Yii::debug($products, '_test');
         </div>
     </div>
 <?php endforeach; ?>
+<?php endif; ?>
 <?php
 $script = <<<JS
 function setProduct(order_id, obtn_id, count, price){
