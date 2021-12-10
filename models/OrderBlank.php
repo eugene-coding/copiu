@@ -7,6 +7,7 @@ use app\components\PostmanApiHelper;
 use app\models\query\OrderBlankQuery;
 use Yii;
 use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\helpers\ArrayHelper;
@@ -244,7 +245,7 @@ class OrderBlank extends ActiveRecord
         $current_time = date('H:i:00.0000', time());
         return self::find()
             ->andWhere(['<=', 'day_limit', $diff_days])
-            ->andWhere(['>', 'time_limit', $current_time])
+//            ->andWhere(['>', 'time_limit', $current_time])
             ->all();
     }
 
@@ -254,7 +255,7 @@ class OrderBlank extends ActiveRecord
      * @return string
      * @throws InvalidConfigException
      */
-    public static function blanksToTable($blanks, $target_date)
+    public static function blanksToTable(array $blanks, string $target_date)
     {
         $result = '';
         $blank_ids = [];
@@ -435,7 +436,7 @@ class OrderBlank extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBuyerToOrderBlanks()
+    public function getBuyerToOrderBlanks(): ActiveQuery
     {
         return $this->hasMany(BuyerToOrderBlank::class, ['order_blank_id' => 'id']);
     }
@@ -443,7 +444,7 @@ class OrderBlank extends ActiveRecord
     /**
      * @return array
      */
-    public function getProductDataProvider()
+    public function getProductDataProvider(): array
     {
         $obtns = $this->orderBlankToNomenclature;
 
