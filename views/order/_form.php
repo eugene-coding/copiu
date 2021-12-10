@@ -2,6 +2,8 @@
 
 use app\models\BuyerAddress;
 use kartik\date\DatePicker;
+use kartik\select2\Select2;
+use yii\base\InvalidConfigException;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -11,7 +13,7 @@ use yii\widgets\ActiveForm;
 /* @var $productsDataProvider \yii\data\ActiveDataProvider */
 /* @var $orderToNomenclatureDataProvider \yii\data\ActiveDataProvider */
 
-
+$title = 'Создание заказа.';
 if ($model->step == 1) {
     $title = 'Создание заказа. Шаг 1.';
 } elseif ($model->step == 2) {
@@ -37,7 +39,7 @@ try {
             'yii\bootstrap\BootstrapAsset',
         ]
     ]);
-} catch (\yii\base\InvalidConfigException $e) {
+} catch (InvalidConfigException $e) {
     echo $e->getMessage();
 }
 
@@ -48,7 +50,7 @@ try {
             'yii\bootstrap\BootstrapAsset',
         ]
     ]);
-} catch (\yii\base\InvalidConfigException $e) {
+} catch (InvalidConfigException $e) {
     echo $e->getMessage();
 }
 ?>
@@ -202,7 +204,7 @@ try {
                         <?php
                         try {
                             echo $form->field($model, 'delivery_address_id')
-                                ->widget(\kartik\select2\Select2::class, [
+                                ->widget(Select2::class, [
                                     'data' => BuyerAddress::getList($model->buyer_id),
                                     'options' => [
                                         'prompt' => 'Выберите адрес доставки'

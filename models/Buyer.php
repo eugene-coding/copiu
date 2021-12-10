@@ -244,7 +244,7 @@ class Buyer extends ActiveRecord
      * @param $type
      * @return array
      */
-    public function getDeliveryTimeIntervals($type)
+    public function getDeliveryTimeIntervals($type): array
     {
         $delivery_period = (double)Settings::getValueByKey('delivery_period');
         $from_setting = Settings::getValueByKey('delivery_min_time');

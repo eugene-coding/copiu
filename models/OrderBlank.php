@@ -231,7 +231,7 @@ class OrderBlank extends ActiveRecord
      * @param string $date Дата на которую производится заказ (Y-m-d)
      * @return OrderBlank[]
      */
-    public static function getBlanksByDate($date)
+    public static function getBlanksByDate(string $date): array
     {
         $date = date('Y-m-d 00:00:00', strtotime($date));
         $target_date = date('Y-m-d 23:59:59');
@@ -241,11 +241,11 @@ class OrderBlank extends ActiveRecord
 
        //Yii::debug('Diff days: ' . $diff_days, 'test');
 
-        $blanks = self::find()
+        $current_time = date('H:i:00.0000', time());
+        return self::find()
             ->andWhere(['<=', 'day_limit', $diff_days])
+            ->andWhere(['>', 'time_limit', $current_time])
             ->all();
-
-        return $blanks;
     }
 
     /**
@@ -466,7 +466,7 @@ class OrderBlank extends ActiveRecord
      * @return array
      * @throws InvalidConfigException
      */
-    public static function getOrdersByDate($date)
+    public static function getOrdersByDate(string $date): array
     {
         $model = new OrderBlank();
 
@@ -486,7 +486,7 @@ class OrderBlank extends ActiveRecord
             ];
         }
 
-        $target_date = date('Y-m-d', strtotime($_POST['date']));
+        $target_date = date('Y-m-d', strtotime($date));
 
         $blanks = $model->getBlanksByDate($target_date);
         $data = $model->blanksToTable($blanks, $target_date);

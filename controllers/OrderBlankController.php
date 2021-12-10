@@ -26,7 +26,7 @@ class OrderBlankController extends Controller
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
@@ -63,7 +63,7 @@ class OrderBlankController extends Controller
      * @throws ForbiddenHttpException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
         if (parent::beforeAction($action)) {
             if (!Yii::$app->user->can($action->id)) {
@@ -96,7 +96,7 @@ class OrderBlankController extends Controller
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public function actionView($id)
+    public function actionView(int $id)
     {
         $request = Yii::$app->request;
         $model = $this->findModel($id);
@@ -228,7 +228,7 @@ class OrderBlankController extends Controller
      * @throws Exception
      * @throws NotFoundHttpException
      */
-    public function actionUpdate($id)
+    public function actionUpdate(int $id)
     {
         $request = Yii::$app->request;
         $model = $this->findModel($id);
@@ -296,7 +296,7 @@ class OrderBlankController extends Controller
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id)
     {
         $request = Yii::$app->request;
         $this->findModel($id)->delete();
@@ -358,7 +358,7 @@ class OrderBlankController extends Controller
      * @return OrderBlank the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel(int $id): OrderBlank
     {
         if (($model = OrderBlank::findOne($id)) !== null) {
             return $model;
@@ -370,7 +370,7 @@ class OrderBlankController extends Controller
     /**
      * Синхронизация накладных
      */
-    public function actionSyncing()
+    public function actionSyncing(): array
     {
         set_time_limit(600);
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -400,46 +400,11 @@ class OrderBlankController extends Controller
      * @return array
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionGetOrdersByDate()
+    public function actionGetOrdersByDate(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $date = Yii::$app->request->post('date');
 
         return OrderBlank::getOrdersByDate($date);
-
-        //TODO: после тестов удалить всё что ниже
-
-//        $model = new OrderBlank();
-//
-//
-//        if (!$_POST['date']) {
-//            return [
-//                'success' => false,
-//                'error' => 'Не выбрана дата',
-//            ];
-//        }
-//
-//        if (strtotime($_POST['date']) < time()) {
-//            $data = $model->getAllBlanksInfo();
-//            return [
-//                'success' => false,
-//                'error' => 'Дата заказа уже наступила. Заказ невозможен',
-//                'warning' => $data
-//            ];
-//        }
-//
-//        $target_date = date('Y-m-d', strtotime($_POST['date']));
-//
-//        $blanks = $model->getBlanksByDate($target_date);
-//        $data = $model->blanksToTable($blanks, $target_date);
-//
-//        if (!$data) {
-//            $data = 'Бланки заказов отсуствуют';
-//        }
-//
-//        return [
-//            'success' => true,
-//            'data' => $data,
-//        ];
     }
 }

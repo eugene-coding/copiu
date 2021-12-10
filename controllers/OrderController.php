@@ -30,7 +30,7 @@ class OrderController extends Controller
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
@@ -58,7 +58,7 @@ class OrderController extends Controller
      * @throws ForbiddenHttpException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
         if (parent::beforeAction($action)) {
             if (!Yii::$app->user->can($action->id)) {
@@ -106,7 +106,7 @@ class OrderController extends Controller
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public function actionView($id)
+    public function actionView(int $id)
     {
         $request = Yii::$app->request;
         /** @var Order $model */
@@ -139,7 +139,7 @@ class OrderController extends Controller
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionDelete($id)
+    public function actionDelete(int $id)
     {
         $model = $this->findModel($id);
 
@@ -170,7 +170,7 @@ class OrderController extends Controller
      * @return Order the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected function findModel(int $id)
     {
         if (($model = Order::findOne($id)) !== null) {
             return $model;
@@ -184,7 +184,7 @@ class OrderController extends Controller
      * @param int $order_id Заказ
      * @return array
      */
-    public function actionBulkAddProduct($order_id)
+    public function actionBulkAddProduct(int $order_id): array
     {
         $request = Yii::$app->request;
 
@@ -230,7 +230,7 @@ class OrderController extends Controller
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionExcludeProduct($order_id, $nomenclature_id)
+    public function actionExcludeProduct(int $order_id, int $nomenclature_id): array
     {
         /** @var OrderToNomenclature $model */
         $model = OrderToNomenclature::find()
@@ -253,7 +253,7 @@ class OrderController extends Controller
      * @param int $nomenclature_id Позиция номенклатуры
      * @return array
      */
-    public function actionIncludeProduct($order_id, $nomenclature_id)
+    public function actionIncludeProduct(int $order_id, int $nomenclature_id): array
     {
         $nomenclature_model = Nomenclature::findOne($nomenclature_id);
 
@@ -278,7 +278,7 @@ class OrderController extends Controller
      * @param int $id Идентификатор заказа
      * @return string
      */
-    public function actionOrderProducts($id)
+    public function actionOrderProducts(int $id): string
     {
         $model = Order::findOne($id);
         $dataProvider = new ActiveDataProvider([
@@ -477,7 +477,7 @@ class OrderController extends Controller
             if ($model->status == $model::STATUS_IN_PROGRESS) {
                 try {
                     if (!$model->delete()) {
-                        \Yii::error($model->errors, '_error');
+                        Yii::error($model->errors, '_error');
                         $model->errlog();
                     }
                 } catch (\Exception $e) {
@@ -566,7 +566,7 @@ class OrderController extends Controller
 
         /** @var OrderToNomenclature $item */
         foreach ($query->each() as $item) {
-            /** @var OrderBlankToNomenclature $obtn */
+            /** OrderBlankToNomenclature $obtn */
             $obtn = $item->obtn;
             //Если в бланке уже нет продукта, который был раньше
             if (!$obtn) {
@@ -620,7 +620,7 @@ class OrderController extends Controller
      * @return Response
      * @throws NotFoundHttpException
      */
-    public function actionReMakeDocuments($id)
+    public function actionReMakeDocuments(int $id): Response
     {
         $model = $this->findModel($id);
 
@@ -658,7 +658,7 @@ class OrderController extends Controller
         return $this->redirect('index');
     }
 
-    public function actionShowOrderErrorSettings()
+    public function actionShowOrderErrorSettings(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -676,10 +676,8 @@ class OrderController extends Controller
      * @param $is_mobile
      * @return string
      */
-    public function actionGetContent($order_id, $is_mobile = null)
+    public function actionGetContent($order_id, $is_mobile = null): string
     {
-        //TODO: во вкладке избранное если выбрать кол-во продуктов и например не выбрать период, то полсе перезагрузки
-        //TODO: страницы кол-во слетает
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
 
@@ -688,7 +686,6 @@ class OrderController extends Controller
 
         //Yii::debug($favoriteDataProvider->getModels(), '_test');
         //Yii::debug($productsDataProvider->getModels(), '_test');
-
 
         if ($is_mobile) {
             return $this->renderAjax('_step_2_mobile', [
@@ -710,9 +707,9 @@ class OrderController extends Controller
      * @param $blank_id
      * @param $product_id
      * @param null $is_mobile
-     * @return array|string
+     * @return array
      */
-    public function actionGetProductForTab($order_id, $blank_id, $product_id, $is_mobile = null)
+    public function actionGetProductForTab($order_id, $blank_id, $product_id, $is_mobile = null): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $model = Order::findOne($order_id);
@@ -752,7 +749,7 @@ class OrderController extends Controller
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionAddProduct()
+    public function actionAddProduct(): array
     {
         $request = Yii::$app->request->post();
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -815,7 +812,7 @@ class OrderController extends Controller
      * @return array
      * @throws NotFoundHttpException
      */
-    public function actionToDraft($id)
+    public function actionToDraft($id): array
     {
         $order = $this->findModel($id);
         $order->status = $order::STATUS_DRAFT;
@@ -866,7 +863,7 @@ class OrderController extends Controller
     /**
      * Переход к редактированию черновика
      * @param $id
-     * @return string
+     * @return string|\yii\web\Response
      * @throws NotFoundHttpException
      * @throws \yii\base\InvalidConfigException
      */
