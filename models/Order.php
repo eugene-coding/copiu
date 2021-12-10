@@ -7,6 +7,7 @@ use app\components\PostmanApiHelper;
 use app\models\query\OrderQuery;
 use Yii;
 use yii\data\ArrayDataProvider;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -63,7 +64,7 @@ class Order extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'order';
     }
@@ -71,7 +72,7 @@ class Order extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['buyer_id', 'status', 'step', 'delivery_address_id'], 'integer'],
@@ -118,7 +119,7 @@ class Order extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -138,7 +139,7 @@ class Order extends ActiveRecord
         ];
     }
 
-    public function beforeSave($insert)
+    public function beforeSave($insert): bool
     {
         //Общая сумма заказа (без доставки)
         $this->total_price = OrderToNomenclature::getTotalPrice($this->id);
@@ -167,7 +168,7 @@ class Order extends ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getBuyer()
+    public function getBuyer(): ActiveQuery
     {
         return $this->hasOne(Buyer::class, ['id' => 'buyer_id']);
     }
@@ -176,7 +177,7 @@ class Order extends ActiveRecord
      * {@inheritdoc}
      * @return OrderQuery the active query used by this AR class.
      */
-    public static function find()
+    public static function find(): OrderQuery
     {
         return new OrderQuery(get_called_class());
     }
@@ -185,7 +186,7 @@ class Order extends ActiveRecord
      * Список статусов заказа
      * @return array
      */
-    public static function getStatusList()
+    public static function getStatusList(): array
     {
         return [
             self::STATUS_DRAFT => 'Черновик',
@@ -199,7 +200,7 @@ class Order extends ActiveRecord
      * Связи заказа с продуктами
      * @return \yii\db\ActiveQuery
      */
-    public function getOrderToNomenclature()
+    public function getOrderToNomenclature(): ActiveQuery
     {
         return $this->hasMany(OrderToNomenclature::class, ['order_id' => 'id']);
     }
@@ -208,7 +209,7 @@ class Order extends ActiveRecord
      * Получает все товары из бланков заказа
      * @return \yii\db\ActiveQuery
      */
-    public function getOrderBlankToNomenclature()
+    public function getOrderBlankToNomenclature(): ActiveQuery
     {
         $blanks = explode(',', $this->blanks);
         return OrderBlankToNomenclature::find()->andWhere(['IN', 'ob_id', $blanks]);
@@ -311,6 +312,10 @@ class Order extends ActiveRecord
         $result = $helper->makeExpenseInvoice($params);
        //Yii::debug($result, 'test');
 
+        //Проверяем в ответе наличие ошибки 400
+        if (strpos($result, '400 Bad request') != false){
+            return false;
+        }
         $xml = null;
         try {
             $xml = simplexml_load_string($result);
@@ -318,7 +323,7 @@ class Order extends ActiveRecord
         } catch (\Exception $e) {
             $this->errlog();
             Yii::error($result, '_error');
-            Yii::error($e->getMessage(), '_error');
+            Yii::error($e->getTraceAsString(), '_error');
             return false;
         }
 
@@ -350,7 +355,7 @@ class Order extends ActiveRecord
     /**
      * Акт оказания услуг (доставка)
      */
-    public function makeDeliveryAct()
+    public function makeDeliveryAct(): bool
     {
         $delivery_eid = Settings::getValueByKey('delivery_eid');
         $delivery_main_unit = Settings::getValueByKey('delivery_main_unit');
@@ -383,6 +388,10 @@ class Order extends ActiveRecord
         $result = $helper->makeActOfServices($params);
         Yii::info('Ответ на запрос создания акта доставки:', 'test');
         Yii::info($result, 'test');
+        //Проверяем в ответе наличие ошибки 400
+        if (strpos($result, '400 Bad request') != false){
+            return false;
+        }
 
         $xml = simplexml_load_string($result);
         $this->log(OrderLogging::ACTION_ORDER_CREATE_DELIVERY_ACT, 'Ответ: ' . $result);

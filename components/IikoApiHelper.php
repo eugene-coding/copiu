@@ -152,7 +152,7 @@ class IikoApiHelper
      * @param array $ids Внешние ID продуктов
      * @return array
      */
-    public function getItemsById($ids)
+    public function getItemsById(array $ids): array
     {
         if (!$ids) {
             return [];
@@ -231,7 +231,7 @@ class IikoApiHelper
      * @param array $params Параметры
      * @return mixed
      */
-    public function getOrderBlank($params)
+    public function getOrderBlank(array $params)
     {
         if (!isset($params['from']) || !$params['from']) {
             Yii::error('Отсутствует параметр "from"', 'error');
@@ -265,7 +265,7 @@ class IikoApiHelper
      * @param array $params Параметры документа
      * @return string
      */
-    public function makeExpenseInvoice($params)
+    public function makeExpenseInvoice(array $params)
     {
         Yii::info('Создание расходной накладной', 'test');
         Yii::info($params, 'test');
@@ -321,7 +321,7 @@ class IikoApiHelper
             Yii::info('Файл' . $params['documentNumber'] . '.xml сохранен', 'test');
         } catch (\Exception $e) {
             Yii::info('Ошибка: ' . $e->getMessage(), 'test');
-            Yii::error($e->getMessage(), 'test');
+            Yii::error($e->getTraceAsString(), 'test');
         }
 //        }
 
@@ -350,7 +350,7 @@ class IikoApiHelper
        //Yii::debug('Завершение создания накладной.', 'test');
 
         //Запрашивем созданную накладную и записываем в ответ в файл
-        //TODO после выявления проблемы с не совпадением продуктов в системе и в Айке - убрать все что ниже, кроем return
+        //TODO после выявления проблемы с не совпадением продуктов в системе и в Айке - убрать все что ниже, кроме return
         sleep(2);
         $invoice = $this->getExpenseInvoice($params['documentNumber']);
         $invoice_path = 'uploads/out_invoice/' . $params['documentNumber'] . '_created_invoice' . '.xml';

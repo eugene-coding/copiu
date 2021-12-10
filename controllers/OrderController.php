@@ -170,7 +170,7 @@ class OrderController extends Controller
      * @return Order the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel(int $id)
+    protected function findModel(int $id): Order
     {
         if (($model = Order::findOne($id)) !== null) {
             return $model;
@@ -523,7 +523,7 @@ class OrderController extends Controller
      * @param int $basis_order_id Идентификатор заказа, на основе которого будет сформирован новый заказ
      * @return string|Response
      */
-    public function actionCopyOrder($basis_order_id)
+    public function actionCopyOrder(int $basis_order_id)
     {
         $order_basis = Order::findOne($basis_order_id);
 
