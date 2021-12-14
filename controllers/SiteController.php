@@ -34,7 +34,7 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
@@ -66,7 +66,7 @@ class SiteController extends Controller
     /**
      * {@inheritdoc}
      */
-    public function actions()
+    public function actions(): array
     {
         return [
             'error' => [
@@ -85,7 +85,7 @@ class SiteController extends Controller
      * @throws ForbiddenHttpException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
         if (parent::beforeAction($action)) {
             //Проверяем доступ
@@ -151,7 +151,7 @@ class SiteController extends Controller
      *
      * @return Response
      */
-    public function actionLogout()
+    public function actionLogout(): Response
     {
         $user = Users::findOne(Yii::$app->user->id);
         $user->is_active = 0;
@@ -189,7 +189,7 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionAbout()
+    public function actionAbout(): string
     {
         return $this->render('about');
     }
@@ -227,7 +227,7 @@ class SiteController extends Controller
     /**
      * Синхронизация покупателей, ценовых категорий, отделов, счетов, складов
      */
-    public function actionSyncAll()
+    public function actionSyncAll(): array
     {
         set_time_limit(1200);
 //        ini_set("memory_limit", "128M");
@@ -359,7 +359,7 @@ class SiteController extends Controller
      * Синхронизация номенклатуры.
      * Производится частями по 500 позиций
      */
-    public function actionSyncNomenclature()
+    public function actionSyncNomenclature(): string
     {
         //Проверяем период синхронизации номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
@@ -717,18 +717,19 @@ class SiteController extends Controller
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function actionSync()
+    public function actionSync(): string
     {
         set_time_limit(1200);
         $this->actionSyncAll();
         $this->actionSyncNomenclatureGroup();
         $this->actionGetNomenclature();
         $this->actionGetPriceForPriceCategory();
-        OrderBlank::sync();
+        //TODO: слетает фасовка в бланках, после ручной синхронизации все норм
+//        OrderBlank::sync();
         return 'Готово';
     }
 
-    public function actionOffline()
+    public function actionOffline(): string
     {
         $this->layout = '//main-login';
         return $this->render('offline');
