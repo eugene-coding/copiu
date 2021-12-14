@@ -22,7 +22,7 @@ class SettingsController extends Controller
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors() : array
     {
         return [
             'access' => [
@@ -39,7 +39,7 @@ class SettingsController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['post'],
                     'bulk-delete' => ['post'],
@@ -54,7 +54,7 @@ class SettingsController extends Controller
      * @throws ForbiddenHttpException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function beforeAction($action)
+    public function beforeAction($action): bool
     {
         if (parent::beforeAction($action)) {
             if (!Yii::$app->user->can($action->id)) {
@@ -79,7 +79,6 @@ class SettingsController extends Controller
 
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
-            $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
             $system_settings = [];
             $cms_settings = [];
             $profile_settings = [];
@@ -97,9 +96,9 @@ class SettingsController extends Controller
                 }
                 if (!$result) {
                     $result = ['success' => true, 'data' => 'Настройки сохранены'];
-                    $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
                 }
             }
+            $settings = Settings::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->all();
 
             $sys_info_settings = [
                 'token',
@@ -122,6 +121,7 @@ class SettingsController extends Controller
                 'check_quantity_enabled',
                 'comment_required',
                 'delivery_article',
+                'delivery_nds',
             ];
 
             /** @var Settings $setting */

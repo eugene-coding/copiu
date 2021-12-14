@@ -14,7 +14,7 @@ class SettingsSearch extends Settings
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['id', 'user_id', 'is_system'], 'integer'],
@@ -25,7 +25,7 @@ class SettingsSearch extends Settings
     /**
      * @inheritdoc
      */
-    public function scenarios()
+    public function scenarios(): array
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
@@ -38,7 +38,7 @@ class SettingsSearch extends Settings
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search(array $params): ActiveDataProvider
     {
         $query = Settings::find();
 

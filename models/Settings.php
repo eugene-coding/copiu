@@ -91,7 +91,7 @@ class Settings extends ActiveRecord
     {
         /** @var Settings $setting */
         $setting = Settings::find()->andWhere(['key' => $key])->one();
-        return $setting->value;
+        return $setting->value ?? null;
     }
 
     /**

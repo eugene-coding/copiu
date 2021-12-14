@@ -374,6 +374,7 @@ class Order extends ActiveRecord
             'documentNumber' => 'D' . str_pad($this->id, 5, '0', STR_PAD_LEFT),
             'status' => 'PROCESSED',
             'incomingDate' => date('Y-m-d\TH:i:s.000+03:00', strtotime($this->target_date)),
+            'delivery_nds' => Settings::getValueByKey('delivery_nds')
         ];
        //Yii::debug($params, 'test');
         //Проверяем наличие параметров

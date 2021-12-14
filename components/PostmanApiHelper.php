@@ -8,6 +8,7 @@ use Yii;
 
 
 /**
+ * Класс назван от балды, т.к. когда он создавался было вообще не ясно что это такое
  * @property string $base_url Адрес АПИ сервера
  * @property string $request_string СТрока запроса без наименования метода
  * @property string $login
@@ -273,7 +274,7 @@ XML;
      * @param array $params
      * @return mixed
      */
-    public function makeActOfServices($params)
+    public function makeActOfServices(array $params)
     {
         Yii::info('Создание Акта услуг', 'test');
         $document_eid = $this->getGUID();
@@ -360,7 +361,7 @@ XML;
         $sum = $dom->createElement('sum', $params['sum']);
         $i->appendChild($sum);
 
-        $ndsPercent = $dom->createElement('ndsPercent', 0);
+        $ndsPercent = $dom->createElement('ndsPercent', $params['delivery_nds']);
         $i->appendChild($ndsPercent);
 
         $sumWithoutNds = $dom->createElement('sumWithoutNds', $params['sum']);
