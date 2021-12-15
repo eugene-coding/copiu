@@ -76,6 +76,7 @@ use dmstr\widgets\Menu;
                                     'template' => '<a href="{url}" role="modal-remote"><i class="fa fa-check-square-o"></i> {label}</a>',
                                     'url' => ['/settings/system-info'],
                                 ],
+                                ['label' => 'PHP info', 'icon' => 'server', 'url' => ['/site/php-info']],
                             ],
                             'visible' => Users::isAdmin()
                         ],

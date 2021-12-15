@@ -735,6 +735,14 @@ class SiteController extends Controller
         return $this->render('offline');
     }
 
+    public function actionPhpInfo()
+    {
+        if (!Users::isAdmin()){
+            return $this->redirect('index');
+        } else {
+            return $this->renderPartial('php-info');
+        }
+    }
 //    /**
 //     * Отправляет заказ, если дата настала.
 //     */
