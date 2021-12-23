@@ -38,7 +38,8 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                //Yii::debug('$counter1: ' . $counter, 'test');
                //Yii::debug( $product['name'] , 'test');
                 Yii::debug($product, 'test');
-                if (!$product['id'] && $product){
+                $prod = $product['id'] ?? null;
+                if (!$prod && $product){
                     $product = $product[0];
                 }
                 if (!$product) {
@@ -60,11 +61,16 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                 <td aria-label="Наименование"><?= $product['name'] ?></td>
                 <td aria-label="Описание">
                     <div class="description" style="max-width: 200px">
-                        <?= $product['description'] ?: 'нет'; ?>
+                        <?php
+                        if (isset($product['description'])) {
+                          echo $product['description'];
+                        } else {
+                            echo 'нет';
+                        } ?>
                     </div>
                 </td>
                     <td aria-label="Кол-во"><?= Html::input('number', "Order[count][{$product['obtn_id']}]",
-                        $product['count'],
+                        $product['count'] ?? 0,
                         [
                             'data-order-id' => $model->id,
                             'data-obtn-id' => $product['obtn_id'],
@@ -77,8 +83,12 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                     <td aria-label="Мин. кол-во"><?=$product['min_quantity'];?></td>
                 <?php endif; ?>
                 <td aria-label="Ед. изм."><?= $product['measure'] ?></td>
-                <td aria-label="Цена" class="product-price"><?= $product['price'] ?></td>
-                <td aria-label="Итого" class="total-cost"><?= $product['count'] * $product['price'] ?></td>
+                <td aria-label="Цена" class="product-price"><?= $product['price'] ?? 0 ?></td>
+                <?php
+                    $count = $product['count'] ?? 0;
+                    $price = $product['price'] ?? 0;
+                ?>
+                <td aria-label="Итого" class="total-cost"><?= $count * $price ?></td>
                 <?php
                 $counter++;
                 Yii::debug('$counter2: ' . $counter, 'test');
