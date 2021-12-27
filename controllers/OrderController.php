@@ -109,7 +109,6 @@ class OrderController extends Controller
     public function actionView(int $id)
     {
         $request = Yii::$app->request;
-        /** @var Order $model */
         $model = $this->findModel($id);
 
         if ($request->isAjax) {

@@ -11,10 +11,15 @@ return [
         'class' => 'kartik\grid\SerialColumn',
         'width' => '30px',
     ],
-//    [
-//        'class' => '\kartik\grid\DataColumn',
-//        'attribute' => 'id',
-//    ],
+    [
+        'class' => '\kartik\grid\DataColumn',
+        'attribute' => 'id',
+        'label' => '№',
+        'value' => function (Order $model){
+            return 'N' . str_pad($model->id, 5, 0, STR_PAD_LEFT);
+        },
+        'visible' => Users::isAdmin(),
+    ],
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'buyer_name',

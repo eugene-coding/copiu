@@ -72,6 +72,8 @@ $counter = 1;
                         //Yii::debug($product->attributes, 'test');
                         $count = $obtn->getCount($model->id);
                         $price = $obtn->getPriceForOrder($model->id);
+//                        Yii::debug('Продукт: ' . $product->name, 'test');
+//                        Yii::debug('Цена: ' . $price, 'test');
                         ?>
                         <tr>
                             <td><?= $counter; ?></td>

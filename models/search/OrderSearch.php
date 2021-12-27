@@ -73,8 +73,12 @@ class OrderSearch extends Order
             return $dataProvider;
         }
 
+        if ($this->id){
+            $this->id = (int)str_replace('N', '', $this->id);
+        }
+
         $query->andFilterWhere([
-            'id' => $this->id,
+            'order.id' => $this->id,
             'buyer_id' => $this->buyer_id,
             'created_at' => $this->created_at,
             'target_date' => $this->target_date,

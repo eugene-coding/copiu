@@ -80,7 +80,7 @@ $view_min_col = (bool)Settings::getValueByKey('check_quantity_enabled');
                             'onkeypress' => 'return event.charCode >= 48'
                         ]) ?></td>
                 <?php if ($view_min_col): ?>
-                    <td aria-label="Мин. кол-во"><?=$product['min_quantity'];?></td>
+                    <td aria-label="Мин. кол-во"><?=$product['min_quantity'] ?? '';?></td>
                 <?php endif; ?>
                 <td aria-label="Ед. изм."><?= $product['measure'] ?></td>
                 <td aria-label="Цена" class="product-price"><?= $product['price'] ?? 0 ?></td>
