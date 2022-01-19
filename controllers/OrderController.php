@@ -303,7 +303,7 @@ class OrderController extends Controller
 
         $request = Yii::$app->request;
         $model = new Order();
-        $user = Users::findOne(Yii::$app->user->identity->id);
+        $user = Users::findOne(Yii::$app->user->id);
         $model->buyer_id = $user->buyer->id;
         //Yii::debug($model->attributes, 'test');
 
@@ -521,10 +521,11 @@ class OrderController extends Controller
     /**
      * @param int $basis_order_id Идентификатор заказа, на основе которого будет сформирован новый заказ
      * @return string|Response
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionCopyOrder(int $basis_order_id)
     {
-        $order_basis = Order::findOne($basis_order_id);
+        $order_basis = $this->findModel($basis_order_id);
 
         $order = new Order();
         $order->buyer_id = $order_basis->buyer_id;

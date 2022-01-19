@@ -430,7 +430,7 @@ class Order extends ActiveRecord
     public static function clean()
     {
        //Yii::debug('This is Clean() start', 'test');
-        $user = Users::findOne(Yii::$app->user->identity->id);
+        $user = Users::findOne(Yii::$app->user->id);
         $buyer = $user->buyer;
 
         if ($buyer){
@@ -764,16 +764,21 @@ class Order extends ActiveRecord
         return $order;
     }
 
-    public function getFavoriteDataProvider()
+    /** Избранные продукты */
+    public function getFavoriteDataProvider(): ArrayDataProvider
     {
+        Yii::debug($this->blanks, 'getFavoriteDataProvider');
+//        $allow_blanks = explode(',', $this->blanks);
         $data = [];
         $user = User::getUser();
         $buyer = $user->buyer;
 
         //Получаем продукты из выбранных бланков
         $obtn_ids = FavoriteProduct::find()
+            ->joinWith(['obtn'])
             ->select(['obtn_id'])
             ->andWhere(['buyer_id' => $buyer->id])
+            ->andWhere(['IN', 'order_blank_to_nomenclature.ob_id', $this->blanks]) //Продукты только из бланков, прошедших проверку на ограничения (дни + время)
             ->column();
 
         $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()
@@ -783,7 +788,7 @@ class Order extends ActiveRecord
         /** @var OrderBlankToNomenclature $obtn */
         foreach ($order_blanks_to_nomenclatures as $obtn) {
 
-            /** @var Nomenclature $product */
+            /** Nomenclature $product */
             $product = $obtn->n;
 
             //Избранное
