@@ -18,12 +18,12 @@ use Yii;
  */
 class PostmanApiHelper
 {
-    private $base_url;
-    private $request_string;
-    private $login;
-    private $password;
-    private $headers = [];
-    private $post_data;
+//    private $base_url;
+//    private $request_string;
+//    private $login;
+//    private $password;
+//    private $headers = [];
+//    private $post_data;
 
     public function __construct()
     {
@@ -34,11 +34,11 @@ class PostmanApiHelper
 
         $this->login = Settings::getValueByKey(['ikko_server_login']);
         $this->password = Settings::getValueByKey(['ikko_server_password']);
-        $server_back_version = $this->getServerBackVersion();
+        $server_info = $this->getServerInfo();
 
         $this->headers = [
-            'X-Resto-ServerEdition: IIKO_CHAIN',
-            'X-Resto-BackVersion: ' . $server_back_version,
+            'X-Resto-ServerEdition: ' . $server_info['edition'],
+            'X-Resto-BackVersion: ' . $server_info['back_version'],
             'X-Resto-AuthType: BACK',
             'X-Resto-LoginName: ' . $this->login,
             'X-Resto-PasswordHash: ' . sha1($this->password),
@@ -65,8 +65,8 @@ class PostmanApiHelper
         //Yii::debug(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
         curl_close($ch);
 
-//        Yii::debug('Ответ сервера', 'test');
-//        Yii::debug($response, 'test');
+        Yii::debug('Ответ сервера', 'test');
+        Yii::debug($response, 'test');
 
         return $response;
     }
@@ -93,7 +93,6 @@ class PostmanApiHelper
     <useRawEntities>true</useRawEntities>
 </args>
 XML;
-
             $this->post_data = $body;
             $this->request_string = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
             $result = $this->send('POST');
@@ -473,19 +472,24 @@ XML;
         }
     }
 
-    public function getServerInfo()
+    /** Информация о сервере */
+    public function getServerInfo(): array
     {
         $this->request_string = $this->base_url . 'resto/get_server_info.jsp?encoding=UTF-8';
-        return $this->send();
-    }
-
-    public function getServerBackVersion()
-    {
-        $info = $this->getServerInfo();
+        $info = $this->send();
+        Yii::debug($info, __METHOD__);
         $info = '<?xml version="1.0" encoding="utf-8"?>' . $info;
         $xml = simplexml_load_string($info);
-        //Yii::debug($xml->version, 'test');
 
-        return (string)$xml->version;
+        if ($xml->edition == 'chain'){
+            $edition = 'IIKO_CHAIN';
+        } else {
+            $edition = 'IIKO_RMS';
+        }
+
+        return [
+            'back_version' => $xml->version,
+            'edition' => $edition
+        ];
     }
 }
