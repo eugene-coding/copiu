@@ -61,14 +61,14 @@ try {
 <?php if ($model->step != 5): ?>
     <div class="buttons" style="margin-bottom: 2rem">
     <div class="row">
-        <div class="col-md-2 col-xs-6">
+        <div class="col-md-2 col-sm-6">
             <?= Html::a('Отмена', ['/order/cancel', 'id' => $model->id], [
                 'class' => 'btn btn-default btn-block',
                 'title' => 'Отменить формирование закзаза',
             ]) ?>
         </div>
         <?php if ($model->step == 2 || $model->step == 3): ?>
-        <div class="col-md-2 col-xs-6">
+        <div class="col-md-2 col-sm-6">
             <?= Html::button('Назад', [
                 'class' => 'btn btn-info btn-block to-back',
                 'title' => 'Вернуться к предыдущему шагу',
@@ -98,8 +98,8 @@ try {
                         'id' => 'next-btn',
                         'title' => 'Сохранить и отправить',
                     ]) ?>
-                <?php elseif($model->step == 4): ?>
-                    <?= Html::a('Завершить', ['/order'],[
+                <?php elseif ($model->step == 4): ?>
+                    <?= Html::a('Завершить', ['/order'], [
                         'class' => 'btn btn-success btn-block',
                         'id' => 'next-btn',
                         'title' => 'Продолжить',
@@ -124,7 +124,7 @@ try {
         <hr>
     </div>
     <?= $form->field($model, 'status')->hiddenInput([
-            'value' => $model->status == $model::STATUS_DRAFT ?:$model::STATUS_IN_PROGRESS
+        'value' => $model->status == $model::STATUS_DRAFT ?: $model::STATUS_IN_PROGRESS
     ])->label(false) ?>
 <?php endif; ?>
 <?php if ($model->step == 1): ?>

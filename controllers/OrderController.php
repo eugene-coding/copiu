@@ -469,7 +469,7 @@ class OrderController extends Controller
      * @return Response
      * @throws \Throwable
      */
-    public function actionCancel($id = null)
+    public function actionCancel($id = null): Response
     {
         if ($id) {
             $model = Order::findOne($id);
@@ -489,7 +489,7 @@ class OrderController extends Controller
         return $this->redirect('index');
     }
 
-    public function actionChangeStatus()
+    public function actionChangeStatus(): array
     {
         $request = Yii::$app->request;
         Yii::$app->response->format = Response::FORMAT_JSON;

@@ -774,11 +774,12 @@ class Order extends ActiveRecord
         $buyer = $user->buyer;
 
         //Получаем продукты из выбранных бланков
+        $blanks = explode(',', $this->blanks);
         $obtn_ids = FavoriteProduct::find()
             ->joinWith(['obtn'])
             ->select(['obtn_id'])
             ->andWhere(['buyer_id' => $buyer->id])
-            ->andWhere(['IN', 'order_blank_to_nomenclature.ob_id', $this->blanks]) //Продукты только из бланков, прошедших проверку на ограничения (дни + время)
+            ->andWhere(['IN', 'order_blank_to_nomenclature.ob_id', $blanks]) //Продукты только из бланков, прошедших проверку на ограничения (дни + время)
             ->column();
 
         $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()
@@ -818,8 +819,8 @@ class Order extends ActiveRecord
             ];
 
         }
-       //Yii::debug('Избранное.', 'test');
-       //Yii::debug($data, 'test');
+       Yii::debug('Избранное.', 'test');
+       Yii::debug($data, 'test');
 
         $favoriteDataProvider = new ArrayDataProvider([
             'allModels' => $data,
