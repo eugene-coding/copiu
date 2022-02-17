@@ -30,7 +30,6 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'order_id',
-        'filter' => OrderLogging::getOrerList()
     ],
 //    [
 //        'class'=>'\kartik\grid\DataColumn',
@@ -67,7 +66,7 @@ return [
         'class' => 'kartik\grid\ActionColumn',
         'dropdown' => false,
         'vAlign' => 'middle',
-        'urlCreator' => function ($action, $model, $key, $index) {
+        'urlCreator' => function ($action, $model, $key) {
             return Url::to([$action, 'id' => $key]);
         },
         'viewOptions' => ['role' => 'modal-remote', 'title' => 'View', 'data-toggle' => 'tooltip'],
