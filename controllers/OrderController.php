@@ -331,7 +331,7 @@ class OrderController extends Controller
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionOrderUpdate($id)
+    public function actionOrderUpdate(int $id)
     {
         $user = (new Users())->getUser();
         //Проверяем IP пользователя
@@ -872,9 +872,15 @@ class OrderController extends Controller
 
         $request = Yii::$app->request;
         $order = $this->findModel($id);
+        $order->log(OrderLogging::ACTION_ORDER_CREATE_FROM_DRAFT);
 
         if ($request->isPost) {
             $order->load($request->post());
+            Yii::debug($order->attributes, 'update-draft');
+            //Сохраняем, т.к. дата заказа скорее всего изменилась
+            if (!$order->save()){
+                Yii::error($order->errors, '_error');
+            }
             $result = OrderBlank::getOrdersByDate($order->target_date);
             //Yii::debug($result, 'test');
             if ($result['success']) {

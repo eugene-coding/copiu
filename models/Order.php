@@ -869,7 +869,7 @@ class Order extends ActiveRecord
      * @param int $action_type Тип действия
      * @param string $description Описание
      */
-    public function log($action_type, $description = null)
+    public function log(int $action_type, $description = null)
     {
         if (is_array($description)){
             $description = json_encode($description);

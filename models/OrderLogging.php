@@ -36,6 +36,7 @@ class OrderLogging extends ActiveRecord
     const ACTION_ORDER_CREATE_DRAFT = 11;
     const ACTION_ORDER_ADD_PRODUCT = 12;
     const ACTION_CONTROL = 13;
+    const ACTION_ORDER_CREATE_FROM_DRAFT = 14;
 
     public $order_info;
 
@@ -125,11 +126,11 @@ class OrderLogging extends ActiveRecord
      * @param int $action Действие
      * @param string $description Описание
      */
-    public static function log(Order $order, $action, $description)
+    public static function log(Order $order, int $action, string $description)
     {
         $attributes = $order->attributes ?? '';
         $model = new OrderLogging([
-            'user_id' => Yii::$app->user->identity->id,
+            'user_id' => Yii::$app->user->id,
             'order_id' => $order->id,
             'action_type' => $action,
             'model' => json_encode($attributes),
@@ -141,7 +142,7 @@ class OrderLogging extends ActiveRecord
         }
     }
 
-    public static function getActionList()
+    public static function getActionList(): array
     {
         return [
             self::ACTION_ORDER_CREATE => 'Добавление',
@@ -157,17 +158,19 @@ class OrderLogging extends ActiveRecord
             self::ACTION_ORDER_CREATE_DRAFT => 'Создание черновика',
             self::ACTION_ORDER_ADD_PRODUCT => 'Изменение кол-ва продукта',
             self::ACTION_CONTROL => 'Контроль работы',
+            self::ACTION_ORDER_CREATE_FROM_DRAFT => 'Создание заказа из черновика',
         ];
     }
 
-    public static function getOrerList()
+    public static function getOrderList(): array
     {
         return ArrayHelper::map(OrderLogging::find()->all(), 'order_id', 'order_id');
     }
 
-    public function isJson($string) {
-        return ((is_string($string) &&
+    public function isJson($string): bool
+    {
+        return is_string($string) &&
             (is_object(json_decode($string)) ||
-                is_array(json_decode($string))))) ? true : false;
+                is_array(json_decode($string)));
     }
 }
