@@ -1,6 +1,10 @@
 <?php
 
+use app\models\Order;
 use app\models\OrderBlankToNomenclature;
+use app\models\Users;
+use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
@@ -38,8 +42,39 @@ $counter = 1;
                     'label' => 'Доставка',
                 ],
                 'comment:ntext',
-                'invoice_number',
-                'delivery_act_number'
+                [
+                    'attribute' => 'invoice_number',
+                    'value' => function (Order $model) {
+                        if (Users::isAdmin()) {
+                            $invoice =  Html::a($model->invoice_number, Url::to(['/uploads/out_invoice/' . $model->invoice_number . '.xml']), [
+                                'download' => true,
+                                'data-pjax' => 0
+                            ]);
+                            $response =  Html::a('Ответ сервера', Url::to(['/uploads/out_invoice/' . $model->invoice_number . '_response.xml']), [
+                                'download' => true,
+                                'data-pjax' => 0
+                            ]);
+                            return $invoice . '<br>' . $response;
+                        } else {
+                            return $model->invoice_number;
+                        }
+                    },
+                    'format' => 'raw',
+                ],
+                [
+                    'attribute' => 'delivery_act_number',
+                    'value' => function (Order $model) {
+                        if (Users::isAdmin()) {
+                            return Html::a($model->delivery_act_number, Url::to(['/uploads/out_act/' . $model->delivery_act_number . '.xml'], [
+                                    'download' => true,
+                                    'data-pjax' => 0
+                                ]));
+                        } else {
+                            return $model->delivery_act_number;
+                        }
+                    },
+                    'format' => 'raw',
+                ],
             ],
         ]);
     } catch (Exception $e) {
