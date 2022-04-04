@@ -217,8 +217,8 @@ class OrderBlank extends ActiveRecord
         foreach ($done_blank_to_product as $blank_id => $done_products){
             //Получаем все продукты для бланка
             $all_product_ids = Nomenclature::find()
-                ->joinWith('orderBlankToNomenclature AS obtn')
-                ->select(['id'])
+                ->joinWith('orderBlanksToNomenclatures AS obtn')
+                ->select(['nomenclature.id'])
                 ->andWhere(['obtn.ob_id' => $blank_id])
                 ->column();
             Yii::debug($all_product_ids, 'all products Sync()');
