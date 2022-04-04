@@ -95,24 +95,31 @@ class OrderBlank extends ActiveRecord
         $helper = new IikoApiHelper();
         $result = [];
 
+
+        //Получаем все бланки
         foreach (static::find()->all() as $blank) {
             $params = [
                 'number' => $blank->number,
                 'from' => $blank->date,
                 'to' => $blank->date,
             ];
+            //Запрашиваем новые данные для бланка
             $response = $helper->getOrderBlank($params);
             $result[$blank->id] = $response;
         }
-        //Очищаем таблицу связей бланка с номенклатурой
-        Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=0;')->execute();
-        Yii::$app->db->createCommand('TRUNCATE TABLE `order_blank_to_nomenclature`;')->execute();
-        Yii::$app->db->createCommand('SET FOREIGN_KEY_CHECKS=1;')->execute();
+        //Обновляем связи бланка с номенклатурой (только обновление и удаление лишнего)
 
         $nomenclature = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
         $containers = Container::find()->select(['id'])->column();
         $product_outer_ids_in_blanks = [];
         $rows = [];
+
+        /**
+         * @var int $blank_id Идентификатор бланка в базе
+         * @var  array $data Полученная информация по бланку
+         */
+        //Бланк и добавленные или отредактированные продукты
+        $done_blank_to_product = [];
 
         foreach ($result as $blank_id => $data) {
             $blank_model = OrderBlank::findOne($blank_id);
@@ -127,13 +134,17 @@ class OrderBlank extends ActiveRecord
             }
 
             if (isset($data['document']['items']['item']['productId'])) {
-                //Если один продукт в накладной
+                //Если один продукт в бланке
                 $data['document']['items']['item'] = [$data['document']['items']['item']];
             }
 
+
+
             foreach ($data['document']['items']['item'] as $item) {
+                Yii::debug($item, 'item OrderBlank sync()');
                 $product_id = $item['productId'];
                 $n_id = $product_id ? $nomenclature[$product_id] : null;
+                Yii::debug($item, '$n_id OrderBlank sync()');
                 $container_id = $item['containerId'] ?? null;
                 $quantity = (double)$item['amount'] ?? 0;
                 if ($container_id) {
@@ -144,32 +155,48 @@ class OrderBlank extends ActiveRecord
                         //Обновляем список контейнеров
                         $containers = Container::find()->select(['id'])->column();
                         if (!in_array($container_id, $containers)) {
-                            Yii::error('Ошибка синхронизации, необходимо обновление номенклатуры', '_error');
-                            return [
-                                'success' => false,
-                                'error' => 'Ошибка синхронизации, необходимо обновление номенклатуры',
-                                'date' => date('d.m.Y H:i', time()),
-                            ];
+                            Yii::$app->session->addFlash('warning', 'Необходимо обновление номенклатуры');
+                            continue;
+//                            Yii::debug($container_id, 'container_id OrderBlank sync()');
+//                            Yii::debug($containers, 'containers OrderBlank sync()');
+//                            Yii::error('Ошибка синхронизации, необходимо обновление номенклатуры (контейнер не найден)', '_error');
+//                            return [
+//                                'success' => false,
+//                                'error' => 'Ошибка синхронизации, необходимо обновление номенклатуры',
+//                                'date' => date('d.m.Y H:i', time()),
+//                            ];
                         }
                     }
                     $count_per_container = Container::findOne($container_id)->count ?? 0;
 
-                    if ($count_per_container){
-                        $quantity = $quantity/$count_per_container;
+                    if ($count_per_container) {
+                        $quantity = $quantity / $count_per_container;
                     } else {
                         $quantity = 0;
                     }
                 }
 
-                if ($n_id) {
-                    $product_outer_ids_in_blanks[] = $item['productId'];
-                    $rows[] = [$n_id, $blank_id, $container_id, $quantity];
-                } else {
-                   //Yii::debug('Продукт ' . $item['productId'] . ' не найден в номенклатуре, пропускаем', 'test');
-                }
+                //Ищем комбинацию бланк-продукт
+                $obtn = OrderBlankToNomenclature::findOne(['ob_id' => $blank_id, 'n_id' => $n_id]);
 
+                if (!$obtn) {
+                    //Если связь не найдена, добавляем в массив для последующего добавления в базу
+                    if ($n_id) {
+                        $rows[] = [$n_id, $blank_id, $container_id, $quantity];
+                    }
+                } else {
+                    //Если запись найдена
+                    $done_blank_to_product[$blank_id][] = $n_id;
+
+                    $obtn->container_id = $container_id;
+                    $obtn->quantity = $quantity;
+                    if (!$obtn->save()) {
+                        Yii::error($obtn->save(), '_error');
+                    }
+                }
+                $product_outer_ids_in_blanks[] = $item['productId'];
             }
-            Yii::debug('Check 1', 'test');
+//            Yii::debug('Check 1', 'test');
 
             //Синхронизируем цены для ценовых категорий товаров из бланка
             static::syncPriceForPriceCategory();
@@ -181,27 +208,46 @@ class OrderBlank extends ActiveRecord
                 Yii::debug($blank_model->errors, '_error');
             }
         }
-        Yii::debug('Check 2', 'test');
+//        Yii::debug('Check 2', 'test');
 
-       //Yii::debug($product_outer_ids_in_blanks, 'test');
-       //Yii::debug($rows, 'test');
+        //Yii::debug($product_outer_ids_in_blanks, 'test');
+        //Yii::debug($rows, 'test');
 
-        //Сохраняем всё
-        Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(),
-            ['n_id', 'ob_id', 'container_id', 'quantity'], $rows)->execute();
+        //Удаляем лишние связи бланка с продуктами
+        foreach ($done_blank_to_product as $blank_id => $done_products){
+            //Получаем все продукты для бланка
+            $all_product_ids = Nomenclature::find()
+                ->joinWith('orderBlankToNomenclature AS obtn')
+                ->select(['id'])
+                ->andWhere(['obtn.ob_id' => $blank_id])
+                ->column();
+            Yii::debug($all_product_ids, 'all products Sync()');
 
+            $ids_for_delete = array_diff($all_product_ids, $done_products);
+            Yii::warning($ids_for_delete, 'Product for delete from obtn Sync');
+            OrderBlankToNomenclature::deleteAll(['AND',
+                'ob_id' => $blank_id,
+                ['IN', 'n_id', $ids_for_delete]
+                ]);
+        }
+
+        if ($rows){
+            //Сохраняем всё
+            Yii::$app->db->createCommand()->batchInsert(OrderBlankToNomenclature::tableName(),
+                ['n_id', 'ob_id', 'container_id', 'quantity'], $rows)->execute();
+        }
 
         if ($product_outer_ids_in_blanks) {
             //Обновляем продукты указанные в бланках
-           //Yii::debug($product_outer_ids_in_blanks, 'test');
-            Yii::debug('Check 3', 'test');
+            //Yii::debug($product_outer_ids_in_blanks, 'test');
+//            Yii::debug('Check 3', 'test');
             Nomenclature::syncByIds($product_outer_ids_in_blanks);
-            Yii::debug('Check 3.1', 'test');
+//            Yii::debug('Check 3.1', 'test');
 
             //Обновляем цены для ценовых категорий в которых находятся продукты бланков
-            Yii::debug('Check 4', 'test');
+//            Yii::debug('Check 4', 'test');
             PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
-            Yii::debug('Check 4.1', 'test');
+//            Yii::debug('Check 4.1', 'test');
         }
 
         Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
@@ -240,7 +286,7 @@ class OrderBlank extends ActiveRecord
         $diff_time = strtotime($date) - strtotime($target_date);
         $diff_days = floor($diff_time / (60 * 60 * 24) + 1);
 
-       //Yii::debug('Diff days: ' . $diff_days, 'test');
+        //Yii::debug('Diff days: ' . $diff_days, 'test');
 
         $current_time = date('H:i:00.0000', time());
         return self::find()
@@ -263,9 +309,9 @@ class OrderBlank extends ActiveRecord
         foreach ($blanks as $blank) {
             $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
             $user = Users::getUser();
-           //Yii::debug($buyers, 'test');
-           //Yii::debug('Buyer ID: ' . $user->buyer->id, 'test');
-            if ($buyers && !in_array($user->buyer->id, $buyers)){
+            //Yii::debug($buyers, 'test');
+            //Yii::debug('Buyer ID: ' . $user->buyer->id, 'test');
+            if ($buyers && !in_array($user->buyer->id, $buyers)) {
                 //Если для бланка видимость только выбранным и покупателя нет в списке видимости
                 continue;
             }
@@ -277,14 +323,14 @@ class OrderBlank extends ActiveRecord
             if ($max_order_time < time()) {
                 $max_order_time = $max_order_time + (60 * 60 * 24);
             }
-           //Yii::debug('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
+            //Yii::debug('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
 
             $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 * 60 * 60));
             $delivery_time = strtotime($delivery_date);
 
-           //Yii::debug('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
-           //Yii::debug('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
-           //Yii::debug('Расчетная дата доставки больше даты заказа: '
+            //Yii::debug('Дата заказа ' . date('d.m.Y', strtotime($target_date)), 'test');
+            //Yii::debug('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+            //Yii::debug('Расчетная дата доставки больше даты заказа: '
 //                . (int)(strtotime($delivery_date) > strtotime($target_date)), 'test');
 
             if (strtotime($delivery_date) > strtotime($target_date)) {
@@ -343,7 +389,7 @@ class OrderBlank extends ActiveRecord
         ];
 
         $result = $helper->getOrderBlank($params);
-       //Yii::debug($result, 'test');
+        //Yii::debug($result, 'test');
 
         if ($result && isset($result['document']['id'])) {
             return true;
@@ -363,9 +409,9 @@ class OrderBlank extends ActiveRecord
         foreach ($blanks as $blank) {
             $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
             $user = Users::getUser();
-           //Yii::debug($buyers, 'test');
-           //Yii::debug('Buyer ID: ' . $user->buyer->id, 'test');
-            if ($buyers && !in_array($user->buyer->id, $buyers)){
+            //Yii::debug($buyers, 'test');
+            //Yii::debug('Buyer ID: ' . $user->buyer->id, 'test');
+            if ($buyers && !in_array($user->buyer->id, $buyers)) {
                 //Если для бланка видимость только выбранным и покупателя нет в списке видимости
                 continue;
             }
@@ -377,11 +423,11 @@ class OrderBlank extends ActiveRecord
             if ($max_order_time < time()) {
                 $max_order_time = $max_order_time + (60 * 60 * 24);
             }
-           //Yii::debug('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
+            //Yii::debug('Максимальная дата заказа ' . date('d.m.Y H:i', $max_order_time), 'test');
             $delivery_date = date('Y-m-d', $max_order_time + ($blank->day_limit * 24 * 60 * 60));
             $delivery_time = strtotime($delivery_date);
 
-           //Yii::debug('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
+            //Yii::debug('Мин. дата доставки ' . date('d.m.Y', $delivery_time), 'test');
 
             $result .= '<tr>';
             $result .= '<td>';
@@ -421,12 +467,12 @@ class OrderBlank extends ActiveRecord
 
         $xml = simplexml_load_string($response['data']);
 
-        foreach ($xml->returnValue->v as $item){
-            if (in_array($item->product, $target_product_outer_ids)){
+        foreach ($xml->returnValue->v as $item) {
+            if (in_array($item->product, $target_product_outer_ids)) {
                 $json = json_encode($item);
                 $data = json_decode($json, true);
                 $result_import = PriceCategoryToNomenclature::import($data);
-               //Yii::debug($result_import, 'test');
+                //Yii::debug($result_import, 'test');
             }
         }
         return true;

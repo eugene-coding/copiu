@@ -192,7 +192,7 @@ class Nomenclature extends ActiveRecord
         $updated_items = 0;
         $skipped = 0;
         $message = '';
-        /** @var array $containers [<UIID> => [[<Контайнер1>], [<Контайнер 2>]] */
+        /** @var array $containers [<UIID> => [[<Контейнер1>], [<Контейнер 2>]] */
         $containers = [];
 
         /** @var NGroup $group */
@@ -216,7 +216,7 @@ class Nomenclature extends ActiveRecord
                 $added_items++;
             }
 
-            $n_group_id = $n_groups[$item['parent']];
+            $n_group_id = $n_groups[$item['parent']] ?? null;
             if (!$n_group_id && $item['parent']) {
                 //Если группы нет в базе
                 //(например если синхронизация номенклатуры запущена до синхронизации групп номенклатуры)
@@ -266,29 +266,22 @@ class Nomenclature extends ActiveRecord
                         'nomenclature_id' => $nomenclature_id,
                     ]);
                 }
+
                 $container_model->name = $item['name'];
                 $container_model->count = $item['count'];
                 $container_model->weight = $item['containerWeight'];
                 $container_model->full_weight = $item['fullContainerWeight'];
                 $container_model->deleted = $item['deleted'];
 
-                if ($container_model->id){
-                    $actual_container_ids[] = $container_model->id;
-                }
-
                 if (!$container_model->save()){
                     Yii::error($container_model->errors, '_error');
                 }
+                if ($container_model->id){
+                    $actual_container_ids[] = $container_model->id;
+                }
+                Yii::debug($container_model->attributes, 'container import()');
             }
         }
-
-        //Удаляем контейнеры, которые не пришли в ответе (например контейнеры, которые удалены)
-        $current_container_ids = Container::find()->select(['id'])->column();
-        $container_for_delete = array_diff($current_container_ids, $actual_container_ids);
-
-        Yii::warning('Контейнеры для удаления: ' . implode(',', $container_for_delete));
-
-        Container::deleteAll(['IN', 'id', $container_for_delete]);
 
         return [
             'success' => true,
@@ -402,7 +395,7 @@ class Nomenclature extends ActiveRecord
      * @param array $ids массив UIID продуктов
      * @return bool
      */
-    public static function syncByIds($ids)
+    public static function syncByIds(array $ids): bool
     {
         $helper = new IikoApiHelper();
         $outer_products = $helper->getItemsById($ids);
@@ -431,7 +424,7 @@ class Nomenclature extends ActiveRecord
                 //Обновляем контейнер(ы)
                 Container::sync($containers, $nom_id);
             } else {
-                //Удаляем все контейнеры для продукта
+                //Если контейнеров нет - удаляем все контейнеры для продукта
                 Container::deleteAll(['nomenclature_id' => $nom_id]);
             }
         }

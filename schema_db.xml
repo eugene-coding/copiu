@@ -248,7 +248,7 @@
         </key>
         <comment>Покупатели</comment>
     </table>
-    <table x="828" y="239" name="order_to_nomenclature">
+    <table x="1110" y="182" name="order_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -266,6 +266,12 @@
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="order_blank_to_nomenclature" row="id" />
         </row>
+        <row name="created_at" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
+        <row name="updated_at" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default></row>
         <key type="PRIMARY" name="">
             <part>id</part>
         </key>
@@ -398,7 +404,7 @@
         </key>
         <comment>Бланки заказов (накладные)</comment>
     </table>
-    <table x="1110" y="71" name="order_blank_to_nomenclature">
+    <table x="1120" y="20" name="order_blank_to_nomenclature">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -415,6 +421,10 @@
         <row name="container_id" null="1" autoincrement="0">
             <datatype>INTEGER</datatype>
             <default>NULL</default><relation table="container" row="id" />
+        </row>
+        <row name="quantity" null="1" autoincrement="0">
+            <datatype>INTEGER</datatype>
+            <default>NULL</default><comment>Количество</comment>
         </row>
         <key type="PRIMARY" name="">
             <part>id</part>
@@ -438,7 +448,7 @@
             <part>id</part>
         </key>
     </table>
-    <table x="885" y="559" name="account">
+    <table x="895" y="679" name="account">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>
@@ -539,7 +549,7 @@
         </key>
         <comment>Адреса покупателей</comment>
     </table>
-    <table x="905" y="592" name="order_draft">
+    <table x="1057" y="700" name="order_draft">
         <row name="id" null="1" autoincrement="1">
             <datatype>INTEGER</datatype>
             <default>NULL</default></row>

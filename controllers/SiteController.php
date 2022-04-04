@@ -126,7 +126,17 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
+
+
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            //TODO для открытия доступа - удалить
+            if ($model->username != 'admin'){
+                $model->addError('password', 'Ведутся технические работы. Портал будет доступен с 8:00 05.04.2022 ');
+                return $this->render('login', [
+                    'model' => $model,
+                ]);
+            }
+
             //Проверяем доступ
             $access = $model->checkAccess();
             if (!$access['success']) {
@@ -198,7 +208,7 @@ class SiteController extends Controller
      * Отображет форму с кнопками синхронизации
      * @return array
      */
-    public function actionSyncing()
+    public function actionSyncing(): array
     {
         $request = Yii::$app->request;
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -359,12 +369,12 @@ class SiteController extends Controller
      * Синхронизация номенклатуры.
      * Производится частями по 500 позиций
      */
-    public function actionSyncNomenclature(): string
+    public function actionSyncNomenclature()
     {
         //Проверяем период синхронизации номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
         $diff_time = time() - $last_time;
-        if ($diff_time < 110) {
+        if ($diff_time < 110 && !Users::isAdmin()) {
             return 'Ожидание синхронизации';
         }
         set_time_limit(600);
