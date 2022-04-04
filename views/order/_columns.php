@@ -114,12 +114,19 @@ return [
                     && $model->status != $model::STATUS_ERROR
                     && Settings::checkSettings()['success']
                     && Users::isBuyer()) {
-                    return Html::a('<i class="glyphicon glyphicon-copy"></i>',
-                        ['/order/copy-order', 'basis_order_id' => $model->id],
-                        [
-                            'title' => 'Сформировать заказ на основе текущего',
-                            'data-pjax' => 0,
-                        ]);
+
+                    //скрываем кнопку для старых заказов
+                    $order_time = strtotime($model->created_at);
+                    $max_time = strtotime('2022-04-03 23:59:59');
+
+                    if ($order_time > $max_time){
+                        return Html::a('<i class="glyphicon glyphicon-copy"></i>',
+                            ['/order/copy-order', 'basis_order_id' => $model->id],
+                            [
+                                'title' => 'Сформировать заказ на основе текущего',
+                                'data-pjax' => 0,
+                            ]);
+                    }
                 }
                 return null;
             },
