@@ -129,14 +129,6 @@ class SiteController extends Controller
 
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            //TODO для открытия доступа - удалить
-            if ($model->username != 'admin'){
-                $model->addError('password', 'Ведутся технические работы. Портал будет доступен с 8:00 05.04.2022 ');
-                return $this->render('login', [
-                    'model' => $model,
-                ]);
-            }
-
             //Проверяем доступ
             $access = $model->checkAccess();
             if (!$access['success']) {
