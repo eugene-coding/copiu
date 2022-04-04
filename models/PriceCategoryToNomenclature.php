@@ -219,7 +219,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
      * @param array $data Данные для импорта
      * @return array
      */
-    public static function import($data)
+    public static function import(array $data): array
     {
         $categories_in_base = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
         $products_in_base = ArrayHelper::map(Nomenclature::find()->all(), 'outer_id', 'id');
@@ -234,12 +234,13 @@ class PriceCategoryToNomenclature extends ActiveRecord
             $product_outer_id = $info['product'];
             $prices_and_categories = $info['pricesForCategories'];
 
-//            if ($product_outer_id == 'fffa537c-7edd-42e8-9fd6-d39fba5c26bf'){
-//                Yii::warning('Gotcha! Чиабата с курицей NEW', 'test');
-//                Yii::warning($prices_and_categories, 'test');
-//                Yii::warning(round((double)$info['price']), 'test');
-//                Yii::warning(round((double)$info['price'][0]), 'test');
-//            }
+            if ($product_outer_id == '3e8ffe40-dde4-4095-8a00-e1cc5161396a'){
+                Yii::warning('Gotcha! Слойка с яблоком и корицей 130г', 'test');
+                Yii::warning($prices_and_categories, 'test');
+                Yii::warning(round((double)$info['price']), 'test');
+                Yii::warning(round((double)$info['price'][0]), 'test');
+                Yii::warning($info, 'test');
+            }
 
             $product_id = $products_in_base[$product_outer_id] ?? null;
 //            Yii::debug('Product ID: ' . $product_id, 'test');

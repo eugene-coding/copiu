@@ -18,12 +18,12 @@ use Yii;
  */
 class PostmanApiHelper
 {
-//    private $base_url;
-//    private $request_string;
-//    private $login;
-//    private $password;
-//    private $headers = [];
-//    private $post_data;
+    private $base_url;
+    private $request_string;
+    private $login;
+    private $password;
+    private $headers = [];
+    private $post_data;
 
     public function __construct()
     {
@@ -49,7 +49,7 @@ class PostmanApiHelper
     public function send($type = 'GET')
     {
         //Yii::debug('Request string: ' . $this->request_string, 'test');
-        //Yii::debug($this->headers, 'test');
+        Yii::debug($this->headers, 'test');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->request_string);

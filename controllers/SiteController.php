@@ -489,7 +489,7 @@ class SiteController extends Controller
             $last_time = date('Y-m-d H:i:s', time());
         }
         $diff_time = time() - $last_time;
-        if ($diff_time < 110 && Yii::$app->request->userIP != '127.0.0.1') {
+        if ($diff_time < 110 && Yii::$app->request->userIP != '127.0.0.1' && !Users::isAdmin()) {
             return 'Ожидание синхронизации цен';
         }
         set_time_limit(600);
