@@ -64,3 +64,11 @@ https://mysite.ru/site/sync-nomenclature
 ```
 https://mysite.ru/site/sync-price-for-price-category
 ```
+
+
+
+#### Install 
+1. docker-compose run --rm php composer install
+2. edit .env
+3. cp db.php and edit
+4. docker-compose run --rm php php yii migrate    
