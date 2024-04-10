@@ -8,7 +8,6 @@
     services:
         - name: docker:dind
     before_script:
-        # - echo "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER"  "$CI_REGISTRY" --password-stdin
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
         - |
           if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
@@ -48,9 +47,36 @@ build_copiu:
         DB_PASSWORD: $COPIU_DB_PASSWORD
   only: 
     - prod_copiu
-  when: always
+  when: manual
 
-deploy_copiu:
+
+build_demo:
+  extends: .docker-build
+  stage: build
+  variables:
+        DB_HOST: $DEMO_DB_HOST
+        DB_NAME: $DEMO_DB_NAME
+        DB_USERNAME: $DEMO_DB_USERNAME
+        DB_PASSWORD: $DEMO_DB_PASSWORD
+  only: 
+    - demo
+  when: manual
+
+
+
+build_sladkaya_ledi:
+  extends: .docker-build
+  stage: build
+  variables:
+        DB_HOST: $SLADKAYA_LEDI_DB_HOST
+        DB_NAME: $SLADKAYA_LEDI_DB_NAME
+        DB_USERNAME: $SLADKAYA_LEDI_DB_USERNAME
+        DB_PASSWORD: $SLADKAYA_LEDI_DB_PASSWORD
+  only: 
+    - sladkaya_ledi
+  when: manual
+
+.deploy: &deploy
     image: docker:latest
     stage: deploy
     tags:
@@ -66,16 +92,18 @@ deploy_copiu:
             fi
         - chmod og= $ID_RSA -v
         - apk update && apk add openssh-client 
-        # - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP \
-        #   "echo '$CI_REGISTRY_PASSWORD' | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY"
-          
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $CI_REGISTRY_IMAGE${tag}"
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CI_ENVIRONMENT_NAME-$CI_PROJECT_NAME || true"
-        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 31002:80  --restart unless-stopped --name $CI_ENVIRONMENT_NAME-$CI_PROJECT_NAME -m 512m $CI_REGISTRY_IMAGE${tag}"
-    environment:
-        name: staging
-    only:
-        - prod_copiu
-    when: always
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p $EXTERNAL_PORT:80  --restart unless-stopped --name $CI_ENVIRONMENT_NAME-$CI_PROJECT_NAME -m 512m $CI_REGISTRY_IMAGE${tag}"
 
+deploy_copiu:
+  extends: .deploy
+  stage: deploy
+  variables:
+    EXTERNAL_PORT: 31002
+  environment:
+    name: copiu.eoi.lemma-cloud.ru
+  only:
+    - prod_copiu
+  when: manual
