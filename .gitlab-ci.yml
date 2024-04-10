@@ -1,5 +1,3 @@
-#TODO выполнять CRON переодически
-
 .docker-build: &docker-build
     image: docker:latest
     stage: build
@@ -106,4 +104,26 @@ deploy_copiu:
     name: copiu.eoi.lemma-cloud.ru
   only:
     - prod_copiu
+  when: manual
+
+deploy_demo:
+  extends: .deploy
+  stage: deploy
+  variables:
+    EXTERNAL_PORT: 31003
+  environment:
+    name: demo.eoi.lemma-cloud.ru
+  only:
+    - demo
+  when: manual
+
+deploy_sladkaya_ledi:
+  extends: .deploy
+  stage: deploy
+  variables:
+    EXTERNAL_PORT: 31004
+  environment:
+    name: zakupka-sladkaya-ledi.eoi.lemma-cloud.ru
+  only:
+    - sladkaya_ledi
   when: manual

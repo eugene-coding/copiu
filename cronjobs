@@ -1,0 +1,3 @@
+0 */2 * * *  /usr/bin/curl --silent http://localhost:80/site/sync &>/dev/null
+*/3 * * * *  /usr/bin/curl --silent http://localhost:80/site/sync-nomenclature &>/dev/null
+*/3 * * * *  /usr/bin/curl --silent http://localhost:80/site/sync-price-for-price-category &>/dev/null
