@@ -19,20 +19,20 @@
     script:
         - |
             echo "<?php
-              
             return [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=${DB_CONFIGS["HOST"]};dbname=${NAME}',
-            'username' => '${USERNAME}',
-            'password' => '${PASSWORD}',
-            'charset' => 'utf8',
+                'class' => 'yii\db\Connection',
+                'dsn' => 'mysql:host=${DB_CONFIGS["HOST"]};dbname=${NAME}',
+                'username' => '${USERNAME}',
+                'password' => '${PASSWORD}',
+                'charset' => 'utf8',
             ];
             " > config/db.php
-            done
         - cat config/db.php
         - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" . -f Dockerfile
         - docker push "$CI_REGISTRY_IMAGE${tag}"
-
+    artifacts:
+        paths:
+          - config/db.php
 
 
 
