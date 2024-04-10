@@ -40,10 +40,10 @@ build_copiu:
   extends: .docker-build
   stage: build
   variables:
-        DB_HOST: '10.0.1.141'
-        DB_NAME: 'copiu-eoi'
-        DB_USERNAME: 'copiu'
-        DB_PASSWORD: 'asdasd'
+        DB_HOST: $COPIU_DB_HOST
+        DB_NAME: $COPIU_DB_NAME
+        DB_USERNAME: $COPIU_DB_USERNAME
+        DB_PASSWORD: $COPIU_DB_PASSWORD
   only: 
     - prod_copiu
   when: always
