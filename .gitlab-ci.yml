@@ -1,0 +1,76 @@
+.docker-build: &docker-build
+    image: docker:latest
+    stage: build
+    tags:
+        - devops-docker
+    services:
+        - name: docker:dind
+    before_script:
+        # - echo "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER"  "$CI_REGISTRY" --password-stdin
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+        - |
+          if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+            tag=""
+            echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+          else
+            tag=":$CI_COMMIT_REF_SLUG"
+            echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+          fi
+    script:
+        - |
+            echo "<?php
+              
+            return [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=${DB_CONFIGS["HOST"]};dbname=${NAME}',
+            'username' => '${USERNAME}',
+            'password' => '${PASSWORD}',
+            'charset' => 'utf8',
+            ];
+            " > config/db.php
+            done
+        - cat config/db.php
+        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" . -f Dockerfile
+        - docker push "$CI_REGISTRY_IMAGE${tag}"
+
+
+
+
+build_copiu:
+  extends: .docker-build
+  stage: build
+  variables:
+    HOST: 10.0.1.141
+    NAME: copiu-eoi
+    USERNAME: copiu
+    PASSWORD: WIj4s#e99{RPHJj
+  only: 
+    - prod_copiu
+  when: always
+
+deploy_copiu:
+    image: docker:latest
+    stage: deploy
+    tags:
+        - devops-docker
+    script:
+        - |
+            if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+              tag=""
+              echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+            else
+              tag=":$CI_COMMIT_REF_SLUG"
+              echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+            fi
+        - chmod og= $ID_RSA -v
+        - apk update && apk add openssh-client        
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $CI_REGISTRY_IMAGE${tag}"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f $CI_ENVIRONMENT_NAME-$CI_PROJECT_NAME || true"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8002:80  --restart unless-stopped --name $CI_ENVIRONMENT_NAME-$CI_PROJECT_NAME -m 512m $CI_REGISTRY_IMAGE${tag}"
+    environment:
+        name: staging
+    only:
+        - prod_copiu
+    when: manual
+
