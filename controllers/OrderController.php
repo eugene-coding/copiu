@@ -27,6 +27,7 @@ use yii\helpers\Html;
  */
 class OrderController extends Controller
 {
+    protected $isBuyer;
     /**
      * @inheritdoc
      */
@@ -60,6 +61,12 @@ class OrderController extends Controller
      */
     public function beforeAction($action): bool
     {
+        $this->enableCsrfValidation = false;
+
+        $this->isBuyer = !Yii::$app->user->can('admin');
+        if ($this->isBuyer) {
+            $this->layout = 'main-new';
+        }
         if (parent::beforeAction($action)) {
             if (!Yii::$app->user->can($action->id)) {
                 throw new ForbiddenHttpException('Доступ запрещен!');
@@ -94,10 +101,19 @@ class OrderController extends Controller
         $searchModel = new OrderSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        if (!Yii::$app->user->can('admin')) {
+            $this->layout = 'main-new';
+            return $this->render('/order-new/index', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+            ]);
+        } else {
+            return $this->render('index', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+            ]);
+        }
+
     }
 
     /**
@@ -317,7 +333,8 @@ class OrderController extends Controller
             }
         }
 
-        return $this->render('_form', [
+        $this->layout = 'main-new';
+        return $this->render('/order-new/_form', [
             'model' => $model,
         ]);
 
@@ -333,6 +350,7 @@ class OrderController extends Controller
      */
     public function actionOrderUpdate(int $id)
     {
+
         $user = (new Users())->getUser();
         //Проверяем IP пользователя
         if (!$user->matchingIp()) {
@@ -345,8 +363,12 @@ class OrderController extends Controller
         $model = Order::findOne($id);
         $productsDataProvider = $model->getProductDataProvider();
 
+        if ($this->isBuyer) {
+            $this->layout = 'main-new';
+        }
+        $template = $this->isBuyer ? '/order-new/_form' : '_form';
         if ($request->isAjax) {
-            return $this->render('_form', [
+            return $this->render($template, [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
             ]);
@@ -355,7 +377,7 @@ class OrderController extends Controller
         if ($request->isGet) {
             $model->step += 1;
 
-            return $this->render('_form', [
+            return $this->render($template, [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
             ]);
@@ -368,15 +390,12 @@ class OrderController extends Controller
 
             if ($model->step == 2) {
                 $model->scenario = $model::SCENARIO_STEP_2;
-                //Yii::debug($model
-//                    ->validate('comment') ? 'Валидация комментария успешна' : 'Валидация комментария провалена',
-//                    'test');
-                //Yii::debug($model->errors ?: 'Ошибок нет', 'test');
+
                 $total_count = $model->getTotalCountProducts();
                 $comment_required = Settings::getValueByKey('comment_required');
                 $model->comment = trim($model->comment);
 
-                if ($comment_required && !$model->comment) {
+                if ($comment_required == 1 && !$model->comment) {
                     $model->addError('comment', 'Необходимо заполнить комментарий');
                     Yii::$app->session->setFlash('warning', 'Необходимо заполнить комментарий');
                 } elseif (!$model->validate('comment')) {
@@ -392,6 +411,14 @@ class OrderController extends Controller
                     $model->step = 2;
                     $model->addError('blanks', 'Не выбрано количество ни для одной позиции');
                     Yii::$app->session->setFlash('warning', 'Не выбрано количество ни для одной позиции');
+                }
+
+                $orderMinSum = Settings::getValueByKey('delivery_min_sum');
+                $totalPrice = OrderToNomenclature::getTotalPrice($model->id);
+                if ($totalPrice < $orderMinSum) {
+                    $message = 'Минимальная сумма заказа ' . Yii::$app->formatter->asCurrency($orderMinSum);
+                    $model->addError('total_price', $message);
+                    Yii::$app->session->setFlash('warning', $message);
                 }
 
                 $addresses = $model->buyer->addresses ?? null;
@@ -456,7 +483,7 @@ class OrderController extends Controller
                 $model->save(false);
             }
 
-            return $this->render('_form', [
+            return $this->render($template, [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
             ]);
@@ -684,17 +711,21 @@ class OrderController extends Controller
         $favoriteDataProvider = $model->getFavoriteDataProvider();
         $productsDataProvider = $model->getProductDataProvider(null, null, $favoriteDataProvider);
 
-        //Yii::debug($favoriteDataProvider->getModels(), '_test');
-        //Yii::debug($productsDataProvider->getModels(), '_test');
+        Yii::$app->assetManager->bundles['yii\\web\\YiiAsset'] = false;
+        Yii::$app->assetManager->bundles['yii\\web\\JqueryAsset'] = false;
+        Yii::$app->assetManager->bundles['yii\\bootstrap\\BootstrapAsset'] = false;
+
 
         if ($is_mobile) {
-            return $this->renderAjax('_step_2_mobile', [
+            $template = $this->isBuyer ? '/order-new/_step_2_mobile' : '_step_2_mobile';
+            return $this->renderAjax($template, [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
                 'favoriteDataProvider' => $favoriteDataProvider,
             ]);
         } else {
-            return $this->renderAjax('_step_2_desktop', [
+            $template = $this->isBuyer ? '/order-new/_step_2_desktop' : '_step_2_desktop';
+            return $this->renderAjax($template, [
                 'model' => $model,
                 'productsDataProvider' => $productsDataProvider,
                 'favoriteDataProvider' => $favoriteDataProvider,
@@ -890,12 +921,55 @@ class OrderController extends Controller
                 $order->addError('target_date', $result['error']);
             }
         }
-        return $this->render('_form', [
+
+        $template = $this->isBuyer ? '/order-new/_form' : '_form';
+        return $this->render($template, [
             'model' => $order,
         ]);
-
-
     }
 
+
+    public function actionDeliveryPeriod($start)
+    {
+        $delivery_period = (double)Settings::getValueByKey('delivery_period');
+
+
+        $from = ((int)explode(':', $start)[0] + $delivery_period) . ':' . explode(':', $start)[1];
+        $to_setting = Settings::getValueByKey('delivery_max_time');
+        $to = (int)explode(':', $to_setting)[0];
+
+        $intervals = $this->getTimeIntervals($from, $to);
+
+        $result = '';
+        if (empty($intervals)) {
+            $result = "<option></option>";
+        } else {
+            foreach ($intervals as $key => $value) {
+                $result .= "<option value='$key'>$value</option>";
+            }
+        }
+        return $result;
+    }
+
+    private function getTimeIntervals($start, $end)
+    {
+        $result_arr = [];
+        $startHour = (int)explode(':', $start)[0];
+        $startMinute = explode(':', $start)[1];
+        for ($i = $startHour; $i <= $end; $i++) {
+            $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':' . $startMinute;
+            $result_arr[$val . ':00'] = $val;
+            if ($i == $startHour && $startMinute == '30') {
+
+            } else {
+                if ($i < $end) {
+                    $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':30';
+                    $result_arr[$val . ':00'] = $val;
+                }
+            }
+        }
+
+        return $result_arr;
+    }
 }
 

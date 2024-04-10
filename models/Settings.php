@@ -20,6 +20,9 @@ use yii\db\ActiveRecord;
  */
 class Settings extends ActiveRecord
 {
+    const KEY_PRICE_LIST = 'price_list';
+    const DELIVERY_MESSAGE = 'delivery_message';
+
     /**
      * {@inheritdoc}
      */

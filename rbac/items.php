@@ -139,6 +139,12 @@ return [
     'php-info' => [
         'type' => 2,
     ],
+    'price' => [
+        'type' => 2,
+    ],
+    'delivery-period' => [
+        'type' => 2,
+    ],
     'guest' => [
         'type' => 1,
         'description' => 'Гость',
@@ -187,6 +193,7 @@ return [
             'help',
             'to-draft',
             'update-draft',
+            'delivery-period',
             'updateOwnProfile',
         ],
     ],
@@ -216,6 +223,7 @@ return [
             'system-info',
             'show-errors',
             'php-info',
+            'price',
             'guest',
             'buyer',
         ],

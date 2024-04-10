@@ -16,6 +16,7 @@ use app\models\PriceCategory;
 use app\models\PriceCategoryToNomenclature;
 use app\models\Settings;
 use app\models\Store;
+use app\models\UploadForm;
 use app\models\Users;
 use Yii;
 use yii\db\Exception;
@@ -28,6 +29,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -57,7 +59,7 @@ class SiteController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'logout' => ['post'],
+                    //'logout' => ['post'],
                 ],
             ],
         ];
@@ -210,6 +212,8 @@ class SiteController extends Controller
             '2. Синхронизация групп номенклатуры' => '/site/sync-nomenclature-group',
             '3. Синхронизация номенклатуры' => '/site/get-nomenclature?force=true',
             '4. Синхронизация цен для ценовых категорий' => '/site/get-price-for-price-category?force=true',
+            '5. Синхронизация заказов' => '/site/get-price-for-price-category?force=true',
+            '6. Ручное обновление номенклатуры' => '/site/sync-nomenclature',
         ];
 
         if ($request->isGet) {
@@ -231,8 +235,7 @@ class SiteController extends Controller
      */
     public function actionSyncAll(): array
     {
-        set_time_limit(1200);
-//        ini_set("memory_limit", "128M");
+        set_time_limit(2400);
 
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -247,8 +250,6 @@ class SiteController extends Controller
         $data = $helper->getAll();
 
         Settings::setValueByKey('entities_version', $data['entities_version']);
-
-        //Yii::debug($data, 'test');
 
         if (isset($data['success']) && $data['success'] === false) {
             return $data;
@@ -363,6 +364,7 @@ class SiteController extends Controller
      */
     public function actionSyncNomenclature()
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
         //Проверяем период синхронизации номенклатуры
         $last_time = strtotime(Settings::getValueByKey('sync_nomenclature_sync_date'));
         $diff_time = time() - $last_time;
@@ -375,7 +377,7 @@ class SiteController extends Controller
         //Yii::debug('Файл найден: ' . (int)is_file($path_json), 'test');
 
         if (!is_file($path_json)) {
-            return 'Файл не найден';
+            return ['success' => false, 'data' => 'Файл не найден'];
         } else {
             $json = file_get_contents($path_json);
 
@@ -401,7 +403,7 @@ class SiteController extends Controller
                     Yii::error($e->getMessage(), '_error');
                 }
 
-                return 'Импорт номенклатуры завершен';
+                return ['success'=> true, 'data' => 'Импорт номенклатуры завершен'];
             } else {
                 //Yii::debug('Чанк в наличии: ' . (int)isset($chunk_data[$next_chunk]), 'test');
                 //Yii::debug($chunk_data[$next_chunk], 'test');
@@ -417,7 +419,7 @@ class SiteController extends Controller
                 Settings::setValueByKey('sync_nomenclature_next_chunk', (string)$next_chunk);
             }
             Yii::warning('Всего памяти ' . (memory_get_usage(true) / 1048576) . 'M', 'test');
-            VarDumper::dump($result, 10, true);
+            return $result;
         }
 
     }
@@ -451,34 +453,59 @@ class SiteController extends Controller
      */
     public function actionGetPriceForPriceCategory($force = false)
     {
+        Yii::$app->response->format = Response::FORMAT_JSON;
         set_time_limit(600);
 
-        if (!$force) {
-            //Проверяем период получения цен для категорий
-            $last_time = strtotime(Settings::getValueByKey('get_prices_date'));
-            $diff_time = time() - $last_time;
-            if ($diff_time < (60 * 60 * 12)) {
-                return 'Ожидание синхронизации цен';
+        $client = new IikoApiHelper();
+        $department = Settings::getValueByKey('department_outer_id');
+        $json = $client->getPrices($department);
+        $prices = json_decode($json, true);
+
+        if (!isset($prices['response'])) {
+            return [
+                'success' => false,
+                'error' => $json
+            ];
+        }
+
+        $priceCategories = ArrayHelper::map(PriceCategory::find()->all(), 'outer_id', 'id');
+        $i = 0;
+        foreach ($prices['response'] as $item) {
+            $product = Nomenclature::find()->where(['outer_id' => $item['productId']])->one();
+
+            if ($product) {
+                $price = $item['prices'][0]['price'] ?? null;
+                if ($price) {
+                    $product->updateAttributes(['default_price' => $price]);
+                    $i++;
+                }
+                $itemPc = $item['prices'][0]['pricesForCategories'] ?? null;
+                if ($itemPc) {
+                    foreach ($itemPc as $pc) {
+                        $pc_id = $priceCategories[$pc['categoryId']] ?? null;
+                        if ($pc_id) {
+                            $pcToN = PriceCategoryToNomenclature::find()->where(['pc_id' => $pc_id, 'n_id' => $product->id])->one();
+                            if ($pcToN) {
+                                $pcToN->updateAttributes(['price' => $pc['price']]);
+                            } else {
+                                Yii::$app->db->createCommand()->insert('price_category_to_nomenclature', [
+                                    'pc_id' => $pc_id,
+                                    'n_id' => $product->id,
+                                    'price' => $price
+                                ])->execute();
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        $postman = new PostmanApiHelper();
-        $result = $postman->getPriceListItems();
-
-        if ($result['success']) {
-            file_put_contents('uploads/getPriceListItems.xml', $result['data']);
-        } else {
-            return $result;
-        }
-
-        Settings::setValueByKey('get_prices_date', date('Y-m-d H:i:s', time()));
+        $sync = OrderBlank::sync();
 
         return [
             'success' => true,
-            'data' => 'Создан файл с данными для синхронзиации. Цены будут синхронизированы в течении 30 минут',
+            'data' => 'Кол-во обновленных цен у товаров: ' . $i,
         ];
-
     }
 
     public function actionSyncPriceForPriceCategory()
@@ -490,7 +517,7 @@ class SiteController extends Controller
         if (!$last_time) {
             $last_time = date('Y-m-d H:i:s', time());
         }
-        $diff_time = time() - $last_time;
+        $diff_time = time() - strtotime($last_time);
         if ($diff_time < 110 && Yii::$app->request->userIP != '127.0.0.1' && !Users::isAdmin()) {
             return 'Ожидание синхронизации цен';
         }
@@ -727,7 +754,7 @@ class SiteController extends Controller
         $this->actionGetNomenclature();
         $this->actionGetPriceForPriceCategory();
         //TODO: слетает фасовка в бланках, после ручной синхронизации все норм
-//        OrderBlank::sync();
+        OrderBlank::sync();
         return 'Готово';
     }
 

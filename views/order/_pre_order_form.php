@@ -34,8 +34,55 @@
                 <div class="col-md-6 col-xs-12 text-center">
                     Комментарий к доставке:
                     <br>
-                    <?= $model->comment; ?>
+                    <?= $model->getComment(); ?>
                     <?= $form->field($model, 'status')->hiddenInput(['value' => $model::STATUS_WORK])->label(false) ?>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Список заказанных позиций
+            </div>
+            <div class="panel-body">
+                <div class="order-view">
+                    <table class="table table-hover table-responsive">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Наименование</th>
+                            <th class="order-view-measure">Ед. изм.</th>
+                            <th>Цена</th>
+                            <th>Кол-во</th>
+                            <th>Сумма</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php /** @var OrderBlankToNomenclature $obtn */
+                        $counter = 1;
+                        foreach ($model->getObtns() as $obtn): ?>
+                            <?php
+                            //Yii::debug($obtn->attributes, 'test');
+                            $product = $obtn->n;
+                            //Yii::debug($product->attributes, 'test');
+                            $count = $obtn->getCount($model->id);
+                            $price = $obtn->getPriceForOrder($model->id);
+//                        Yii::debug('Продукт: ' . $product->name, 'test');
+//                        Yii::debug('Цена: ' . $price, 'test');
+                            ?>
+                            <tr>
+                                <td><?= $counter; ?></td>
+                                <td><?= $product->name ?></td>
+                                <td class="order-view-measure"><?= $product->findMeasure($obtn) ?></td>
+                                <td><?= $price ?></td>
+                                <td><?= $count ?></td>
+                                <td><?= $count * $price; ?></td>
+                            </tr>
+                            <?php
+                            $counter++;
+                            ?>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -65,6 +65,7 @@ class OrderBlankController extends Controller
      */
     public function beforeAction($action): bool
     {
+        $this->enableCsrfValidation = false;
         if (parent::beforeAction($action)) {
             if (!Yii::$app->user->can($action->id)) {
                 throw new ForbiddenHttpException('Доступ запрещен!');
@@ -402,6 +403,8 @@ class OrderBlankController extends Controller
      */
     public function actionGetOrdersByDate(): array
     {
+
+
         Yii::$app->response->format = Response::FORMAT_JSON;
         $date = Yii::$app->request->post('date');
 

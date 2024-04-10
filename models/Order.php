@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\DateHelper;
 use app\components\IikoApiHelper;
 use app\components\PostmanApiHelper;
 use app\models\query\OrderQuery;
@@ -93,7 +94,7 @@ class Order extends ActiveRecord
                 'length' => [0, 255],
                 'message' => '«Комментарий» должен содержать максимум 255 символов.'
             ],
-            [['comment', 'count'], 'required', 'on' => self::SCENARIO_DRAFT],
+            [['count'], 'required', 'on' => self::SCENARIO_DRAFT],
             [['target_date', 'delivery_address_id'], 'required', 'on' => self::SCENARIO_TO_QUEUE],
             [
                 ['delivery_time_from'],
@@ -108,7 +109,7 @@ class Order extends ActiveRecord
                 'message' => 'Укажите конец периода доставки'
             ],
             [
-                ['comment', 'delivery_time_from', 'delivery_time_to'],
+                ['delivery_time_from', 'delivery_time_to'],
                 'required',
                 'on' => self::SCENARIO_STEP_2
             ],
@@ -273,11 +274,10 @@ class Order extends ActiveRecord
         $blank = $obtn->ob;
 
         if ($blank->show_number_in_comment) {
-            $comment = 'ТОРГ12 '
-                . $blank->number
+            $comment = $blank->number
                 . ". Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
         } else {
-            $comment = "ТОРГ12 Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
+            $comment = "Доставка с {$this->delivery_time_from} по {$this->delivery_time_to} + «{$this->comment}»";
         }
 
         //Проверяем адрес
@@ -310,7 +310,7 @@ class Order extends ActiveRecord
 
         $helper = new IikoApiHelper();
         $result = $helper->makeExpenseInvoice($params);
-       //Yii::debug($result, 'test');
+        Yii::debug($result, 'test');
 
         //Проверяем в ответе наличие ошибки 400
         if (strpos($result, '400 Bad request') != false){
@@ -378,12 +378,13 @@ class Order extends ActiveRecord
         ];
        //Yii::debug($params, 'test');
         //Проверяем наличие параметров
-        foreach ($params as $item) {
-            if (!$item) {
-                Yii::error('Некоторые параметры не заданы.', '_error');
-                return false;
-            }
-        }
+        Yii::info($params, 'test');
+//        foreach ($params as $item) {
+//            if (!$item) {
+//                Yii::error('Некоторые параметры не заданы.', '_error');
+//                return false;
+//            }
+//        }
 
         $helper = new PostmanApiHelper();
         $result = $helper->makeActOfServices($params);
@@ -768,18 +769,27 @@ class Order extends ActiveRecord
     public function getFavoriteDataProvider(): ArrayDataProvider
     {
         Yii::debug($this->blanks, 'getFavoriteDataProvider');
-//        $allow_blanks = explode(',', $this->blanks);
         $data = [];
         $user = User::getUser();
         $buyer = $user->buyer;
 
         //Получаем продукты из выбранных бланков
         $blanks = explode(',', $this->blanks);
+        $blanksResult = [];
+        $weekDay = DateHelper::getWeekDay($this->target_date);
+        foreach ($blanks as $blankId)
+        {
+            $blank = OrderBlank::findOne($blankId);
+            if ($blank && $blank->canOrderByWeekDay($weekDay)) {
+                $blanksResult[] = $blankId;
+            }
+        }
+
         $obtn_ids = FavoriteProduct::find()
             ->joinWith(['obtn'])
             ->select(['obtn_id'])
             ->andWhere(['buyer_id' => $buyer->id])
-            ->andWhere(['IN', 'order_blank_to_nomenclature.ob_id', $blanks]) //Продукты только из бланков, прошедших проверку на ограничения (дни + время)
+            ->andWhere(['IN', 'order_blank_to_nomenclature.ob_id', $blanksResult]) //Продукты только из бланков, прошедших проверку на ограничения (дни + время)
             ->column();
 
         $order_blanks_to_nomenclatures = OrderBlankToNomenclature::find()
@@ -881,6 +891,34 @@ class Order extends ActiveRecord
     {
         $description = Yii::$app->requestedRoute . PHP_EOL . json_encode($this->errors);
         OrderLogging::log($this, OrderLogging::ACTION_ORDER_ERROR, $description);
+    }
+
+    /**
+     * Возвращает заблокированные дни доставки
+     * @return array
+     */
+    public function getDisabledDays()
+    {
+        $disabledDays = Settings::getValueByKey('delivery_disabled_days');
+        $result = [];
+
+        if ($disabledDays) {
+            $disabledDays = explode(";", $disabledDays);
+            foreach ($disabledDays as $day) {
+                $day = intval($day);
+                $result[] = ($day == 7) ? 0 : $day;
+            }
+        }
+
+        return $result;
+    }
+
+    public function getComment()
+    {
+        return $this->comment;
+//            . '
+//         (c ' . Yii::$app->formatter->asTime($this->delivery_time_from)
+//            . ' по ' . Yii::$app->formatter->asTime($this->delivery_time_to) . ')';
     }
 
 }

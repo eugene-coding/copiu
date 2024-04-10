@@ -1,0 +1,36 @@
+version: '2'
+services:
+  php:
+    container_name: "copiu-php"
+    image: yiisoftware/yii2-php:7.4-apache
+    volumes:
+      - ~/.composer-docker/cache:/root/.composer/cache:cached
+      - ./:/app:cached
+    ports:
+      - '8080:80'
+    networks:
+      - default
+    depends_on:
+      - mysql
+  mysql:
+    container_name: "copiu-mysql"
+    image: "mysql:8.0.31"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    user: "1000:50"
+    command:
+      --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    ports:
+      - 33063:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=copiu
+      - MYSQL_USER=copiu
+      - MYSQL_PASSWORD=copiu
+      - TZ=Europe/Moscow
+    networks:
+      - default
+networks:
+  default:
+  public:
+    external: true

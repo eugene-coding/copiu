@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\UploadForm;
 use app\models\Users;
 use Yii;
 use app\models\Settings;
@@ -13,6 +14,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
+use yii\web\UploadedFile;
 
 /**
  * SettingsController implements the CRUD actions for Settings model.
@@ -122,6 +124,9 @@ class SettingsController extends Controller
                 'comment_required',
                 'delivery_article',
                 'delivery_nds',
+                'delivery_min_sum',
+                'delivery_disabled_days',
+                'delivery_message',
             ];
 
             /** @var Settings $setting */
@@ -471,5 +476,19 @@ class SettingsController extends Controller
         }
     }
 
+
+    public function actionPrice()
+    {
+        $model = new UploadForm();
+
+        if (Yii::$app->request->isPost) {
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+            if ($model->upload()) {
+                Yii::$app->session->setFlash('info', 'Файл успешно загружен');
+            }
+        }
+
+        return $this->render('upload', ['model' => $model]);
+    }
 
 }

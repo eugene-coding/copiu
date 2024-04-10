@@ -120,7 +120,6 @@ $(document).ready(function () {
             .fail(function (response) {
                 btn.parents('.tab-pane').find('.product-cards').html(response.responseText)
             })
-
     });
 
     $(document).on('change', '.count-product', function () {

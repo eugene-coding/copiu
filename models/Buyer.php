@@ -32,6 +32,9 @@ use yii\helpers\ArrayHelper;
  */
 class Buyer extends ActiveRecord
 {
+    const MIN_ORDER_COST = 5000;
+    const DELIVERY_COST = 500;
+
     const WORK_MODE_ACTIVE = 1;
     const WORK_MODE_DEACTIVATED = 2;
     const WORK_MODE_BALANCE_LIMIT = 3;
@@ -194,7 +197,7 @@ class Buyer extends ActiveRecord
                 } else {
                     $price_category = null;
                 }
-                $rows[] = [$name, $price_category, $outer_id];
+                $rows[] = [$name, $price_category, $outer_id, self::MIN_ORDER_COST, self::DELIVERY_COST];
             } else {
                 //Обновление покупателя
                 /** @var Buyer $buyer */
@@ -203,6 +206,8 @@ class Buyer extends ActiveRecord
                 $category = PriceCategory::find()->andWhere(['outer_id' => $outer_price_category])->one();
                 $buyer->pc_id = $category ? $category->id : null;
                 $buyer->name = (string)$buyer['name'];
+                if ($buyer->min_order_cost == 0) $buyer->min_order_cost = self::MIN_ORDER_COST;
+                if ($buyer->delivery_cost == 0) $buyer->delivery_cost = self::DELIVERY_COST;
 
                 if (!$buyer->save()) {
                     Yii::error($buyer->errors, '_error');
@@ -210,11 +215,9 @@ class Buyer extends ActiveRecord
 
             }
         }
-//        Yii::debug('Строки для добавления покупателей', 'test');
-//        Yii::debug($rows, 'test');
 
         try {
-            Yii::$app->db->createCommand()->batchInsert(Buyer::tableName(), ['name', 'pc_id', 'outer_id'],
+            Yii::$app->db->createCommand()->batchInsert(Buyer::tableName(), ['name', 'pc_id', 'outer_id', 'min_order_cost', 'delivery_cost'],
                 $rows)->execute();
         } catch (\Exception $e) {
             Yii::error($e->getMessage(), '_error');
@@ -274,6 +277,10 @@ class Buyer extends ActiveRecord
         for ($i = $start; $i <= $end; $i++) {
             $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
             $result_arr[$val . ':00'] = $val;
+            if ($i < $end) {
+                $val = str_pad($i, 2, '0', STR_PAD_LEFT) . ':30';
+                $result_arr[$val . ':00'] = $val;
+            }
         }
 
         //Yii::debug($result_arr, 'test');

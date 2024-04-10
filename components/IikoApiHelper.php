@@ -104,6 +104,7 @@ class IikoApiHelper
         if ($this->headers) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         }
+        curl_setopt($ch, CURLOPT_COOKIE, "key=" . $this->token);
         curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
@@ -166,6 +167,8 @@ class IikoApiHelper
             . 'resto/api/v2/entities/products/list?includeDeleted=false&key='
             . $this->token . '&ids=' . $str_ids;
         $result = $this->send();
+        Yii::debug($this->request_string, 'test');
+        Yii::debug($result, 'test');
 
         return json_decode($result, true);
     }
@@ -213,7 +216,7 @@ class IikoApiHelper
         $result = $this->send();
 
         $info = json_decode($result, 'true');
-       //Yii::debug($info, 'test');
+       Yii::debug($info, 'test');
 
         $sum = 0;
         $rdb = Settings::getValueByKey('revenue_debit_account');
@@ -253,10 +256,10 @@ class IikoApiHelper
             . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
         $result = $this->send();
 
-       //Yii::debug($result, 'test');
+//       Yii::debug($result, 'test');
         $result = simplexml_load_string($result);
         $json = json_encode($result);
-       //Yii::debug(json_decode($json, 'true'), 'test');
+//       Yii::debug(json_decode($json, 'true'), 'test');
         return json_decode($json, 'true');
     }
 
@@ -328,14 +331,14 @@ class IikoApiHelper
         $this->headers = [
             'Content-Type: application/xml'
         ];
-       //Yii::debug($this->post_data, 'test');
+       Yii::debug($this->post_data, 'test');
 
         $this->request_string = $this->base_url . 'resto/api/documents/import/outgoingInvoice?key=' . $this->token;
-       //Yii::debug('Отправка запроса...', 'test');
+       Yii::debug('Отправка запроса...', 'test');
 
         $result = $this->send('POST');
-       //Yii::debug('Запрос отправлен, ответ получен:', 'test');
-       //Yii::debug($result, 'test');
+       Yii::debug('Запрос отправлен, ответ получен:', 'test');
+       Yii::debug($result, 'test');
 
         //Сохраняем ответ в файл
         try {
@@ -387,6 +390,27 @@ class IikoApiHelper
         $this->request_string = $this->base_url . 'resto/api/documents/export/outgoingInvoice/byNumber?' . $query;
 
         $result = $this->send('GET');
+
+        return $result;
+    }
+
+    /**
+     * https://ru.iiko.help/articles/#!api-documentations/schedule-price
+     *
+     * @param $departmentId
+     * @return bool|mixed|string
+     */
+    public function getPrices($departmentId)
+    {
+        $params = [
+            'dateFrom' => date('Y-m-d'),
+            'type' => 'BASE',
+            'departmentId' => $departmentId
+        ];
+
+        $this->request_string = $this->base_url . 'resto/api/v2/price?' . http_build_query($params);
+
+        $result = $this->send();
 
         return $result;
     }

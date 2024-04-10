@@ -2,7 +2,6 @@
 
 use app\models\Users;
 use dmstr\widgets\Menu;
-
 ?>
 <aside class="main-sidebar">
 
@@ -84,7 +83,11 @@ use dmstr\widgets\Menu;
                             'label' => 'Заказы',
                             'icon' => 'shopping-cart',
                             'url' => ['/order'],
-//                            'visible' => Users::isBuyer()
+                        ],
+                        [
+                            'label' => 'Прайс-лист',
+                            'icon' => 'barcode',
+                            'url' => ['/settings/price'],
                         ],
 //                        [
 //                            'label' => 'Черновики',

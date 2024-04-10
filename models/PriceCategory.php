@@ -138,7 +138,7 @@ class PriceCategory extends ActiveRecord
         if (!$last_time) {
             $last_time = date('Y-m-d H:i:s', time());
         }
-        $diff_time = time() - $last_time;
+        $diff_time = time() - strtotime($last_time);
         if ($diff_time < $min_sec) {
             return false;
         }

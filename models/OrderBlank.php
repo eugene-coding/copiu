@@ -25,6 +25,7 @@ use yii\helpers\Html;
  * @property string|null $show_to_all Виден всем покупателям
  * @property string|null $buyers Заказчики
  * @property int show_number_in_comment Вставлять номер в комментарий к заказу
+ * @property string|null comment Комментарий
  *
  * @property Nomenclature[] $products Продукты в из накладной
  * @property OrderBlankToNomenclature[] $orderBlankToNomenclature
@@ -50,7 +51,7 @@ class OrderBlank extends ActiveRecord
         return [
             [['date', 'synced_at', 'time_limit'], 'safe'],
             [['day_limit', 'show_to_all'], 'integer'],
-            [['number'], 'string', 'max' => 255],
+            [['number', 'comment'], 'string', 'max' => 255],
             [['number'], 'unique', 'message' => 'Накладная уже есть в базе'],
             ['buyers', 'safe'],
             ['show_number_in_comment', 'integer'],
@@ -72,6 +73,7 @@ class OrderBlank extends ActiveRecord
             'show_to_all' => 'Видимость',
             'buyers' => 'Заказчики',
             'show_number_in_comment' => 'Добавлять название бланка в комментарий',
+            'comment' => 'Комментарий',
         ];
     }
 
@@ -105,6 +107,7 @@ class OrderBlank extends ActiveRecord
             ];
             //Запрашиваем новые данные для бланка
             $response = $helper->getOrderBlank($params);
+
             $result[$blank->id] = $response;
         }
         //Обновляем связи бланка с номенклатурой (только обновление и удаление лишнего)
@@ -133,18 +136,20 @@ class OrderBlank extends ActiveRecord
                 ];
             }
 
+            if (isset($data['document']['comment'])) {
+                $blank_model->comment = $data['document']['comment'];
+            };
+
             if (isset($data['document']['items']['item']['productId'])) {
                 //Если один продукт в бланке
                 $data['document']['items']['item'] = [$data['document']['items']['item']];
             }
 
-
-
             foreach ($data['document']['items']['item'] as $item) {
-                Yii::debug($item, 'item OrderBlank sync()');
+//                Yii::debug($item, 'item OrderBlank sync()');
                 $product_id = $item['productId'];
                 $n_id = $product_id ? $nomenclature[$product_id] : null;
-                Yii::debug($item, '$n_id OrderBlank sync()');
+//                Yii::debug($item, '$n_id OrderBlank sync()');
                 $container_id = $item['containerId'] ?? null;
                 $quantity = (double)$item['amount'] ?? 0;
                 if ($container_id) {
@@ -199,7 +204,7 @@ class OrderBlank extends ActiveRecord
 //            Yii::debug('Check 1', 'test');
 
             //Синхронизируем цены для ценовых категорий товаров из бланка
-            static::syncPriceForPriceCategory();
+//            static::syncPriceForPriceCategory();
             Yii::debug('Check 1.1', 'test');
 
             //Пишем время синхронизации
@@ -241,12 +246,12 @@ class OrderBlank extends ActiveRecord
             //Обновляем продукты указанные в бланках
             //Yii::debug($product_outer_ids_in_blanks, 'test');
 //            Yii::debug('Check 3', 'test');
-            Nomenclature::syncByIds($product_outer_ids_in_blanks);
+//            Nomenclature::syncByIds($product_outer_ids_in_blanks);
 //            Yii::debug('Check 3.1', 'test');
 
             //Обновляем цены для ценовых категорий в которых находятся продукты бланков
 //            Yii::debug('Check 4', 'test');
-            PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
+//            PriceCategoryToNomenclature::syncForProducts($product_outer_ids_in_blanks);
 //            Yii::debug('Check 4.1', 'test');
         }
 
@@ -307,6 +312,10 @@ class OrderBlank extends ActiveRecord
         $blank_ids = [];
         /** OrderBlank $blank */
         foreach ($blanks as $blank) {
+            // проверка на ланч
+            $weekDay = \app\components\DateHelper::getWeekDay($target_date);
+            if (!$blank->canOrderByWeekDay($weekDay)) continue;
+
             $buyers = ArrayHelper::map($blank->buyerToOrderBlanks, 'id', 'buyer_id');
             $user = Users::getUser();
             //Yii::debug($buyers, 'test');
@@ -389,7 +398,7 @@ class OrderBlank extends ActiveRecord
         ];
 
         $result = $helper->getOrderBlank($params);
-        //Yii::debug($result, 'test');
+        Yii::debug($result, 'test');
 
         if ($result && isset($result['document']['id'])) {
             return true;
@@ -546,5 +555,22 @@ class OrderBlank extends ActiveRecord
             'success' => true,
             'data' => $data,
         ];
+    }
+
+    /**
+     * Блюда ланча возможны только того дня, на который оформляется заказ.
+     * Если заказ оформляется на выходные, то блюда ланча добавить нельзя
+     * @param $weekDay
+     * @return int|mixed
+     */
+    public function canOrderByWeekDay($weekDay)
+    {
+        $comment = intval($this->comment);
+        if (empty($comment)) return true;
+        if ($weekDay <= 5 && $weekDay >= 1) {
+            return $weekDay == $comment;
+        } else {
+            return ($comment <= 5 && $comment >= 1) ? false : true;
+        }
     }
 }

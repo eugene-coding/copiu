@@ -136,8 +136,11 @@ try {
                 echo $form->field($model, 'target_date')->widget(DatePicker::class, [
                     'type' => DatePicker::TYPE_INLINE,
                     'pluginOptions' => [
+                        'todayHighlight' => true,
                         'format' => 'yyyy-mm-dd',
-                        'multidate' => false
+                        'multidate' => false,
+//                        'daysOfWeekDisabled' => $model->getDisabledDays(),
+//                        'startDate' => '2023-10-31'
                     ],
                     'options' => [
                         // you can hide the input by setting the following
@@ -174,15 +177,14 @@ try {
 <?php elseif ($model->step == 2): ?>
     <h4>Выберите позиции и установите количество</h4>
     <?php if ($model->buyer->min_order_cost ?? 0): ?>
-        <p>Если сумма заказа менее <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?>
-            будет добавлена услуга
-            доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?></p>
+        <p>В случае суммы заказа меньше <?= Yii::$app->formatter->asCurrency($model->buyer->min_order_cost) ?> стоимость доставки <?= Yii::$app->formatter->asCurrency($model->buyer->delivery_cost) ?>.</p>
     <?php endif; ?>
     <div class="row">
         <!--Интервал, адрес, коментарий-->
         <div class="col-md-4 col-md-push-8">
             <div class="row">
                 <div class="col-md-12 text-center">Укажите временной интервал доставки</div>
+                <div class="col-md-12 alert alert-warning">За МКАД интервал доставки с 7-00 до 14-00, либо с 9-00 до 15-00, либо с 13-00 до 18-00</div>
                 <div class="col-md-6 col-sm-12"><b>C</b><br><?= Html::dropDownList('Order[delivery_time_from]',
                         $model->delivery_time_from,
                         $model->buyer->getDeliveryTimeIntervals('from'), [

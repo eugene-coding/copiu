@@ -243,11 +243,11 @@ class PriceCategoryToNomenclature extends ActiveRecord
             }
 
             $product_id = $products_in_base[$product_outer_id] ?? null;
-//            Yii::debug('Product ID: ' . $product_id, 'test');
+            Yii::debug('Product ID: ' . $product_id, 'test');
 
             if (!$product_id) {
                 //Продукт не найден в номенклатуре, пропускаем
-                //Yii::debug('Продукт не найден в номенклатуре, пропускаем', 'test');
+                Yii::debug('Продукт не найден в номенклатуре, пропускаем', 'test');
                 continue;
             }
 
@@ -255,7 +255,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 //Если нет ни категорий ни цен
                 $price = round((double)$info['price'], 2);
                 if ($price){
-                    //Yii::debug('New Default Price: ' . $price, 'test');
+                    Yii::debug('New Default Price: ' . $price, 'test');
                     //Пишем цену в цену по умолчанию для продукта
                     $target_product = Nomenclature::find()->andWhere(['outer_id' => $product_outer_id])->one();
                     if ($price != $target_product->default_price){
@@ -263,9 +263,9 @@ class PriceCategoryToNomenclature extends ActiveRecord
                         if (!$target_product->save()){
                             Yii::error($target_product->errors, '_error');
                         }
-                        //Yii::debug('Price changed', 'test');
+                        Yii::debug('Price changed', 'test');
                     } else {
-                        //Yii::debug('Price skipped', 'test');
+                        Yii::debug('Price skipped', 'test');
                     }
                 }
                 continue;
@@ -336,7 +336,7 @@ class PriceCategoryToNomenclature extends ActiveRecord
                 //Yii::debug($pctn_model->attributes, 'test');
 
                 if (!$pctn_model->save()) {
-                    //Yii::debug('Ошибка сохранения', 'test');
+                    Yii::debug('Ошибка сохранения', 'test');
                     Yii::error($pctn_model->errors, '_error');
                 }
             }

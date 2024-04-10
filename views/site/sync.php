@@ -6,6 +6,14 @@ use yii\helpers\Html;
 ?>
     <div class="syncing">
         <div class="row">
+            <div class="col-xs-12">
+                Для полной синхронизации необходимо выполнить следующую последовательность действий:
+                <ul>
+                    <li>Запустить пункты 1, 2, 3</li>
+                    <li>Запускать пункт 6 несколько раз (около 8-12), пока не выйдет сообщение "Импорт номенклатуры завершен"</li>
+                    <li>Запустить пункт 4</li>
+                </ul>
+            </div>
             <?php foreach ($syncing_methods as $method_name => $url):?>
                 <div class="col-xs-12">
                     <div class="panel panel-info">
