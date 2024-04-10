@@ -21,9 +21,9 @@
             echo "<?php
             return [
                 'class' => 'yii\db\Connection',
-                'dsn' => 'mysql:host=${DB_CONFIGS["HOST"]};dbname=${NAME}',
-                'username' => '${USERNAME}',
-                'password' => '${PASSWORD}',
+                'dsn' => 'mysql:host=$DB_HOST;dbname=$DB_NAME',
+                'username' => '$DB_USERNAME',
+                'password' => '$DB_PASSWORD',
                 'charset' => 'utf8',
             ];
             " > config/db.php
@@ -40,10 +40,10 @@ build_copiu:
   extends: .docker-build
   stage: build
   variables:
-    HOST: 10.0.1.141
-    NAME: copiu-eoi
-    USERNAME: copiu
-    PASSWORD: WIj4s#e99{RPHJj
+        DB_HOST: '10.0.1.141'
+        DB_NAME: 'copiu-eoi'
+        DB_USERNAME: 'copiu'
+        DB_PASSWORD: 'asdasd'
   only: 
     - prod_copiu
   when: always
