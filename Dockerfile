@@ -19,7 +19,7 @@ RUN chmod 0644 /etc/cron.d/cronjob
 RUN crontab /etc/cron.d/cronjob
 # Run migrations only if RUN_MIGRATIONS is set to true
 RUN if [ "$RUN_MIGRATIONS" = "true" ] ; then \
-        php yii migrate --interactive=0 ; \
+        php yii migrate --interactive=0 \
     fi
 
 # Copy the rest of the project files
