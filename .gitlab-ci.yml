@@ -26,7 +26,11 @@
                 'charset' => 'utf8',
             ];
             " > config/db.php
+<<<<<<< HEAD
         - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
+=======
+        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD-ARGS . -f Dockerfile
+>>>>>>> e5b4afa (fix args)
         - docker push "$CI_REGISTRY_IMAGE${tag}"
     artifacts:
         paths:
