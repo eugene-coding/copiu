@@ -26,7 +26,7 @@
                 'charset' => 'utf8',
             ];
             " > config/db.php
-        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD-ARGS . -f Dockerfile
+        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
         - docker push "$CI_REGISTRY_IMAGE${tag}"
     artifacts:
         paths:
@@ -39,7 +39,7 @@ build_with_migrations_copiu:
   extends: .docker-build
   stage: build
   variables:
-        BUILD-ARGS: --build-arg RUN_MIGRATIONS=true
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
         DB_HOST: $COPIU_DB_HOST
         DB_NAME: $COPIU_DB_NAME
         DB_USERNAME: $COPIU_DB_USERNAME
@@ -53,7 +53,7 @@ build_with_migrations_demo:
   extends: .docker-build
   stage: build
   variables:
-        BUILD-ARGS: --build-arg RUN_MIGRATIONS=true
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
         DB_HOST: $DEMO_DB_HOST
         DB_NAME: $DEMO_DB_NAME
         DB_USERNAME: $DEMO_DB_USERNAME
@@ -68,7 +68,7 @@ build_with_migrations_sladkaya_ledi:
   extends: .docker-build
   stage: build
   variables:
-        BUILD-ARGS: --build-arg RUN_MIGRATIONS=true
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
         DB_HOST: $SLADKAYA_LEDI_DB_HOST
         DB_NAME: $SLADKAYA_LEDI_DB_NAME
         DB_USERNAME: $SLADKAYA_LEDI_DB_USERNAME
