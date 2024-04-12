@@ -27,6 +27,7 @@
             ];
             " > config/db.php
         - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
+        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
         - docker push "$CI_REGISTRY_IMAGE${tag}"
     artifacts:
         paths:
@@ -68,7 +69,7 @@ build_with_migrations_sladkaya_ledi:
   extends: .docker-build
   stage: build
   variables:
-        BUILDARGS: --build-arg RUN_MIGRATIONS=true
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
         DB_HOST: $SLADKAYA_LEDI_DB_HOST
         DB_NAME: $SLADKAYA_LEDI_DB_NAME
         DB_USERNAME: $SLADKAYA_LEDI_DB_USERNAME
@@ -142,6 +143,7 @@ deploy_copiu:
   stage: deploy
   variables:
     EXTERNAL_PORT: 8002
+    EXTERNAL_PORT: 8002
   environment:
     name: copiu.eoi.lemma-cloud.ru
   only:
@@ -152,6 +154,7 @@ deploy_demo:
   extends: .deploy
   stage: deploy
   variables:
+    EXTERNAL_PORT: 8004
     EXTERNAL_PORT: 8004
   environment:
     name: demo.eoi.lemma-cloud.ru
