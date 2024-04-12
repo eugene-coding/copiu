@@ -26,13 +26,56 @@
                 'charset' => 'utf8',
             ];
             " > config/db.php
-        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" . -f Dockerfile
+        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
         - docker push "$CI_REGISTRY_IMAGE${tag}"
     artifacts:
         paths:
           - config/db.php
 
 
+
+
+build_with_migrations_copiu:
+  extends: .docker-build
+  stage: build
+  variables:
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
+        DB_HOST: $COPIU_DB_HOST
+        DB_NAME: $COPIU_DB_NAME
+        DB_USERNAME: $COPIU_DB_USERNAME
+        DB_PASSWORD: $COPIU_DB_PASSWORD
+  only: 
+    - prod_copiu
+  when: manual
+
+
+build_with_migrations_demo:
+  extends: .docker-build
+  stage: build
+  variables:
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
+        DB_HOST: $DEMO_DB_HOST
+        DB_NAME: $DEMO_DB_NAME
+        DB_USERNAME: $DEMO_DB_USERNAME
+        DB_PASSWORD: $DEMO_DB_PASSWORD
+  only: 
+    - demo
+  when: manual
+
+
+
+build_with_migrations_sladkaya_ledi:
+  extends: .docker-build
+  stage: build
+  variables:
+        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
+        DB_HOST: $SLADKAYA_LEDI_DB_HOST
+        DB_NAME: $SLADKAYA_LEDI_DB_NAME
+        DB_USERNAME: $SLADKAYA_LEDI_DB_USERNAME
+        DB_PASSWORD: $SLADKAYA_LEDI_DB_PASSWORD
+  only: 
+    - sladkaya_ledi
+  when: manual
 
 build_copiu:
   extends: .docker-build
@@ -98,7 +141,7 @@ deploy_copiu:
   extends: .deploy
   stage: deploy
   variables:
-    EXTERNAL_PORT: 31002
+    EXTERNAL_PORT: 8002
   environment:
     name: copiu.eoi.lemma-cloud.ru
   only:
@@ -109,7 +152,7 @@ deploy_demo:
   extends: .deploy
   stage: deploy
   variables:
-    EXTERNAL_PORT: 31003
+    EXTERNAL_PORT: 8004
   environment:
     name: demo.eoi.lemma-cloud.ru
   only:
@@ -120,7 +163,7 @@ deploy_sladkaya_ledi:
   extends: .deploy
   stage: deploy
   variables:
-    EXTERNAL_PORT: 31004
+    EXTERNAL_PORT: 8003
   environment:
     name: zakupka-sladkaya-ledi.eoi.lemma-cloud.ru
   only:
