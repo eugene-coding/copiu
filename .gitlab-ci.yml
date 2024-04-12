@@ -27,7 +27,6 @@
             ];
             " > config/db.php
         - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
-        - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" $BUILD_ARGS . -f Dockerfile
         - docker push "$CI_REGISTRY_IMAGE${tag}"
     artifacts:
         paths:
