@@ -1,5 +1,5 @@
 default:
-  image: registry.lemma-cloud.ru/devops/devops-docker-tools/docker-alpine:3.19.1
+  image: $CI_REGISTRY/devops/devops-docker-tools/docker-alpine:3.19.1
   services:
     - name: docker:dind
   tags:
