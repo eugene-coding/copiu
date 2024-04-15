@@ -1,5 +1,5 @@
 default:
-  image: $CI_REGISTRY/devops/devops-docker-tools/docker-alpine:3.19.1
+  image: docker:latest #$CI_REGISTRY/devops/devops-docker-tools/docker-alpine:3.19.1
   services:
     - name: docker:dind
   tags:
