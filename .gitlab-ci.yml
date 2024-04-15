@@ -1,10 +1,11 @@
+default:
+  image: docker:latest
+  services:
+    - name: docker:dind
+  tags:
+    - devops-docker
 .docker-build: &docker-build
-    image: docker:latest
     stage: build
-    tags:
-        - devops-docker
-    services:
-        - name: docker:dind
     before_script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
         - |
@@ -68,7 +69,7 @@ build_with_migrations_sladkaya_ledi:
   extends: .docker-build
   stage: build
   variables:
-        BUILD_ARGS: --build-arg RUN_MIGRATIONS=true
+        BUILDARGS: --build-arg RUN_MIGRATIONS=true
         DB_HOST: $SLADKAYA_LEDI_DB_HOST
         DB_NAME: $SLADKAYA_LEDI_DB_NAME
         DB_USERNAME: $SLADKAYA_LEDI_DB_USERNAME
@@ -117,10 +118,7 @@ build_sladkaya_ledi:
   when: manual
 
 .deploy: &deploy
-    image: docker:latest
     stage: deploy
-    tags:
-        - devops-docker
     script:
         - |
             if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
