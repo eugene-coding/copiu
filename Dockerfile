@@ -2,7 +2,7 @@ FROM yiisoftware/yii2-php:7.4-apache
 
 # Project source-code
 WORKDIR /app
-
+ENV PATH /app/vendor/bin:${PATH}
 # Define an argument for migration flag
 ARG RUN_MIGRATIONS=false
 ENV RUN_MIGRATIONS=${RUN_MIGRATIONS}
