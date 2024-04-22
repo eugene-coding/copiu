@@ -3,6 +3,8 @@
 namespace app\components;
 
 use app\models\Settings;
+use BenMorel\XMLStreamer\XMLReaderException;
+use BenMorel\XMLStreamer\XMLStreamer;
 use DOMDocument;
 use Yii;
 
@@ -27,48 +29,39 @@ class PostmanApiHelper
 
     public function __construct()
     {
-        $this->base_url = Settings::getValueByKey('ikko_server_url');
-        if (strpos($this->base_url, '/', strlen($this->base_url) - 2) === false) {
-            $this->base_url .= '/';
-        }
-
+        $this->base_url = rtrim(Settings::getValueByKey('ikko_server_url'), '/');
         $this->login = Settings::getValueByKey(['ikko_server_login']);
         $this->password = Settings::getValueByKey(['ikko_server_password']);
         $server_info = $this->getServerInfo();
 
         $this->headers = [
-            'X-Resto-ServerEdition: ' . $server_info['edition'],
-            'X-Resto-BackVersion: ' . $server_info['back_version'],
-            'X-Resto-AuthType: BACK',
-            'X-Resto-LoginName: ' . $this->login,
-            'X-Resto-PasswordHash: ' . sha1($this->password),
-            'Content-Type: raw',
+            'X-Resto-ServerEdition' => $server_info['edition'],
+            'X-Resto-BackVersion' => $server_info['back_version'],
+            'X-Resto-AuthType' => 'BACK',
+            'X-Resto-LoginName' => $this->login,
+            'X-Resto-PasswordHash' => sha1($this->password),
+            'Content-Type' => 'text/xml; charset=UTF8',
         ];
     }
 
-    public function send($type = 'GET')
+    public function setParamsStreams($method = 'GET', $optionsParams = [])
     {
-        //Yii::debug('Request string: ' . $this->request_string, 'test');
         Yii::debug($this->headers, 'test');
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->request_string);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if ($type != "GET") {
-            //Yii::debug($this->post_data, 'test');
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->post_data);
-        }
-        $response = curl_exec($ch);
-        //Yii::debug(curl_getinfo($ch, CURLINFO_HEADER_OUT), 'test');
-        curl_close($ch);
-
         Yii::debug('Ответ сервера', 'test');
-        Yii::debug($response, 'test');
 
-        return $response;
+        $params = [
+            'http' => [
+                'method' => $method,
+                'header' => implode("\r\n", array_map(function ($value, $key){
+                    return $key . ': ' . $value;
+                }, $this->headers, array_keys($this->headers))),
+            ],
+        ];
+        if (strlen($this->post_data) > 0) {
+            $params['http']['content'] = $this->post_data;
+        }
+
+        \libxml_set_streams_context(\stream_context_create($params));
     }
 
     /**
@@ -77,10 +70,10 @@ class PostmanApiHelper
      */
     public function getAll()
     {
+        $streamerRev = new XMLStreamer('result', 'entitiesUpdate', 'revision');
+        $streamer = new XMLStreamer('result', 'entitiesUpdate', 'items', 'i');
         if (!$this->base_url) {
             $path = 'uploads/postman_response.xml';
-            $str = file_get_contents($path);
-            $xml = simplexml_load_string($str);
         } else {
             $body = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -94,30 +87,38 @@ class PostmanApiHelper
 </args>
 XML;
             $this->post_data = $body;
-            $this->request_string = $this->base_url . 'resto/services/update?methodName=waitEntitiesUpdate';
-            $result = $this->send('POST');
-            $xml = simplexml_load_string($result);
+            $this->setParamsStreams('POST');
+            $path = $this->base_url . '/resto/services/update?methodName=waitEntitiesUpdate';
         }
 
-        if (strpos($xml, 'access is not allowed') > 0) {
-            return [
-                'success' => false,
-                'error' => 'Неавторизованные запросы запрещены'
-            ];
+        try {
+            $entities_version = (string)$streamerRev->stream($path)->current()->nodeValue;
+        } catch (XMLReaderException $e) {
+            if (strpos($e->getMessage(), 'HTTP request failed! HTTP/1.0 403 Forbidden') !== false) {
+                return [
+                    'success' => false,
+                    'error' => 'Неавторизованные запросы запрещены',
+                ];
+            }
+            throw $e;
         }
 
         $arr_price_category = []; //Ценовые категории
         $arr_buyer = []; //Покупатели
         $arr_department = []; //Департаменты
         $revenueDebitAccount = null;
-        $entities_version = (string)$xml->entitiesUpdate->revision;
         $arr_account = []; //Счета выручки;
         $arr_store = []; //Склады
         $arr_delivery = []; //Доставка
         $arr_measure = []; //Единицы измерения
         $delivery_article = Settings::getValueByKey('delivery_article');
 
-        foreach ($xml->entitiesUpdate->items->i as $item) {
+        /** @var \DOMElement $i */
+        foreach ($streamer->stream($path) as $i) {
+            /** @var DOMElement $product */
+            $document = new \DOMDocument();
+            $document->appendChild($i);
+            $item = simplexml_import_dom($i);
             if ($item->deleted == 'false') {
                 switch ($item->type) {
                     case 'User':
@@ -138,7 +139,7 @@ XML;
                     case 'Account':
                         if ($item->r->name->customValue == 'Задолженность перед поставщиками') {
                             $revenueDebitAccount = $item->id;
-                        } elseif ($item->deleted == 'false') {
+                        } else {
                             $arr_account[] = [
                                 'outer_id' => (string)$item->id,
                                 'name' => (string)$item->r->name->customValue,
@@ -148,44 +149,32 @@ XML;
                         }
                         break;
                     case 'Department':
-                        if ((string)$item->deleted == 'false' && (string)$item->r->deleted == 'false'){
-                            $deleted = 0;
-                        } else {
-                            $deleted = 1;
-                        }
                         $arr_department[] = [
                             'outer_id' => (string)$item->id,
                             'name' => (string)$item->r->name,
-                            'deleted' => $deleted,
+                            'deleted' => (string)$item->r->deleted == 'false',
                         ];
                         break;
                     case 'Store':
-                        if ($item->deleted == 'false') {
-                            $arr_store[] = [
-                                'outer_id' => (string)$item->id,
-                                'name' => (string)$item->r->name->customValue,
-                                'department_outer_id' => (string)$item->r->npeParent,
-                                'description' => (string)$item->r->description
-                            ];
-                        }
+                        $arr_store[] = [
+                            'outer_id' => (string)$item->id,
+                            'name' => (string)$item->r->name->customValue,
+                            'department_outer_id' => (string)$item->r->npeParent,
+                            'description' => (string)$item->r->description,
+                        ];
                         break;
                     case 'Product':
-                        if ($item->deleted == 'false') {
-                            if ($item->r->num == $delivery_article) {
-                                $arr_delivery['outer_id'] = (string)$item->id;
-                                $arr_delivery['main_unit'] = (string)$item->r->mainUnit;
-                            }
+                        if ($item->r->num == $delivery_article) {
+                            $arr_delivery['outer_id'] = (string)$item->id;
+                            $arr_delivery['main_unit'] = (string)$item->r->mainUnit;
                         }
                         break;
                     case 'MeasureUnit':
-                        if ($item->deleted == 'false') {
-                            $arr_measure[] =
-                                [
-                                    'outer_id' => (string)$item->id,
-                                    'name' => (string)$item->r->name->customValue,
-                                    'full_name' => (string)$item->r->fullName->customValue,
-                                ];
-                        }
+                        $arr_measure[] = [
+                                'outer_id' => (string)$item->id,
+                                'name' => (string)$item->r->name->customValue,
+                                'full_name' => (string)$item->r->fullName->customValue,
+                            ];
                         break;
                 }
             }
@@ -226,18 +215,13 @@ XML;
      */
     public function getPriceListItems()
     {
+        $streamerRev = new XMLStreamer('result');
         if (!$this->base_url) {
             $path = 'uploads/getPriceListItems.xml';
-            $str = file_get_contents($path);
         } else {
             $entities_version = Settings::getValueByKey('entities_version');
             $date = date('Y-m-d\TH:i:s.000+03:00', time());
             $department = Settings::getValueByKey('department_outer_id');
-//            $departments = '';
-//            /** @var Department $department */
-//            foreach (Department::find()->andWhere(['deleted' => 0])->each() as $department) {
-//                $departments .= '<i cls="Department">' . $department->outer_id . '</i>';
-//            }
 
             $this->post_data = <<<XML
 <?xml version="1.0" encoding="utf-8"?><args>
@@ -250,21 +234,26 @@ XML;
 <departments><i cls="Department">$department</i></departments>
 <includeItemsWithSchedules>false</includeItemsWithSchedules></args>
 XML;
-            file_put_contents('uploads/request_getPriceListItems.xml', $this->post_data);
-            $this->request_string = $this->base_url . 'resto/services/products?methodName=getPriceListItems';
-            $str = $this->send('POST');
+            $path = $this->base_url . '/resto/services/products?methodName=getPriceListItems';
+            $this->setParamsStreams('POST');
         }
 
-        if (strpos($str, 'access is not allowed')) {
-            return [
-                'success' => false,
-                'error' => 'Неавторизированные запросы запрещены',
-            ];
+        try {
+            $dom = new DOMDocument('1.0', 'UTF-8');
+            $result = $dom->appendChild($streamerRev->stream($path)->current());
+        } catch (XMLReaderException $e) {
+            if (strpos($e->getMessage(), 'HTTP request failed! HTTP/1.0 403 Forbidden') !== false) {
+                return [
+                    'success' => false,
+                    'error' => 'Неавторизованные запросы запрещены',
+                ];
+            }
+            throw $e;
         }
 
         return [
             'success' => true,
-            'data' => $str,
+            'data' => $dom->saveXML(),
         ];
     }
 
@@ -434,7 +423,7 @@ XML;
 
 //        $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocumentWithValidation';
         $this->request_string = $this->base_url . 'resto/services/document?methodName=saveOrUpdateDocument';
-        $response = $this->send('POST');
+        $response = $this->setParamsStreams('POST');
 //        if (YII_ENV_DEV) {
             //Сохраняем в файл
             try {
@@ -475,21 +464,22 @@ XML;
     /** Информация о сервере */
     public function getServerInfo(): array
     {
-        $this->request_string = $this->base_url . 'resto/get_server_info.jsp?encoding=UTF-8';
-        $info = $this->send();
-        Yii::debug($info, __METHOD__);
-        $info = '<?xml version="1.0" encoding="utf-8"?>' . $info;
-        $xml = simplexml_load_string($info);
+        $this->setParamsStreams();
+        $streamer = new XMLStreamer('r');
+        $result = $streamer->stream($this->base_url . '/resto/get_server_info.jsp?encoding=UTF-8');
 
-        if ($xml->edition == 'chain'){
+        /** @var DOMDocument $xml */
+        $xml = $result->current();
+        Yii::debug(json_encode($xml), __METHOD__);
+        if ($xml->getElementsByTagName('edition')->item(0)->textContent == 'chain'){
             $edition = 'IIKO_CHAIN';
         } else {
             $edition = 'IIKO_RMS';
         }
-
+        unset($reader);
         return [
-            'back_version' => $xml->version,
-            'edition' => $edition
+            'back_version' => $xml->getElementsByTagName('version')->item(0)->textContent,
+            'edition' => $edition,
         ];
     }
 }
