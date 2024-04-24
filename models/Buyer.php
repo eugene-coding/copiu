@@ -115,7 +115,10 @@ class Buyer extends ActiveRecord
         if ($this->addresses_list){
             //Удаляем все адреса покупателя
             try {
-                BuyerAddress::deleteAll(['buyer_id' => $this->id]);
+                $command = BuyerAddress::getDb()->createCommand()->checkIntegrity();
+                $command->delete(BuyerAddress::tableName(), ['buyer_id' => $this->id]);
+                $command->execute();
+
                 //Заново заносим все адреса
                 foreach ($this->addresses_list as $address){
                     if (!$address) continue;
