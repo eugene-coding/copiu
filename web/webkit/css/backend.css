@@ -1901,7 +1901,7 @@ textarea.form-control {
   @media (prefers-reduced-motion: reduce) {
     .fade {
       transition: none; } }
-  .fade:not(.show), .fade:not(.in) {
+  .fade:not(.show):not(.in) {
     opacity: 0; }
 
 .collapse:not(.show) {
