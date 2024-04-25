@@ -152,7 +152,7 @@ XML;
                         $arr_department[] = [
                             'outer_id' => (string)$item->id,
                             'name' => (string)$item->r->name,
-                            'deleted' => (string)$item->r->deleted == 'false',
+                            'deleted' => (string)$item->r->deleted != 'false',
                         ];
                         break;
                     case 'Store':

@@ -1901,7 +1901,7 @@ textarea.form-control {
   @media (prefers-reduced-motion: reduce) {
     .fade {
       transition: none; } }
-  .fade:not(.show) {
+  .fade:not(.show), .fade:not(.in) {
     opacity: 0; }
 
 .collapse:not(.show) {
@@ -4027,7 +4027,7 @@ a.close.disabled {
   width: 100vw;
   height: 100vh;
   background-color: #000; }
-  .modal-backdrop.fade {
+  .modal-backdrop.fade:not(.in) {
     opacity: 0; }
   .modal-backdrop.show {
     opacity: 0.5; }
@@ -11565,7 +11565,7 @@ body.tab-horizontal .iq-footer {
       border: 0; }
 
 /*
- * Background color 
+ * Background color
  */
 .bg-blue {
   color: #fff !important;
