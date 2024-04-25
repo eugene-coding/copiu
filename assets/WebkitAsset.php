@@ -10,7 +10,7 @@ class WebkitAsset extends AssetBundle
     public $baseUrl = '@web';
     public $css = [
         'webkit/css/backend-plugin.min.css',
-        'webkit/css/backend.css?v=1.0.0',
+        'webkit/css/backend.css?v=1.0.1',
         'webkit/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css',
         'webkit/vendor/remixicon/fonts/remixicon.css',
     ];
