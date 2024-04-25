@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Ramsey\Uuid\Uuid;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -113,30 +114,29 @@ class Buyer extends ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         if ($this->addresses_list){
-            //Удаляем все адреса покупателя
-            try {
-                $command = BuyerAddress::getDb()->createCommand()->checkIntegrity();
-                $command->delete(BuyerAddress::tableName(), ['buyer_id' => $this->id]);
-                $command->execute();
+            $addresses = BuyerAddress::find()
+                ->where([
+                    'buyer_id' => $this->id,
+                ])
+                ->indexBy('id')
+                ->all()
+            ;
 
-                //Заново заносим все адреса
-                foreach ($this->addresses_list as $address){
-                    if (!$address) continue;
-                    $model = new BuyerAddress(
-                        [
-                            'buyer_id' => $this->id,
-                            'address' => $address
-                        ]
-                    );
-                    //Yii::debug($model->attributes, 'test');
-                    if (!$model->save()){
-                        Yii::error($model->errors, '_error');
-                    };
-                }
-            } catch (\Exception $e){
-                Yii::error($e->getMessage(), '_error');
+            foreach ($this->addresses_list as $id => $address){
+                if (!$address) continue;
+
+                $model = $addresses[$id] ?? new BuyerAddress();
+                $model->buyer_id = $this->id;
+                $model->address = $address;
+                if (!$model->save()){
+                    Yii::error($model->errors, '_error');
+                } else {
+                    unset($addresses[$id]);
+                };
             }
-
+            foreach ($addresses as $address) {
+                $address->delete();
+            }
         }
     }
 
@@ -338,5 +338,21 @@ class Buyer extends ActiveRecord
     {
         $addresses = BuyerAddress::findAll(['buyer_id' => $id]);
         return ArrayHelper::map($addresses, 'id', 'address');
+    }
+
+    public function generateUuid(): string
+    {
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(random_bytes(16)), 4));
+    }
+
+    /**
+     * Check if a given string is a valid UUID
+     *
+     * @param   mixed  $uuid   The string to check
+     * @return  boolean
+     */
+    public function isValidUuid($uuid): bool
+    {
+        return is_string($uuid) && preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', $uuid);
     }
 }

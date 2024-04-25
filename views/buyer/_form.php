@@ -8,8 +8,6 @@ use yii\widgets\ActiveForm;
 /* @var $user_model app\models\Buyer */
 /* @var $addresses app\models\BuyerAddress[] */
 /* @var $form yii\widgets\ActiveForm */
-
-Yii::debug($addresses, 'test');
 ?>
 
     <div class="buyer-form">
@@ -61,8 +59,9 @@ Yii::debug($addresses, 'test');
                 <div class="col-md-12 address-element" style="display: none;">
                     <div class="row">
                         <div class="col-md-10">
-                            <?= $form->field($model, 'addresses_list[]')
-                                ->textarea(['rows' => 2, 'id' => 'address-element-' . rand(15, 999)])
+                            <?php $uuid = $model->generateUuid(); ?>
+                            <?= $form->field($model, sprintf("addresses_list[%s]", $uuid))
+                                ->textarea(['rows' => 2, 'id' => 'address-element-' . $uuid])
                                 ->label(false) ?>
                         </div>
                         <div class="col-md-2">
@@ -78,11 +77,11 @@ Yii::debug($addresses, 'test');
                         <div class="col-md-12 address-element">
                             <div class="row">
                                 <div class="col-md-10">
-                                    <?= $form->field($model, 'addresses_list[]')
+                                    <?= $form->field($model, sprintf("addresses_list[%s]", $address->id))
                                         ->textarea([
                                             'rows' => 2,
                                             'value' => $address->address,
-                                            'id' => 'address-element-' . rand(15, 999)
+                                            'id' => 'address-element-' . $address->id
                                         ])
                                         ->label(false) ?>
                                 </div>
